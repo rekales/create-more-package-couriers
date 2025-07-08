@@ -94,6 +94,7 @@ dependencies {
 
 //    runtimeOnly "curse.maven:controlling-250398:6368976"
 //    runtimeOnly "curse.maven:searchables-858542:5831692"
+    runtimeOnly "curse.maven:create-more-linked-remote-1277244:6638807"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

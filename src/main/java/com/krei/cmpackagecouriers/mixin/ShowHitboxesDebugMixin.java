@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 // For dev environment only because f3+b is cooked
-
+// TODO: Remove on release
 @Mixin(value = KeyboardHandler.class, remap = false)
 public abstract class ShowHitboxesDebugMixin {
 
