@@ -17,7 +17,6 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.windcharge.AbstractWindCharge;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -32,6 +31,9 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
     @Nullable protected Vec3 targetPos = null;
     @Nullable protected ResourceKey<Level> targetPosLevel = null;
 
+    protected double speed = 0.8;
+    protected double curveAmount = Math.toRadians(3);  // angle change per tick
+
     public DeliveryPlaneProjectile(EntityType<? extends DeliveryPlaneProjectile> entityType, Level level) {
         super(entityType, level);
     }
@@ -42,7 +44,7 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
 
     public DeliveryPlaneProjectile(Level level, ItemStack packageItem) {
         super(PackageCouriers.DELIVERY_PLANE_ENTITY.get(), level);
-        this.setItem(packageItem);
+        this.setPackage(packageItem);
     }
 
     public DeliveryPlaneProjectile(Level level, BlockPos targetBlock, Level targetLevel) {
@@ -103,28 +105,60 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
         if (tickCount < 10)  // fly in a straight line for a bit after launch
             return;
 
-        Vec3 velocity = this.getDeltaMovement();
-        Vec3 target = targetPos.subtract(this.position()).normalize();
+        Vec3 vecFrom = this.getDeltaMovement().normalize();
+        Vec3 vecTo = targetPos.subtract(this.position()).normalize();
+
+        this.setDeltaMovement(vecFrom.lerp(vecTo, 0.15).normalize().scale(this.speed));
 
         // TODO: constant curve instead of lerp
-        double curveAmount = 0.15;
-        double speed = 0.8;
-
-        this.setDeltaMovement(velocity
-                .normalize()
-                .lerp(target.normalize(), curveAmount)
-                .normalize()
-                .scale(speed));
-
+//        // Rotate point towards target
+//        Vec3 vecFrom = this.getDeltaMovement().normalize();
+//        Vec3 vecTo = targetPos.subtract(this.position()).normalize();
+//        double angle = Math.acos(Mth.clamp(vecFrom.dot(vecTo), -1.0, 1.0));
+//
+//         PackageCouriers.LOGGER.debug(Math.toDegrees(angleBetween(vecFrom, vecTo))+"");
+//        PackageCouriers.LOGGER.debug(Math.toDegrees(angle)+"d");
+//
+//        if (angle < 1e-6 || angle <= this.curveAmount) {   // Already aligned
+//            this.setDeltaMovement(vecFrom.scale(this.speed));
+//        } else {
+//            Vec3 axis = vecFrom.cross(vecTo).normalize();  // Compute axis of rotation (cross product)
+//            if (axis.lengthSqr() < 1e-6)   // Vectors are nearly parallel or antiparallel
+//                axis = getAnyPerpendicular(vecFrom);
+//
+//            // Rodrigues' rotation formula
+//            Vec3 rotated = vecFrom
+//                    .scale(Math.cos(this.curveAmount))
+//                    .add(axis.cross(vecFrom).scale(Math.sin(this.curveAmount)))
+//                    .add(axis.scale(axis.dot(vecFrom)).scale(1 - Math.cos(this.curveAmount)));
+//
+//            this.setDeltaMovement(rotated.scale(this.speed));
+//        }
         // PackageCouriers.LOGGER.debug(this.getDeltaMovement()+"");
     }
+
+//    // Helper for fallback axis
+//    private static Vec3 getAnyPerpendicular(Vec3 v) {
+//        return Math.abs(v.x) < 0.9 ? new Vec3(1, 0, 0).cross(v).normalize() : new Vec3(0, 1, 0).cross(v).normalize();
+//    }
+//
+//    public static double angleBetween(Vec3 a, Vec3 b) {
+//        double dot = a.dot(b);
+//        double lenA = a.length();
+//        double lenB = b.length();
+//
+//        // Clamp to avoid NaN from floating point error
+//        double cosTheta = Mth.clamp(dot / (lenA * lenB), -1.0, 1.0);
+//
+//        return Math.acos(cosTheta); // in radians
+//    }
 
     protected void onReachedTarget() {
         if (targetEntityCached != null  // Assumes entity is cached
                 && targetEntityCached instanceof Player player) {
             if (!level().isClientSide()) {
-                PackageCouriers.LOGGER.debug(this.getItem().toString());
-                player.getInventory().placeItemBackInInventory(this.getItem());
+                PackageCouriers.LOGGER.debug(this.getPackage().toString());
+                player.getInventory().placeItemBackInInventory(this.getPackage());
             }
             this.level().explode(this, null, AbstractWindCharge.EXPLOSION_DAMAGE_CALCULATOR,
                     this.position().x(), this.position().y(), this.position().z(), 0.1F, false,
@@ -171,13 +205,33 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
         builder.define(DATA_ITEM, ItemStack.EMPTY);
     }
 
-    public ItemStack getItem() {
+    public ItemStack getPackage() {
         return this.getEntityData().get(DATA_ITEM);
     }
 
-    public void setItem(ItemStack stack) {
+    public void setPackage(ItemStack stack) {
         if (stack.getItem() instanceof PackageItem)
             this.getEntityData().set(DATA_ITEM, stack);
+    }
+
+    public void setCurveAmount(double curveAmountRadians) {
+        this.curveAmount = curveAmountRadians;
+    }
+
+    public void setCurveAmountDegrees(double curveAmountDegrees) {
+        this.curveAmount = Math.toRadians(curveAmountDegrees);
+    }
+
+    public double getCurveAmount() {
+        return curveAmount;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public double getSpeed() {
+        return this.speed;
     }
 
     public static void init() {}

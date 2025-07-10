@@ -31,11 +31,10 @@ public class BeltDeployerCallbacksMixin {
                                                      Recipe<?> recipe, CallbackInfo ci, List<TransportedItemStack> collect) {
         if (collect != null
                 && !collect.isEmpty()
-                && transported.stack.getItem() instanceof PackageItem
+                && PackageItem.isPackage(transported.stack)
                 && PackageCouriers.CARDBOARD_PLANE_ITEM.isIn(blockEntity.getPlayer().getMainHandItem())
                 && collect.getFirst().stack.getItem() instanceof DeliveryPlaneItem) {
-            ItemContainerContents container = ItemContainerContents.fromItems(NonNullList.of(ItemStack.EMPTY, transported.stack.copy()));
-            collect.getFirst().stack.set(PackageCouriers.PLANE_PACKAGE, container);
+            DeliveryPlaneItem.setPackage(collect.getFirst().stack, transported.stack);
             PackageItem.addAddress(collect.getFirst().stack, PackageItem.getAddress(transported.stack));
         }
     }

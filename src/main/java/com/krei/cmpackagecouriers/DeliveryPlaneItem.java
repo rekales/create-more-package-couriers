@@ -1,11 +1,8 @@
 package com.krei.cmpackagecouriers;
 
-import com.simibubi.create.AllDataComponents;
-import com.simibubi.create.AllItems;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
-import com.simibubi.create.foundation.item.ItemHelper;
-import net.minecraft.client.Minecraft;
+import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -26,6 +23,11 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+
+import java.util.function.Consumer;
 
 // Copied and Altered from TridentItem
 // NOTE: Might need to remove projectileItem interface
@@ -102,7 +104,7 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
                 DeliveryPlaneProjectile plane = new DeliveryPlaneProjectile(level, stack);
                 plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
                 plane.setTarget(player);
-                plane.setItem(packageItem);
+                plane.setPackage(packageItem);
                 plane.shootFromRotation(player, -45F, yaw, 0.0F, 0.8F, 1.0F);
                 plane.pickup = AbstractArrow.Pickup.DISALLOWED;
                 level.addFreshEntity(plane);
@@ -113,5 +115,26 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
             }
         }
         return false;
+    }
+
+    public static void setPackage(ItemStack plane, ItemStack box) {
+        if (box.getItem() instanceof PackageItem) {
+            ItemContainerContents container = ItemContainerContents.fromItems(NonNullList.of(ItemStack.EMPTY, box.copy()));
+            plane.set(PackageCouriers.PLANE_PACKAGE, container);
+        }
+    }
+
+    public static ItemStack getPackage(ItemStack plane) {
+        ItemContainerContents container = plane.get(PackageCouriers.PLANE_PACKAGE);
+        if (container == null)
+            return ItemStack.EMPTY;
+        return container.getStackInSlot(0);
+    }
+
+    @SuppressWarnings("removal")
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(SimpleCustomRenderer.create(this, new DeliveryPlaneItemRenderer()));
     }
 }

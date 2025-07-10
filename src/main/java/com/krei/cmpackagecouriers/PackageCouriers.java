@@ -1,31 +1,17 @@
 package com.krei.cmpackagecouriers;
 
 import com.simibubi.create.AllCreativeModeTabs;
-import com.simibubi.create.Create;
-import com.simibubi.create.content.kinetics.deployer.ItemApplicationRecipe;
-import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
 import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 import com.tterrag.registrate.util.entry.EntityEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
-import dev.engine_room.flywheel.lib.model.baked.PartialModel;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
@@ -54,12 +40,12 @@ public class PackageCouriers {
                 .eyeHeight(0.25f)
                 .noSave() // Temp
                 .updateInterval(1))
-        .renderer(() -> DeliveryPlaneRenderer::new)
+//        .renderer(() -> DeliveryPlaneRenderer::new)
         .register();
 
     public static final ItemEntry<DeliveryPlaneItem> DELIVERY_PLANE_ITEM = REGISTRATE
             .item("delivery_plane", DeliveryPlaneItem::new)
-            .properties(p -> p.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+//            .properties(p -> p.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
             .register();
 
     public static final ItemEntry<Item> CARDBOARD_PLANE_ITEM = REGISTRATE
@@ -77,6 +63,18 @@ public class PackageCouriers {
     public PackageCouriers(IEventBus modEventBus, ModContainer modContainer) {
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
+        modEventBus.addListener(PackageCouriers::clientInit);
         DeliveryPlaneProjectile.init();
+    }
+
+    public static void clientInit(final FMLClientSetupEvent event) {
+        DeliveryPlaneEntityRenderer.init();
+        DeliveryPlaneItemRenderer.init();
+//        PonderIndex.addPlugin(new PonderScenes());
+        // Somethings wrong with registrate that makes me wanna commit seppuku
+        EntityRenderers.register(
+                DELIVERY_PLANE_ENTITY.get(),
+                DeliveryPlaneEntityRenderer::new
+        );
     }
 }
