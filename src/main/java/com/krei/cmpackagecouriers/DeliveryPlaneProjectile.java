@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.windcharge.AbstractWindCharge;
@@ -30,6 +31,9 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
     @Nullable protected Entity targetEntityCached = null;
     @Nullable protected Vec3 targetPos = null;
     @Nullable protected ResourceKey<Level> targetPosLevel = null;
+
+    public float newDeltaYaw = 0;
+    public float oldDeltaYaw = 0;
 
     protected double speed = 0.8;
     protected double curveAmount = Math.toRadians(3);  // angle change per tick
@@ -76,6 +80,23 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
     public void tick() {
         super.tick();
 
+        this.oldDeltaYaw = this.newDeltaYaw;
+        this.newDeltaYaw = this.yRotO-this.getYRot();
+
+        if (this.level().isClientSide() && this.tickCount%3 == 0) {
+            Vec3 lookAngle = this.getLookAngle().scale(0.5);
+            this.level()
+                    .addParticle(
+                            ParticleTypes.FIREWORK,
+                            this.getX() + lookAngle.x(),
+                            this.getY() + lookAngle.y(),
+                            this.getZ() + lookAngle.z(),
+                            this.random.nextGaussian() * 0.05,
+                            -this.getDeltaMovement().y * 0.5,
+                            this.random.nextGaussian() * 0.05
+                    );
+        }
+
         if (targetEntityUUID != null && targetEntityCached == null) {
             if (this.level() instanceof ServerLevel serverLevel) {
                 targetEntityCached = serverLevel.getEntity(targetEntityUUID);
@@ -84,7 +105,10 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
         }
 
         if (targetEntityCached != null) {
-            targetPos = targetEntityCached.position();
+            if (targetEntityCached instanceof LivingEntity)
+                targetPos = targetEntityCached.getEyePosition();
+            else
+                targetPos = targetEntityCached.position();
             targetPosLevel = targetEntityCached.level().dimension();
         }
 
@@ -92,8 +116,7 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
             return;
 
         // TODO: Check if in the right dimension
-
-        if (targetPos.closerThan(this.position(), 1)) {
+        if (targetPos.closerThan(this.position(), 1.5)) {
             onReachedTarget();
             remove(RemovalReason.DISCARDED);
             return;
@@ -109,6 +132,8 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
         Vec3 vecTo = targetPos.subtract(this.position()).normalize();
 
         this.setDeltaMovement(vecFrom.lerp(vecTo, 0.15).normalize().scale(this.speed));
+
+//        PackageCouriers.LOGGER.debug(this.yRotO-this.getYRot()+"");
 
         // TODO: constant curve instead of lerp
 //        // Rotate point towards target
@@ -157,7 +182,6 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
         if (targetEntityCached != null  // Assumes entity is cached
                 && targetEntityCached instanceof Player player) {
             if (!level().isClientSide()) {
-                PackageCouriers.LOGGER.debug(this.getPackage().toString());
                 player.getInventory().placeItemBackInInventory(this.getPackage());
             }
             this.level().explode(this, null, AbstractWindCharge.EXPLOSION_DAMAGE_CALCULATOR,

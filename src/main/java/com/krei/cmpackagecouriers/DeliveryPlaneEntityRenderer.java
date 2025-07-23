@@ -34,14 +34,16 @@ public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlanePro
 
     @Override
     public void render(DeliveryPlaneProjectile entity, float yaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
-        // TODO: Add tilt when curving
-        // TODO: Firework trails
+        // NOTE: Better tilt when curving, seems to be delayed/ahead by 1 tick
+        // TODO: Firework sounds
 
         ms.pushPose();
 
         ms.scale(0.75f, 0.75f, 0.75f);
         ms.mulPose(Axis.YP.rotationDegrees(90+yaw));
+        ms.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entity.oldDeltaYaw, entity.newDeltaYaw)*-4));
         ms.mulPose(Axis.ZP.rotationDegrees(-Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
+
         DeliveryPlaneItemRenderer.renderPlane(entity.getPackage(), ms, buffer, light);
 
         ms.popPose();
