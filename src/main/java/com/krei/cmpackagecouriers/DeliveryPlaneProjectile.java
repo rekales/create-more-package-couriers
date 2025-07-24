@@ -1,15 +1,20 @@
 package com.krei.cmpackagecouriers;
 
+import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
+import com.simibubi.create.content.logistics.depot.DepotBlock;
+import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,10 +22,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.windcharge.AbstractWindCharge;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.UUID;
 
 // NOTE: Simple hand thrown planes will require a different entity to simplify implementation
@@ -122,61 +130,93 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
             return;
         }
 
-        if (level().isClientSide())
+        if (targetEntityCached != null
+                && targetEntityCached instanceof Player player
+                && targetPos.closerThan(this.position(), 40)
+                && !targetPos.closerThan(this.position(), 30)) {
+            player.displayClientMessage(Component.literal("Package Inbound"), true);
+        }
+
+        if (level().isClientSide())  // Don't do unnecessary flight calculations on clientside
             return;
 
         if (tickCount < 10)  // fly in a straight line for a bit after launch
             return;
 
         Vec3 vecFrom = this.getDeltaMovement().normalize();
-        Vec3 vecTo = targetPos.subtract(this.position()).normalize();
+        Vec3 vecTo;
 
-        this.setDeltaMovement(vecFrom.lerp(vecTo, 0.15).normalize().scale(this.speed));
+        if (targetPosLevel != level().dimension()) {  // Target not in the same dimension
+            vecTo = this.getDeltaMovement().normalize();
+        } else if (!targetPos.closerThan(this.position(), 80)) {  // Target is far, fly upwards in the general direction
+            vecTo = targetPos.subtract(this.position());
+            vecTo = new Vec3(vecTo.x(), vecTo.y() + vecTo.length()/2, vecTo.z()).normalize();
+        } else {
+            vecTo = targetPos.subtract(this.position()).normalize();
+        }
 
-//        PackageCouriers.LOGGER.debug(this.yRotO-this.getYRot()+"");
+        float augmentedDistance = (float)targetPos.subtract(this.position()).length() + Math.max(0, 60 - this.tickCount);
+        float clampedDistance = Mth.clamp(augmentedDistance, 5, 60);
+        float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.35f, 0.06f);
 
-        // TODO: constant curve instead of lerp
-//        // Rotate point towards target
-//        Vec3 vecFrom = this.getDeltaMovement().normalize();
-//        Vec3 vecTo = targetPos.subtract(this.position()).normalize();
-//        double angle = Math.acos(Mth.clamp(vecFrom.dot(vecTo), -1.0, 1.0));
-//
-//         PackageCouriers.LOGGER.debug(Math.toDegrees(angleBetween(vecFrom, vecTo))+"");
-//        PackageCouriers.LOGGER.debug(Math.toDegrees(angle)+"d");
-//
-//        if (angle < 1e-6 || angle <= this.curveAmount) {   // Already aligned
-//            this.setDeltaMovement(vecFrom.scale(this.speed));
-//        } else {
-//            Vec3 axis = vecFrom.cross(vecTo).normalize();  // Compute axis of rotation (cross product)
-//            if (axis.lengthSqr() < 1e-6)   // Vectors are nearly parallel or antiparallel
-//                axis = getAnyPerpendicular(vecFrom);
-//
-//            // Rodrigues' rotation formula
-//            Vec3 rotated = vecFrom
-//                    .scale(Math.cos(this.curveAmount))
-//                    .add(axis.cross(vecFrom).scale(Math.sin(this.curveAmount)))
-//                    .add(axis.scale(axis.dot(vecFrom)).scale(1 - Math.cos(this.curveAmount)));
-//
-//            this.setDeltaMovement(rotated.scale(this.speed));
-//        }
-        // PackageCouriers.LOGGER.debug(this.getDeltaMovement()+"");
+        this.setDeltaMovement(vecFrom.lerp(vecTo, curveAmount).normalize().scale(this.speed));
+//        this.setDeltaMovement(vecFrom.normalize().scale(this.speed));
+
+        Vec3 posAhead = this.position().add(this.getDeltaMovement().normalize().scale(20));
+
+        if (!isChunkTicking(level(), posAhead)
+            || this.tickCount > 120) {
+
+            if (level() instanceof ServerLevel serverLevel
+                    && this.targetPosLevel != null) {
+                ServerLevel tpLevel = serverLevel.getServer().getLevel(this.targetPosLevel);
+
+                if (!targetPos.closerThan(this.position(), 80) || targetPosLevel != level().dimension()) {
+                    Vec3 dirVec = this.position().subtract(targetPos);
+                    dirVec = new Vec3(dirVec.x(), 0, dirVec.z()).normalize();
+                    dirVec = new Vec3(dirVec.x(), 0.5, dirVec.z()).normalize();
+                    Vec3 tpVec;
+                    if (isChunkTicking(tpLevel, targetPos.add(dirVec.scale(70)))) {
+                        tpVec = targetPos.add(dirVec.scale(70));
+                    } else if (isChunkTicking(tpLevel, targetPos.add(dirVec.scale(50)))) {
+                        tpVec = targetPos.add(dirVec.scale(50));
+                    } else if (isChunkTicking(tpLevel, targetPos.add(dirVec.scale(30)))) {
+                        tpVec = targetPos.add(dirVec.scale(30));
+                    } else if (isChunkTicking(tpLevel, targetPos.add(dirVec.scale(10)))) {
+                        tpVec = targetPos.add(dirVec.scale(10));
+                    } else if (isChunkTicking(tpLevel, targetPos)) {
+                        tpVec = targetPos;
+                    } else {
+                        PackageCouriers.LOGGER.debug("Target Not Loaded");
+                        remove(RemovalReason.DISCARDED);
+                        return;
+                    }
+
+                    if (targetPosLevel != level().dimension()) {  // Target not in the same dimension
+                        // TODO: Maybe set the proper rotations?
+                        teleportTo(tpLevel, tpVec.x(), tpVec.y(), tpVec.z(), Collections.emptySet(), this.getYRot(), this.getXRot());
+                        PackageCouriers.LOGGER.debug("TP: " + tpLevel + " " + tpVec);
+//                        PackageCouriers.LOGGER.debug("YD: " + (this.position().y() - targetPos.y()));
+                    } else {
+                        teleportTo(tpVec.x(), tpVec.y(), tpVec.z());
+                        PackageCouriers.LOGGER.debug("TP: " + tpVec);
+//                        PackageCouriers.LOGGER.debug("YD: " + (this.position().y() - targetPos.y()));
+
+                    }
+                        this.setDeltaMovement(targetPos.subtract(this.position()).normalize().scale(this.speed));
+                }
+
+            }
+        }
+
+        if (this.tickCount > 400) {
+            // Timeout, teleport the plane directly to target
+        }
+
+        if (tickCount%5 == 0) {
+            PackageCouriers.LOGGER.debug(curveAmount+"");
+        }
     }
-
-//    // Helper for fallback axis
-//    private static Vec3 getAnyPerpendicular(Vec3 v) {
-//        return Math.abs(v.x) < 0.9 ? new Vec3(1, 0, 0).cross(v).normalize() : new Vec3(0, 1, 0).cross(v).normalize();
-//    }
-//
-//    public static double angleBetween(Vec3 a, Vec3 b) {
-//        double dot = a.dot(b);
-//        double lenA = a.length();
-//        double lenB = b.length();
-//
-//        // Clamp to avoid NaN from floating point error
-//        double cosTheta = Mth.clamp(dot / (lenA * lenB), -1.0, 1.0);
-//
-//        return Math.acos(cosTheta); // in radians
-//    }
 
     protected void onReachedTarget() {
         if (targetEntityCached != null  // Assumes entity is cached
@@ -184,13 +224,32 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
             if (!level().isClientSide()) {
                 player.getInventory().placeItemBackInInventory(this.getPackage());
             }
-            this.level().explode(this, null, AbstractWindCharge.EXPLOSION_DAMAGE_CALCULATOR,
-                    this.position().x(), this.position().y(), this.position().z(), 0.1F, false,
-                    Level.ExplosionInteraction.NONE, ParticleTypes.GUST_EMITTER_SMALL, ParticleTypes.GUST_EMITTER_LARGE,
-                    SoundEvents.WIND_CHARGE_BURST);
-        } else {
-            // Position Target
+        } else if (targetPos != null) {
+            if (!level().isClientSide()) {
+                BlockPos blockPos = new BlockPos((int)Math.floor(this.targetPos.x()), (int)Math.floor(this.targetPos.y()), (int)Math.floor(this.targetPos.z()));
+                if (level().getBlockState(blockPos).getBlock() instanceof DepotBlock
+                        && level().getBlockEntity(blockPos) instanceof DepotBlockEntity depot
+                        && depot.getHeldItem().is(Items.AIR)) {
+                    depot.setHeldItem(this.getPackage());
+                    depot.notifyUpdate();
+                    //TODO: Belts and hoppers as targets
+                } else {
+                    level().addFreshEntity(PackageEntity.fromItemStack(level(), this.position(), this.getPackage()));
+                }
+            }
         }
+
+        this.level().explode(this, null, AbstractWindCharge.EXPLOSION_DAMAGE_CALCULATOR,
+                this.position().x(), this.position().y(), this.position().z(), 0.01F, false,
+                Level.ExplosionInteraction.NONE, ParticleTypes.GUST_EMITTER_SMALL, ParticleTypes.GUST_EMITTER_LARGE,
+                SoundEvents.WIND_CHARGE_BURST);
+    }
+
+    public void shootFromRotation(float x, float y, float z, float velocity, float inaccuracy) {
+        float f = -Mth.sin(y * (float) (Math.PI / 180.0)) * Mth.cos(x * (float) (Math.PI / 180.0));
+        float f1 = -Mth.sin((x + z) * (float) (Math.PI / 180.0));
+        float f2 = Mth.cos(y * (float) (Math.PI / 180.0)) * Mth.cos(x * (float) (Math.PI / 180.0));
+        this.shoot(f, f1, f2, velocity, inaccuracy);
     }
 
     @Override
@@ -200,26 +259,43 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
 
     @Override
     protected ItemStack getDefaultPickupItem() {
-        return ItemStack.EMPTY;
+        return PackageCouriers.CARDBOARD_PLANE_ITEM.asStack();
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compoundTag) {
-        if (compoundTag.hasUUID("Target")) {
-            this.targetEntityUUID = compoundTag.getUUID("Target");
-        } else if (compoundTag.hasUUID("Position")) {
-            // Read position and level instead
+        super.readAdditionalSaveData(compoundTag);
+        ItemStack box = ItemStack.parseOptional(level().registryAccess(), compoundTag.getCompound("Box"));
+        this.setPackage(box);
+
+        if (compoundTag.hasUUID("TargetEntity")) {
+            targetEntityUUID = compoundTag.getUUID("TargetEntity");
+        } else if (compoundTag.contains("TargetPosX")) {
+            double x = compoundTag.getDouble("TargetPosX");
+            double y = compoundTag.getDouble("TargetPosY");
+            double z = compoundTag.getDouble("TargetPosZ");
+            targetPos = new Vec3(x, y, z);
         } else {
-            // Break entity because invalid
+            // Illegal state
         }
+
+        refreshDimensions();
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compoundTag) {
-        if (this.targetEntityUUID != null) {
-            compoundTag.putUUID("target", this.targetEntityUUID);
+        super.addAdditionalSaveData(compoundTag);
+        ItemStack box = this.getPackage();
+        compoundTag.put("Box", box.saveOptional(level().registryAccess()));
+
+        if (targetEntityUUID != null) {
+            compoundTag.putUUID("TargetEntity", targetEntityUUID);
+        } else if (targetPos != null){
+            compoundTag.putDouble("TargetPosX", targetPos.x());
+            compoundTag.putDouble("TargetPosY", targetPos.y());
+            compoundTag.putDouble("TargetPosZ", targetPos.z());
         } else {
-            // Save position and level instead
+            // Illegal State
         }
     }
 
@@ -256,6 +332,15 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
 
     public double getSpeed() {
         return this.speed;
+    }
+
+    public static boolean isChunkTicking(Level level, Vec3 pos) {
+        if (level instanceof ServerLevel serverLevel) {
+            BlockPos blockPos = new BlockPos((int) pos.x(),(int)  pos.y(),(int)  pos.z());
+            return serverLevel.getChunkSource().chunkMap.getDistanceManager()
+                    .inEntityTickingRange(ChunkPos.asLong(blockPos));
+        }
+        return false;
     }
 
     public static void init() {}

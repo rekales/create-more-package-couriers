@@ -105,11 +105,37 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
                 plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
                 plane.setTarget(player);
                 plane.setPackage(packageItem);
-                plane.shootFromRotation(player, -45F, yaw, 0.0F, 0.8F, 1.0F);
+                plane.shootFromRotation(-45F, yaw, 0.0F, 0.8F, 1.0F);
                 plane.pickup = AbstractArrow.Pickup.DISALLOWED;
                 level.addFreshEntity(plane);
                 return true;
             } else {
+                int start = address.indexOf('[');
+                int end = address.indexOf(']', start);
+                if (start != -1 && end != -1 && end > start) {
+                    address = address.substring(start + 1, end);
+                    address = address.replace(" ", "");
+                    String[] coordStrings = address.split(",");
+                    try {
+                        int x = Integer.parseInt(coordStrings[0]);
+                        int y = Integer.parseInt(coordStrings[1]);
+                        int z = Integer.parseInt(coordStrings[2]);
+                        BlockPos blockPos = new BlockPos(x, y, z);
+
+                        DeliveryPlaneProjectile plane = new DeliveryPlaneProjectile(level, stack);
+                        plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
+                        plane.setTarget(blockPos, level);
+                        plane.setPackage(packageItem);
+                        plane.shootFromRotation(-45F, yaw, 0.0F, 0.8F, 1.0F);
+                        plane.pickup = AbstractArrow.Pickup.DISALLOWED;
+                        level.addFreshEntity(plane);
+
+                        return true;
+                    } catch (NumberFormatException e) {
+                        PackageCouriers.LOGGER.debug("invalid coords");
+                    }
+                }
+
                 // TODO: Check for valid coordinate address
                 PackageCouriers.LOGGER.debug("{} Not Found", address);
             }

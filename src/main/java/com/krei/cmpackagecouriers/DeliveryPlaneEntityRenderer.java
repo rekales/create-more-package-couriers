@@ -35,6 +35,7 @@ public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlanePro
     @Override
     public void render(DeliveryPlaneProjectile entity, float yaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
         // NOTE: Better tilt when curving, seems to be delayed/ahead by 1 tick
+        // NOTE: Should use relative delta yaw for delta yaw instead of absolute delta yaw
         // TODO: Firework sounds
 
         ms.pushPose();

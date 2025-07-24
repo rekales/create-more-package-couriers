@@ -38,7 +38,6 @@ public class PackageCouriers {
         .properties(p -> p
                 .sized(0.5f, 0.5f)
                 .eyeHeight(0.25f)
-                .noSave() // Temp
                 .updateInterval(1))
 //        .renderer(() -> DeliveryPlaneRenderer::new)
         .register();
