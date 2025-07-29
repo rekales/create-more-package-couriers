@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "cmpackagecouriers:block/address_marker"
+    },
+    "facing=north": {
+      "model": "cmpackagecouriers:block/address_marker",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "cmpackagecouriers:block/address_marker",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "cmpackagecouriers:block/address_marker",
+      "y": 180
+    }
+  }
+}
