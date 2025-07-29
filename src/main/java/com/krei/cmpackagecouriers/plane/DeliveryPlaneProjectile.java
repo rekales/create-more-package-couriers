@@ -1,10 +1,14 @@
-package com.krei.cmpackagecouriers;
+package com.krei.cmpackagecouriers.plane;
 
+import com.krei.cmpackagecouriers.PackageCouriers;
+import com.simibubi.create.AllItems;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -14,13 +18,13 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.windcharge.AbstractWindCharge;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
@@ -30,6 +34,8 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.UUID;
+
+// TODO: Replace synced entity data with a normal field
 
 // NOTE: Simple hand thrown planes will require a different entity to simplify implementation
 public class DeliveryPlaneProjectile extends AbstractArrow {
@@ -123,7 +129,6 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
         if (targetPos == null)
             return;
 
-        // TODO: Check if in the right dimension
         if (targetPos.closerThan(this.position(), 1.5)) {
             onReachedTarget();
             remove(RemovalReason.DISCARDED);
@@ -193,7 +198,7 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
                     }
 
                     if (targetPosLevel != level().dimension()) {  // Target not in the same dimension
-                        // TODO: Maybe set the proper rotations?
+                        // NOTE: Maybe set the proper rotations?
                         teleportTo(tpLevel, tpVec.x(), tpVec.y(), tpVec.z(), Collections.emptySet(), this.getYRot(), this.getXRot());
                         PackageCouriers.LOGGER.debug("TP: " + tpLevel + " " + tpVec);
 //                        PackageCouriers.LOGGER.debug("YD: " + (this.position().y() - targetPos.y()));
@@ -239,10 +244,30 @@ public class DeliveryPlaneProjectile extends AbstractArrow {
             }
         }
 
-        this.level().explode(this, null, AbstractWindCharge.EXPLOSION_DAMAGE_CALCULATOR,
-                this.position().x(), this.position().y(), this.position().z(), 0.01F, false,
-                Level.ExplosionInteraction.NONE, ParticleTypes.GUST_EMITTER_SMALL, ParticleTypes.GUST_EMITTER_LARGE,
-                SoundEvents.WIND_CHARGE_BURST);
+        ParticleOptions particleOption = new ItemParticleOption(ParticleTypes.ITEM, AllItems.CARDBOARD.asStack());
+
+        // TODO: particles spawned at client instead to avoid graphics latency
+        // NOTE: figure out why Explosion.finalizeExplosion is invoked at client but Explosion.explode doesn't
+        if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(
+                    particleOption,
+                    this.position().x(),
+                    this.position().y(),
+                    this.position().z(),
+                    20,
+                    0.3, 0.3, 0.3,
+                    0.1
+            );
+        }
+
+        level().playSound(
+                null,
+                this.position().x(), this.position().y(), this.position().z(),
+                SoundEvents.WIND_CHARGE_BURST.value(),
+                SoundSource.NEUTRAL,
+                1.0F,
+                0.75F
+        );
     }
 
     public void shootFromRotation(float x, float y, float z, float velocity, float inaccuracy) {

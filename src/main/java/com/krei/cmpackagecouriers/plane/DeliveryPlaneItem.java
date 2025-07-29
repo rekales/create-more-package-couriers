@@ -1,5 +1,7 @@
-package com.krei.cmpackagecouriers;
+package com.krei.cmpackagecouriers.plane;
 
+import com.krei.cmpackagecouriers.PackageCouriers;
+import com.krei.cmpackagecouriers.marker.AddressMarkerHandler;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
@@ -99,45 +101,24 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
 
         MinecraftServer server = level.getServer();
         if (server != null) {
+            DeliveryPlaneProjectile plane = new DeliveryPlaneProjectile(level, stack);
+            plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
+            plane.setPackage(packageItem);
+            plane.pickup = AbstractArrow.Pickup.DISALLOWED;
+            plane.shootFromRotation(-45F, yaw, 0.0F, 0.8F, 1.0F);
+
             ServerPlayer player = server.getPlayerList().getPlayerByName(address);
             if (player != null) {
-                DeliveryPlaneProjectile plane = new DeliveryPlaneProjectile(level, stack);
-                plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
                 plane.setTarget(player);
-                plane.setPackage(packageItem);
-                plane.shootFromRotation(-45F, yaw, 0.0F, 0.8F, 1.0F);
-                plane.pickup = AbstractArrow.Pickup.DISALLOWED;
                 level.addFreshEntity(plane);
                 return true;
             } else {
-                int start = address.indexOf('[');
-                int end = address.indexOf(']', start);
-                if (start != -1 && end != -1 && end > start) {
-                    address = address.substring(start + 1, end);
-                    address = address.replace(" ", "");
-                    String[] coordStrings = address.split(",");
-                    try {
-                        int x = Integer.parseInt(coordStrings[0]);
-                        int y = Integer.parseInt(coordStrings[1]);
-                        int z = Integer.parseInt(coordStrings[2]);
-                        BlockPos blockPos = new BlockPos(x, y, z);
-
-                        DeliveryPlaneProjectile plane = new DeliveryPlaneProjectile(level, stack);
-                        plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
-                        plane.setTarget(blockPos, level);
-                        plane.setPackage(packageItem);
-                        plane.shootFromRotation(-45F, yaw, 0.0F, 0.8F, 1.0F);
-                        plane.pickup = AbstractArrow.Pickup.DISALLOWED;
-                        level.addFreshEntity(plane);
-
-                        return true;
-                    } catch (NumberFormatException e) {
-                        PackageCouriers.LOGGER.debug("invalid coords");
-                    }
+                AddressMarkerHandler.MarkerTarget target =  AddressMarkerHandler.getMarkerTarget(address);
+                if (target != null) {
+                    plane.setTarget(target.pos, target.level);
+                    level.addFreshEntity(plane);
+                    return true;
                 }
-
-                // TODO: Check for valid coordinate address
-                PackageCouriers.LOGGER.debug("{} Not Found", address);
             }
         }
         return false;

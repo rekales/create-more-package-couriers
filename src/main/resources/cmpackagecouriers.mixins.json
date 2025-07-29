@@ -6,7 +6,8 @@
   "mixins": [
     "ShowHitboxesDebugMixin",
     "EjectorBlockEntityMixin",
-    "BeltDeployerCallbacksMixin"
+    "BeltDeployerCallbacksMixin",
+    "SignBlockEntityMixin"
   ],
   "minVersion": "0.8.5"
 }

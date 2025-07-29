@@ -1,5 +1,9 @@
 package com.krei.cmpackagecouriers;
 
+import com.krei.cmpackagecouriers.plane.DeliveryPlaneEntityRenderer;
+import com.krei.cmpackagecouriers.plane.DeliveryPlaneItem;
+import com.krei.cmpackagecouriers.plane.DeliveryPlaneItemRenderer;
+import com.krei.cmpackagecouriers.plane.DeliveryPlaneProjectile;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.EntityEntry;
@@ -64,6 +68,7 @@ public class PackageCouriers {
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
         DeliveryPlaneProjectile.init();
+        // Event Handler Class: AddressMarkerHandler
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {
@@ -76,4 +81,7 @@ public class PackageCouriers {
                 DeliveryPlaneEntityRenderer::new
         );
     }
+
+    // TODO: Replace depot sign based targeting with a new sign block
+    // TODO: Create: Factory Logistics compat
 }

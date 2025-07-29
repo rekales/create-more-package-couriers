@@ -1,4 +1,4 @@
-package com.krei.cmpackagecouriers;
+package com.krei.cmpackagecouriers.plane;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;

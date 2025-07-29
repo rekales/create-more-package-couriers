@@ -1,6 +1,6 @@
 package com.krei.cmpackagecouriers.mixin;
 
-import com.krei.cmpackagecouriers.EjectorLaunchEffect;
+import com.krei.cmpackagecouriers.plane.EjectorLaunchEffect;
 import com.simibubi.create.content.logistics.depot.EjectorBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
