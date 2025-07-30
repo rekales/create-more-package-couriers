@@ -1,6 +1,8 @@
 package com.krei.cmpackagecouriers.plane;
 
 import com.krei.cmpackagecouriers.PackageCouriers;
+import com.krei.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
+import com.krei.cmpackagecouriers.compat.create_factory_logistics.JarPlaneRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
@@ -25,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,37 +53,43 @@ public class DeliveryPlaneItemRenderer extends CustomRenderedItemModelRenderer {
 
     protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer,
                           ItemDisplayContext transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+        ItemStack box = DeliveryPlaneItem.getPackage(stack);
+        if (box.isEmpty() || !PackageItem.isPackage(box))
+            box = AllBlocks.CARDBOARD_BLOCK.asStack();
+
         // TODO: Simplify
         ms.pushPose();
 
         if (transformType == ItemDisplayContext.GUI) {
-            ms.scale(1/3f, 1/3f, 1/3f);
-            ms.translate(-2/3f, -1.6f, 0);
+            ms.translate(-0.2f, -0.3f, 0);
+            ms.scale(0.3f, 0.3f, 0.3f);
         } else if (transformType.firstPerson()) {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player != null && player.isUsingItem()) {
                 ms.mulPose(Axis.YP.rotationDegrees(-90));
                 ms.mulPose(Axis.ZP.rotationDegrees(-120));
                 ms.mulPose(Axis.XP.rotationDegrees(-10));
-                ms.translate(0.75f, -0.75f, 0);
+                ms.translate(1f, -0.5f, 0);
                 ms.scale(0.5f, 0.5f, 0.5f);
             } else {
                 ms.mulPose(Axis.YP.rotationDegrees(90));
+                ms.translate(0.25f, -0.4f, 0);
                 ms.scale(0.5f, 0.5f, 0.5f);
-                ms.translate(0.5f, -1.5f, 0);
             }
         } else if (transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
         || transformType == ItemDisplayContext.THIRD_PERSON_LEFT_HAND) {
             ms.mulPose(Axis.YP.rotationDegrees(90));
             ms.translate(0.25f, -0.75f, 0f);
             ms.scale(1/3f, 1/3f, 1/3f);
+            ms.translate(0, PackageItem.getHeight(box),0);
         } else if (transformType == ItemDisplayContext.GROUND){
             ms.translate(0, -0.5f, 0);
             ms.scale(1/4f, 1/4f, 1/4f);
+            ms.translate(0, PackageItem.getHeight(box),0);
         } else {
             ms.mulPose(Axis.XP.rotationDegrees(90));
             ms.translate(0, -0.25f, 0.5f);
-            ms.scale(2/3f, 2/3f, 2/3f);
+            ms.translate(0, PackageItem.getHeight(box),0);
         }
 
         renderPlane(DeliveryPlaneItem.getPackage(stack), ms, buffer, light);
@@ -92,31 +101,34 @@ public class DeliveryPlaneItemRenderer extends CustomRenderedItemModelRenderer {
             box = AllBlocks.CARDBOARD_BLOCK.asStack();
 
         ms.pushPose();
-
-        ms.pushPose();
         ms.mulPose(Axis.YP.rotationDegrees(-90));
         CachedBuffers.partial(DELIVERY_PLANE, Blocks.AIR.defaultBlockState())
                 .light(light)
-                .translate(-24/16f, PackageItem.getHeight(box), -16/16f)
+                .translate(-24/16f, 0, -16/16f)
                 .scale(3)
                 .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
         ms.popPose();
 
-        PartialModel model = AllPartialModels.PACKAGES.get(BuiltInRegistries.ITEM.getKey(box.getItem()));
-        if (model != null)
-            CachedBuffers.partial(model, Blocks.AIR.defaultBlockState())
-                    .translate(-.5, 0, -.5)
-                    .rotateCentered(-AngleHelper.rad(180), Direction.UP)
-                    .light(light)
-                    .renderInto(ms, buffer.getBuffer(RenderType.solid()));
+        ms.pushPose();
+        if (ModList.get().isLoaded("create_factory_logistics")
+                && FactoryLogisticsCompat.isJar(box)) {
+            JarPlaneRenderer.renderJar(box, ms, buffer, light);
+        } else {
+            PartialModel model = AllPartialModels.PACKAGES.get(BuiltInRegistries.ITEM.getKey(box.getItem()));
+            if (model != null)
+                CachedBuffers.partial(model, Blocks.AIR.defaultBlockState())
+                        .translate(-.5, -PackageItem.getHeight(box), -.5)
+                        .rotateCentered(-AngleHelper.rad(180), Direction.UP)
+                        .light(light)
+                        .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
 
-        PartialModel rope = PACKAGE_ROPE.get(BuiltInRegistries.ITEM.getKey(box.getItem()));
-        if (rope != null)
-            CachedBuffers.partial(rope, Blocks.AIR.defaultBlockState())
-                    .translate(-.5, 0, -.5)
-                    .light(light)
-                    .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
-
+            PartialModel rope = PACKAGE_ROPE.get(BuiltInRegistries.ITEM.getKey(box.getItem()));
+            if (rope != null)
+                CachedBuffers.partial(rope, Blocks.AIR.defaultBlockState())
+                        .translate(-.5, -PackageItem.getHeight(box), -.5)
+                        .light(light)
+                        .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
+        }
         ms.popPose();
     }
 

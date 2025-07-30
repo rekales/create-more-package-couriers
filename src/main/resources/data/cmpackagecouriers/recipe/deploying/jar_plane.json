@@ -1,0 +1,16 @@
+{
+  "type": "create:deploying",
+  "ingredients": [
+    {
+      "item": "create_factory_logistics:copper_jar_package_8x8"
+    },
+    {
+      "item": "cmpackagecouriers:cardboard_plane"
+    }
+  ],
+  "results": [
+    {
+      "id": "cmpackagecouriers:delivery_plane"
+    }
+  ]
+}

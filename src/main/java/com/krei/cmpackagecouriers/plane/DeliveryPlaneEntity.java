@@ -11,7 +11,6 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -30,7 +29,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,6 +37,8 @@ import java.util.UUID;
 
 // NOTE: Maybe replace synced entity data with a normal field
 // TODO: sync targetPos to increase entity update interval
+// TODO: NonNull targetPos and targetPosLevel
+// TODO: Use the Ender Pearl chunk loading mechanic
 public class DeliveryPlaneEntity extends Projectile {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData
             .defineId(DeliveryPlaneEntity.class, EntityDataSerializers.ITEM_STACK);
@@ -47,7 +47,7 @@ public class DeliveryPlaneEntity extends Projectile {
     @Nullable protected Entity targetEntityCached = null;
     @Nullable protected Vec3 targetPos = null;
     @Nullable protected ResourceKey<Level> targetPosLevel = null;
-    protected double speed = 0.8;
+    protected double speed = 0.0;
     public float newDeltaYaw = 0;
     public float oldDeltaYaw = 0;
 
@@ -91,7 +91,6 @@ public class DeliveryPlaneEntity extends Projectile {
                                 this.random.nextGaussian() * 0.05
                         );
             }
-
             return; // Don't do flight calculations on clientside
         }
 
@@ -184,12 +183,15 @@ public class DeliveryPlaneEntity extends Projectile {
             }
         }
 
-//        if (this.tickCount > 400) {
-//            // Timeout, teleport the plane directly to target
-//        }
-
-
-
+        if (this.tickCount > 400) {
+            if (level() instanceof ServerLevel serverLevel && this.targetPosLevel != null) {
+                ServerLevel tpLevel = serverLevel.getServer().getLevel(this.targetPosLevel);
+                teleportTo(tpLevel, targetPos.x(), targetPos.y(), targetPos.z(), Collections.emptySet(), this.getYRot(), this.getXRot());
+                PackageCouriers.LOGGER.debug("Timeout: " + targetPos);
+            } else {
+                remove(RemovalReason.DISCARDED);  // Illegal State, break
+            }
+        }
 
         if (this.tickCount%10 == 0) {
             PackageCouriers.LOGGER.debug(this.getDeltaMovement()+"");

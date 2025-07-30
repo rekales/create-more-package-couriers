@@ -23,7 +23,7 @@ public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlaneEnt
         // NOTE: Should use relative delta yaw for delta yaw instead of absolute delta yaw
 
         ms.pushPose();
-
+        ms.translate(0, 0.25, 0);
         ms.scale(0.75f, 0.75f, 0.75f);
         ms.mulPose(Axis.YP.rotationDegrees(90+yaw));
         ms.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entity.oldDeltaYaw, entity.newDeltaYaw)*-4));
