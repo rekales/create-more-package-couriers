@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 // Copied and Altered from TridentItem
 // NOTE: Might need to remove projectileItem interface
 // NOTE: Using a compass with target in an item frame or placard to set a coordinate address
-public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLaunchEffect {
+public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
 
     public DeliveryPlaneItem(Properties p) {
         super(p.stacksTo(1));
@@ -45,12 +45,38 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
         if (entityLiving instanceof Player player
                 && this.getUseDuration(stack, entityLiving) - timeLeft >= 10
                 && !level.isClientSide()) {
-            DeliveryPlaneProjectile plane = new DeliveryPlaneProjectile(level);
-            plane.setPos(player.getX(), player.getEyeY()-0.1f, player.getZ());
-            plane.setTarget(player);
-            plane.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.8F, 1.0F);
-            plane.pickup = AbstractArrow.Pickup.DISALLOWED;
-            level.addFreshEntity(plane);
+
+            String address = getAddress(stack);
+            ItemStack packageItem;
+            ItemContainerContents container = stack.get(PackageCouriers.PLANE_PACKAGE);
+            if (container != null && container.getStackInSlot(0).getItem() instanceof PackageItem) {
+                packageItem = container.getStackInSlot(0);
+            } else {
+                packageItem = PackageStyles.getRandomBox();
+                // TODO: Do some exception because this shouldn't happen
+            }
+
+            MinecraftServer server = level.getServer();
+            if (server != null) {
+                DeliveryPlaneEntity plane = new DeliveryPlaneEntity(level);
+                plane.setPos(player.getX(), player.getEyeY()-0.1f, player.getZ());
+                plane.setPackage(packageItem);
+                plane.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.8F, 1.0F);
+
+                ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
+                if (serverPlayer != null) {
+                    plane.setTarget(serverPlayer);
+                    level.addFreshEntity(plane);
+                    stack.shrink(1);
+                } else {
+                    AddressMarkerHandler.MarkerTarget target =  AddressMarkerHandler.getMarkerTarget(address);
+                    if (target != null) {
+                        plane.setTarget(target.pos, target.level);
+                        level.addFreshEntity(plane);
+                        stack.shrink(1);
+                    }
+                }
+            }
         }
     }
 
@@ -71,13 +97,6 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
     }
 
     @Override
-    public Projectile asProjectile(Level level, Position pos, ItemStack stack, Direction direction) {
-        DeliveryPlaneProjectile plane = new DeliveryPlaneProjectile(level);
-        plane.setPos(new Vec3(pos.x(), pos.y(), pos.z()));
-        return plane;
-    }
-
-    @Override
     public boolean onEject(ItemStack stack, Level level, BlockPos pos) {
         if (level.isClientSide())
             return false;
@@ -89,7 +108,7 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
             default    -> -90f;
         };
 
-        String address = PackageItem.getAddress(stack);
+        String address = getAddress(stack);
         ItemStack packageItem;
         ItemContainerContents container = stack.get(PackageCouriers.PLANE_PACKAGE);
         if (container != null && container.getStackInSlot(0).getItem() instanceof PackageItem) {
@@ -101,15 +120,14 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
 
         MinecraftServer server = level.getServer();
         if (server != null) {
-            DeliveryPlaneProjectile plane = new DeliveryPlaneProjectile(level, stack);
+            DeliveryPlaneEntity plane = new DeliveryPlaneEntity(level);
             plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
             plane.setPackage(packageItem);
-            plane.pickup = AbstractArrow.Pickup.DISALLOWED;
             plane.shootFromRotation(-45F, yaw, 0.0F, 0.8F, 1.0F);
 
-            ServerPlayer player = server.getPlayerList().getPlayerByName(address);
-            if (player != null) {
-                plane.setTarget(player);
+            ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
+            if (serverPlayer != null) {
+                plane.setTarget(serverPlayer);
                 level.addFreshEntity(plane);
                 return true;
             } else {
@@ -136,6 +154,13 @@ public class DeliveryPlaneItem extends Item implements ProjectileItem, EjectorLa
         if (container == null)
             return ItemStack.EMPTY;
         return container.getStackInSlot(0);
+    }
+
+    public static String getAddress(ItemStack plane) {
+        if (plane.getItem() instanceof DeliveryPlaneItem) {
+            return PackageItem.getAddress(getPackage(plane));
+        }
+        return "";
     }
 
     @SuppressWarnings("removal")

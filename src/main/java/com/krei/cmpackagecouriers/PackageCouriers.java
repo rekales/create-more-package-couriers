@@ -1,9 +1,6 @@
 package com.krei.cmpackagecouriers;
 
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneEntityRenderer;
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneItem;
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneItemRenderer;
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneProjectile;
+import com.krei.cmpackagecouriers.plane.*;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.EntityEntry;
@@ -37,8 +34,8 @@ public class PackageCouriers {
             .create(MODID)
             .defaultCreativeTab(AllCreativeModeTabs.BASE_CREATIVE_TAB.getKey());
 
-    public static final EntityEntry<DeliveryPlaneProjectile> DELIVERY_PLANE_ENTITY = REGISTRATE
-        .entity("delivery_plane", DeliveryPlaneProjectile::createEmpty, MobCategory.MISC)
+    public static final EntityEntry<DeliveryPlaneEntity> DELIVERY_PLANE_ENTITY = REGISTRATE
+        .entity("delivery_plane", DeliveryPlaneEntity::createEmpty, MobCategory.MISC)
         .properties(p -> p
                 .sized(0.5f, 0.5f)
                 .eyeHeight(0.25f)
@@ -48,7 +45,6 @@ public class PackageCouriers {
 
     public static final ItemEntry<DeliveryPlaneItem> DELIVERY_PLANE_ITEM = REGISTRATE
             .item("delivery_plane", DeliveryPlaneItem::new)
-//            .properties(p -> p.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
             .register();
 
     public static final ItemEntry<Item> CARDBOARD_PLANE_ITEM = REGISTRATE
@@ -59,15 +55,15 @@ public class PackageCouriers {
     private static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
             .createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
     public static final Supplier<DataComponentType<ItemContainerContents>> PLANE_PACKAGE = DATA_COMPONENTS
-            .registerComponentType(
-                    "plane_package", builder -> builder.persistent(ItemContainerContents.CODEC)
+            .registerComponentType("plane_package", builder -> builder
+                            .persistent(ItemContainerContents.CODEC)
                             .networkSynchronized(ItemContainerContents.STREAM_CODEC));
 
     public PackageCouriers(IEventBus modEventBus, ModContainer modContainer) {
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
-        DeliveryPlaneProjectile.init();
+        DeliveryPlaneEntity.init();
         // Event Handler Class: AddressMarkerHandler
     }
 
@@ -84,4 +80,5 @@ public class PackageCouriers {
 
     // TODO: Replace depot sign based targeting with a new sign block
     // TODO: Create: Factory Logistics compat
+    // TODO: Wildcard Address
 }

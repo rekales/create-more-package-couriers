@@ -32,7 +32,6 @@ public class BeltDeployerCallbacksMixin {
                 && PackageCouriers.CARDBOARD_PLANE_ITEM.isIn(blockEntity.getPlayer().getMainHandItem())
                 && collect.getFirst().stack.getItem() instanceof DeliveryPlaneItem) {
             DeliveryPlaneItem.setPackage(collect.getFirst().stack, transported.stack);
-            PackageItem.addAddress(collect.getFirst().stack, PackageItem.getAddress(transported.stack));
         }
     }
 }

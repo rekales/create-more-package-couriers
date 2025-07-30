@@ -11,14 +11,14 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlaneProjectile> {
+public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlaneEntity> {
 
     public DeliveryPlaneEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public void render(DeliveryPlaneProjectile entity, float yaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
+    public void render(DeliveryPlaneEntity entity, float yaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
         // NOTE: Better tilt when curving, seems to be delayed/ahead by 1 tick
         // NOTE: Should use relative delta yaw for delta yaw instead of absolute delta yaw
 
@@ -37,7 +37,7 @@ public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlanePro
     }
 
     @Override
-    public ResourceLocation getTextureLocation(DeliveryPlaneProjectile entity) {
+    public ResourceLocation getTextureLocation(DeliveryPlaneEntity entity) {
         return null;
     }
 
