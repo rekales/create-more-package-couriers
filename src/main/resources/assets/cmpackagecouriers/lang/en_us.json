@@ -1,8 +1,6 @@
 {
-  "block.cmpackagecouriers.example_block": "Example Block",
-  "item.cmpackagecouriers.cardboard_plane": "Cardboard Plane Parts",
-  "item.cmpackagecouriers.delivery_plane": "Delivery Plane",
-  "item.cmpackagecouriers.example_item": "Example Item",
+  "item.cmpackagecouriers.cardboard_plane_parts": "Cardboard Plane Parts",
+  "item.cmpackagecouriers.cardboard_plane": "Cardboard Plane",
 
   "cmpackagecouriers.ponder.sending_planes.header": "Sending Planes",
   "cmpackagecouriers.ponder.sending_planes.text_1": "Package planes can be created from packages",

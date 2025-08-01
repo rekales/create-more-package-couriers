@@ -138,7 +138,7 @@ public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
     }
 
     public static ItemStack withPackage(ItemStack box) {
-        ItemStack plane = PackageCouriers.DELIVERY_PLANE_ITEM.asStack();
+        ItemStack plane = PackageCouriers.CARDBOARD_PLANE_ITEM.asStack();
         setPackage(plane, box);
         return plane;
     }

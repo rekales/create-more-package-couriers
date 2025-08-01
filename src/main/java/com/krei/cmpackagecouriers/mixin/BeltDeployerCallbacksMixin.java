@@ -29,7 +29,7 @@ public class BeltDeployerCallbacksMixin {
         if (collect != null
                 && !collect.isEmpty()
                 && PackageItem.isPackage(transported.stack)
-                && PackageCouriers.CARDBOARD_PLANE_ITEM.isIn(blockEntity.getPlayer().getMainHandItem())
+                && PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM.isIn(blockEntity.getPlayer().getMainHandItem())
                 && collect.getFirst().stack.getItem() instanceof DeliveryPlaneItem) {
             DeliveryPlaneItem.setPackage(collect.getFirst().stack, transported.stack);
         }

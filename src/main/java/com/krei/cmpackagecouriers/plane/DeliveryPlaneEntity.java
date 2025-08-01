@@ -30,7 +30,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.UUID;
@@ -56,7 +55,7 @@ public class DeliveryPlaneEntity extends Projectile {
     }
 
     public DeliveryPlaneEntity(Level level) {
-        super(PackageCouriers.DELIVERY_PLANE_ENTITY.get(), level);
+        super(PackageCouriers.CARDBOARD_PLANE_ENTITY.get(), level);
     }
 
     public static DeliveryPlaneEntity createEmpty(EntityType<? extends DeliveryPlaneEntity> entityType, Level level) {

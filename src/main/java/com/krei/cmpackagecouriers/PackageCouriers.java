@@ -9,7 +9,6 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
@@ -36,8 +35,8 @@ public class PackageCouriers {
             .create(MODID)
             .defaultCreativeTab(AllCreativeModeTabs.BASE_CREATIVE_TAB.getKey());
 
-    public static final EntityEntry<DeliveryPlaneEntity> DELIVERY_PLANE_ENTITY = REGISTRATE
-        .entity("delivery_plane", DeliveryPlaneEntity::createEmpty, MobCategory.MISC)
+    public static final EntityEntry<DeliveryPlaneEntity> CARDBOARD_PLANE_ENTITY = REGISTRATE
+        .entity("cardboard_plane", DeliveryPlaneEntity::createEmpty, MobCategory.MISC)
         .properties(p -> p
                 .sized(0.5f, 0.5f)
                 .eyeHeight(0.25f)
@@ -45,13 +44,12 @@ public class PackageCouriers {
 //        .renderer(() -> DeliveryPlaneRenderer::new)
         .register();
 
-    public static final ItemEntry<DeliveryPlaneItem> DELIVERY_PLANE_ITEM = REGISTRATE
-            .item("delivery_plane", DeliveryPlaneItem::new)
+    public static final ItemEntry<DeliveryPlaneItem> CARDBOARD_PLANE_ITEM = REGISTRATE
+            .item("cardboard_plane", DeliveryPlaneItem::new)
             .register();
 
-    public static final ItemEntry<Item> CARDBOARD_PLANE_ITEM = REGISTRATE
-            .item("cardboard_plane", Item::new)
-            .properties(p -> p.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+    public static final ItemEntry<Item> CARDBOARD_PLANE_PARTS_ITEM = REGISTRATE
+            .item("cardboard_plane_parts", Item::new)
             .register();
 
     private static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
@@ -75,7 +73,7 @@ public class PackageCouriers {
         PonderIndex.addPlugin(new PonderScenes());
         // Somethings wrong with registrate that makes me wanna commit seppuku
         EntityRenderers.register(
-                DELIVERY_PLANE_ENTITY.get(),
+                CARDBOARD_PLANE_ENTITY.get(),
                 DeliveryPlaneEntityRenderer::new
         );
     }

@@ -5,12 +5,12 @@
       "tag": "create:packages"
     },
     {
-      "item": "cmpackagecouriers:cardboard_plane"
+      "item": "cmpackagecouriers:cardboard_plane_parts"
     }
   ],
   "results": [
     {
-      "id": "cmpackagecouriers:delivery_plane"
+      "id": "cmpackagecouriers:cardboard_plane"
     }
   ]
 }

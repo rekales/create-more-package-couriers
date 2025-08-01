@@ -35,7 +35,7 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class DeliveryPlaneItemRenderer extends CustomRenderedItemModelRenderer {
     public static final PartialModel DELIVERY_PLANE = PartialModel.of(ResourceLocation.fromNamespaceAndPath(PackageCouriers.MODID,
-            "item/delivery_plane"));
+            "item/cardboard_plane"));
     public static final Map<ResourceLocation, PartialModel> PACKAGE_ROPE = new HashMap<>();
 
     static {
