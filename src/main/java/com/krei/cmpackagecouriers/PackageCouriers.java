@@ -35,21 +35,22 @@ public class PackageCouriers {
             .create(MODID)
             .defaultCreativeTab(AllCreativeModeTabs.BASE_CREATIVE_TAB.getKey());
 
-    public static final EntityEntry<DeliveryPlaneEntity> CARDBOARD_PLANE_ENTITY = REGISTRATE
-        .entity("cardboard_plane", DeliveryPlaneEntity::createEmpty, MobCategory.MISC)
+    public static final EntityEntry<CardboardPlaneEntity> CARDBOARD_PLANE_ENTITY = REGISTRATE
+        .entity("cardboard_plane", CardboardPlaneEntity::createEmpty, MobCategory.MISC)
         .properties(p -> p
                 .sized(0.5f, 0.5f)
                 .eyeHeight(0.25f)
+                .clientTrackingRange(80)
                 .updateInterval(1))
 //        .renderer(() -> DeliveryPlaneRenderer::new)
         .register();
 
-    public static final ItemEntry<DeliveryPlaneItem> CARDBOARD_PLANE_ITEM = REGISTRATE
-            .item("cardboard_plane", DeliveryPlaneItem::new)
+    public static final ItemEntry<CardboardPlaneItem> CARDBOARD_PLANE_ITEM = REGISTRATE
+            .item("cardboard_plane", CardboardPlaneItem::new)
             .register();
 
-    public static final ItemEntry<Item> CARDBOARD_PLANE_PARTS_ITEM = REGISTRATE
-            .item("cardboard_plane_parts", Item::new)
+    public static final ItemEntry<CardboardPlanePartsItem> CARDBOARD_PLANE_PARTS_ITEM = REGISTRATE
+            .item("cardboard_plane_parts", CardboardPlanePartsItem::new)
             .register();
 
     private static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
@@ -63,22 +64,20 @@ public class PackageCouriers {
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
-        DeliveryPlaneEntity.init();
+        CardboardPlaneEntity.init();
         // Event Handler Class: AddressMarkerHandler
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {
-        DeliveryPlaneEntityRenderer.init();
-        DeliveryPlaneItemRenderer.init();
+        CardboardPlaneEntityRenderer.init();
+        CardboardPlaneItemRenderer.init();
         PonderIndex.addPlugin(new PonderScenes());
         // Somethings wrong with registrate that makes me wanna commit seppuku
         EntityRenderers.register(
                 CARDBOARD_PLANE_ENTITY.get(),
-                DeliveryPlaneEntityRenderer::new
+                CardboardPlaneEntityRenderer::new
         );
     }
 
     // TODO: Replace depot sign based targeting with a new sign block
-    // TODO: Wildcard Address
-    // TODO: Package plane crafting recipe or manual deploying recipe
 }

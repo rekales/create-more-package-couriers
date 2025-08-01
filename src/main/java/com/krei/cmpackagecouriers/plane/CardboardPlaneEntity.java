@@ -38,9 +38,9 @@ import java.util.UUID;
 // TODO: sync targetPos to increase entity update interval
 // TODO: NonNull targetPos and targetPosLevel
 // TODO: Use the Ender Pearl chunk loading mechanic
-public class DeliveryPlaneEntity extends Projectile {
+public class CardboardPlaneEntity extends Projectile {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData
-            .defineId(DeliveryPlaneEntity.class, EntityDataSerializers.ITEM_STACK);
+            .defineId(CardboardPlaneEntity.class, EntityDataSerializers.ITEM_STACK);
 
     @Nullable private UUID targetEntityUUID = null;
     @Nullable protected Entity targetEntityCached = null;
@@ -50,16 +50,16 @@ public class DeliveryPlaneEntity extends Projectile {
     public float newDeltaYaw = 0;
     public float oldDeltaYaw = 0;
 
-    public  DeliveryPlaneEntity(EntityType<? extends Projectile> entityType, Level level) {
+    public CardboardPlaneEntity(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
     }
 
-    public DeliveryPlaneEntity(Level level) {
+    public CardboardPlaneEntity(Level level) {
         super(PackageCouriers.CARDBOARD_PLANE_ENTITY.get(), level);
     }
 
-    public static DeliveryPlaneEntity createEmpty(EntityType<? extends DeliveryPlaneEntity> entityType, Level level) {
-        return new DeliveryPlaneEntity(entityType, level);
+    public static CardboardPlaneEntity createEmpty(EntityType<? extends CardboardPlaneEntity> entityType, Level level) {
+        return new CardboardPlaneEntity(entityType, level);
     }
 
     // NOTE: Might require own implementation for noclip and to avoid unnecessary nbt data
@@ -128,7 +128,7 @@ public class DeliveryPlaneEntity extends Projectile {
         } else {
             vecTo = targetPos.subtract(this.position()).normalize();
         }
-        float augmentedDistance = (float)targetPos.subtract(this.position()).length() + Math.max(0, 80 - this.tickCount);
+        float augmentedDistance = (float)targetPos.subtract(this.position()).length() + Math.max(0, 100 - this.tickCount);
         float clampedDistance = Mth.clamp(augmentedDistance, 5, 60);
         float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.35f, 0.06f);
         this.setDeltaMovement(vecFrom.lerp(vecTo, curveAmount).normalize().scale(this.speed));

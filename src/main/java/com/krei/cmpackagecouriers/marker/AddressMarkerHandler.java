@@ -1,6 +1,7 @@
 package com.krei.cmpackagecouriers.marker;
 
 import com.krei.cmpackagecouriers.PackageCouriers;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -45,7 +46,7 @@ public class AddressMarkerHandler {
     public static MarkerTarget getMarkerTarget(String address) {
         // Linear search is good enough
         for (MarkerTarget marker : markerMap.values()) {
-            if (address.equals(marker.address)) {
+            if (PackageItem.matchAddress(address, marker.address)) {
                 return marker;
             }
         }

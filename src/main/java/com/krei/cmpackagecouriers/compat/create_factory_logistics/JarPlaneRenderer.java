@@ -1,6 +1,6 @@
 package com.krei.cmpackagecouriers.compat.create_factory_logistics;
 
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneItemRenderer;
+import com.krei.cmpackagecouriers.plane.CardboardPlaneItemRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.AllPartialModels;
@@ -45,7 +45,7 @@ public class JarPlaneRenderer {
         float scaleFactor = PackageItem.getHeight(box)/0.75f;
         ms.scale(scaleFactor, scaleFactor, scaleFactor);
         ms.translate(0, -0.25, 0);
-        PartialModel rope = DeliveryPlaneItemRenderer.PACKAGE_ROPE.get(BuiltInRegistries.ITEM.getKey(PackageStyles.getDefaultBox().getItem()));
+        PartialModel rope = CardboardPlaneItemRenderer.PACKAGE_ROPE.get(BuiltInRegistries.ITEM.getKey(PackageStyles.getDefaultBox().getItem()));
         if (rope != null)
             CachedBuffers.partial(rope, Blocks.AIR.defaultBlockState())
                     .translate(-.5, -PackageItem.getHeight(box), -.5)

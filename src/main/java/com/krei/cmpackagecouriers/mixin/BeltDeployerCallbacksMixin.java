@@ -1,6 +1,6 @@
 package com.krei.cmpackagecouriers.mixin;
 
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneItem;
+import com.krei.cmpackagecouriers.plane.CardboardPlaneItem;
 import com.krei.cmpackagecouriers.PackageCouriers;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
@@ -30,8 +30,8 @@ public class BeltDeployerCallbacksMixin {
                 && !collect.isEmpty()
                 && PackageItem.isPackage(transported.stack)
                 && PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM.isIn(blockEntity.getPlayer().getMainHandItem())
-                && collect.getFirst().stack.getItem() instanceof DeliveryPlaneItem) {
-            DeliveryPlaneItem.setPackage(collect.getFirst().stack, transported.stack);
+                && collect.getFirst().stack.getItem() instanceof CardboardPlaneItem) {
+            CardboardPlaneItem.setPackage(collect.getFirst().stack, transported.stack);
         }
     }
 }

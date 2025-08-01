@@ -1,8 +1,8 @@
 package com.krei.cmpackagecouriers.ponder;
 
 import com.krei.cmpackagecouriers.PackageCouriers;
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneEntity;
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneItem;
+import com.krei.cmpackagecouriers.plane.CardboardPlaneEntity;
+import com.krei.cmpackagecouriers.plane.CardboardPlaneItem;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
@@ -64,7 +64,7 @@ public class PonderScenes implements PonderPlugin {
         BlockPos ejectorPos = util.grid().at(1,1,2);
         BlockPos beltEndPos = util.grid().at(4,1,2);
         ItemStack packageItem = PackageStyles.getDefaultBox();
-        ItemStack planeItem = DeliveryPlaneItem.withPackage(packageItem);
+        ItemStack planeItem = CardboardPlaneItem.withPackage(packageItem);
         ItemStack planePartsItem = PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM.asStack();
 
         ElementLink<EntityElement> packageEntity = scene.world().createEntity(w -> {
@@ -89,7 +89,7 @@ public class PonderScenes implements PonderPlugin {
         scene.world().modifyEntity(packageEntity, Entity::discard);
         ElementLink<EntityElement> itemEntity = scene.world().createEntity(w -> {
             Vec3 p = util.vector().topOf(util.grid().at(2, 0, 2));
-            return new ItemEntity(w, p.x(), p.y(), p.z(), DeliveryPlaneItem.withPackage(packageItem));
+            return new ItemEntity(w, p.x(), p.y(), p.z(), CardboardPlaneItem.withPackage(packageItem));
         });
         scene.idle(50);
 
@@ -136,7 +136,7 @@ public class PonderScenes implements PonderPlugin {
                 EjectorBlockEntity.class,
                 EjectorBlockEntity::activate);
         ElementLink<EntityElement> planeEntity = scene.world().createEntity(w -> {
-            DeliveryPlaneEntity plane = new DeliveryPlaneEntity(w);
+            CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
             plane.setPos(util.vector().topOf(ejectorPos));
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
@@ -164,7 +164,7 @@ public class PonderScenes implements PonderPlugin {
         BlockPos beltEndPos = util.grid().at(4,1,2);
         BlockPos depotPos = util.grid().at(8, 1,2);
         ItemStack packageItem = PackageStyles.getDefaultBox();
-        ItemStack planeItem = DeliveryPlaneItem.withPackage(packageItem);
+        ItemStack planeItem = CardboardPlaneItem.withPackage(packageItem);
         ItemStack planePartsItem = PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM.asStack();
 
         ElementLink<WorldSectionElement> mainSection = scene.world()
@@ -210,7 +210,7 @@ public class PonderScenes implements PonderPlugin {
                 EjectorBlockEntity.class,
                 EjectorBlockEntity::activate);
         ElementLink<EntityElement> planeEntity = scene.world().createEntity(w -> {
-            DeliveryPlaneEntity plane = new DeliveryPlaneEntity(w);
+            CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
             plane.setPos(util.vector().topOf(ejectorPos));
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
@@ -254,7 +254,7 @@ public class PonderScenes implements PonderPlugin {
         scene.idle(20);
 
         planeEntity = scene.world().createEntity(w -> {
-            DeliveryPlaneEntity plane = new DeliveryPlaneEntity(w);
+            CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
             plane.setPos(util.vector().of(10,6.5,2));
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
@@ -321,7 +321,7 @@ public class PonderScenes implements PonderPlugin {
                 EjectorBlockEntity.class,
                 EjectorBlockEntity::activate);
         planeEntity = scene.world().createEntity(w -> {
-            DeliveryPlaneEntity plane = new DeliveryPlaneEntity(w);
+            CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
             plane.setPos(util.vector().topOf(ejectorPos));
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
@@ -351,7 +351,7 @@ public class PonderScenes implements PonderPlugin {
         scene.idle(20);
 
         planeEntity = scene.world().createEntity(w -> {
-            DeliveryPlaneEntity plane = new DeliveryPlaneEntity(w);
+            CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
             plane.setPos(util.vector().of(10,6.5,2));
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);

@@ -1,8 +1,7 @@
 package com.krei.cmpackagecouriers.mixin;
 
-import com.krei.cmpackagecouriers.PackageCouriers;
 import com.krei.cmpackagecouriers.marker.AddressMarkerHandler;
-import com.krei.cmpackagecouriers.plane.DeliveryPlaneEntity;
+import com.krei.cmpackagecouriers.plane.CardboardPlaneEntity;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
@@ -33,7 +32,7 @@ public abstract class SignBlockEntityMixin {
                 return;
 
             if (level.getBlockState(targetPos).getBlock() instanceof DepotBlock
-                    && DeliveryPlaneEntity.isChunkTicking(level, new Vec3(targetPos.getX(), targetPos.getY(), targetPos.getZ()))) {
+                    && CardboardPlaneEntity.isChunkTicking(level, new Vec3(targetPos.getX(), targetPos.getY(), targetPos.getZ()))) {
                 for (boolean front : Iterate.trueAndFalse) {
                     SignText text = sign.getText(front);
                     StringBuilder address = new StringBuilder();

@@ -29,9 +29,9 @@ import java.util.function.Consumer;
 // Copied and Altered from TridentItem
 // NOTE: Might need to remove projectileItem interface
 // NOTE: Using a compass with target in an item frame or placard to set a coordinate address
-public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
+public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
 
-    public DeliveryPlaneItem(Properties p) {
+    public CardboardPlaneItem(Properties p) {
         super(p.stacksTo(1));
     }
 
@@ -53,7 +53,7 @@ public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
 
             MinecraftServer server = level.getServer();
             if (server != null) {
-                DeliveryPlaneEntity plane = new DeliveryPlaneEntity(level);
+                CardboardPlaneEntity plane = new CardboardPlaneEntity(level);
                 plane.setPos(player.getX(), player.getEyeY()-0.1f, player.getZ());
                 plane.setPackage(packageItem);
                 plane.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.8F, 1.0F);
@@ -115,7 +115,7 @@ public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
 
         MinecraftServer server = level.getServer();
         if (server != null) {
-            DeliveryPlaneEntity plane = new DeliveryPlaneEntity(level);
+            CardboardPlaneEntity plane = new CardboardPlaneEntity(level);
             plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
             plane.setPackage(packageItem);
             plane.shootFromRotation(-45F, yaw, 0.0F, 0.8F, 1.0F);
@@ -158,7 +158,7 @@ public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
     }
 
     public static String getAddress(ItemStack plane) {
-        if (plane.getItem() instanceof DeliveryPlaneItem) {
+        if (plane.getItem() instanceof CardboardPlaneItem) {
             return PackageItem.getAddress(getPackage(plane));
         }
         return "";
@@ -177,6 +177,6 @@ public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(SimpleCustomRenderer.create(this, new DeliveryPlaneItemRenderer()));
+        consumer.accept(SimpleCustomRenderer.create(this, new CardboardPlaneItemRenderer()));
     }
 }

@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
-public class DeliveryPlaneItemRenderer extends CustomRenderedItemModelRenderer {
+public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer {
     public static final PartialModel DELIVERY_PLANE = PartialModel.of(ResourceLocation.fromNamespaceAndPath(PackageCouriers.MODID,
             "item/cardboard_plane"));
     public static final Map<ResourceLocation, PartialModel> PACKAGE_ROPE = new HashMap<>();
@@ -53,7 +53,7 @@ public class DeliveryPlaneItemRenderer extends CustomRenderedItemModelRenderer {
 
     protected void render(ItemStack stack, CustomRenderedItemModel model, PartialItemModelRenderer renderer,
                           ItemDisplayContext transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-        ItemStack box = DeliveryPlaneItem.getPackage(stack);
+        ItemStack box = CardboardPlaneItem.getPackage(stack);
         if (box.isEmpty() || !PackageItem.isPackage(box))
             box = AllBlocks.CARDBOARD_BLOCK.asStack();
 
@@ -92,7 +92,7 @@ public class DeliveryPlaneItemRenderer extends CustomRenderedItemModelRenderer {
             ms.translate(0, PackageItem.getHeight(box),0);
         }
 
-        renderPlane(DeliveryPlaneItem.getPackage(stack), ms, buffer, light);
+        renderPlane(CardboardPlaneItem.getPackage(stack), ms, buffer, light);
         ms.popPose();
     }
 

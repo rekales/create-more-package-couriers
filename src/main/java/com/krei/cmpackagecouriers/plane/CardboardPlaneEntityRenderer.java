@@ -11,16 +11,17 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlaneEntity> {
+public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneEntity> {
 
-    public DeliveryPlaneEntityRenderer(EntityRendererProvider.Context context) {
+    public CardboardPlaneEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public void render(DeliveryPlaneEntity entity, float yaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
+    public void render(CardboardPlaneEntity entity, float yaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
         // NOTE: Better tilt when curving, seems to be delayed/ahead by 1 tick
         // NOTE: Should use relative delta yaw for delta yaw instead of absolute delta yaw
+        // TODO: Fade out at far distances
 
         ms.pushPose();
         ms.translate(0, 0.25, 0);
@@ -29,7 +30,7 @@ public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlaneEnt
         ms.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entity.oldDeltaYaw, entity.newDeltaYaw)*-4));
         ms.mulPose(Axis.ZP.rotationDegrees(-Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
 
-        DeliveryPlaneItemRenderer.renderPlane(entity.getPackage(), ms, buffer, light);
+        CardboardPlaneItemRenderer.renderPlane(entity.getPackage(), ms, buffer, light);
 
         ms.popPose();
 
@@ -37,7 +38,7 @@ public class DeliveryPlaneEntityRenderer extends EntityRenderer<DeliveryPlaneEnt
     }
 
     @Override
-    public ResourceLocation getTextureLocation(DeliveryPlaneEntity entity) {
+    public ResourceLocation getTextureLocation(CardboardPlaneEntity entity) {
         return null;
     }
 
