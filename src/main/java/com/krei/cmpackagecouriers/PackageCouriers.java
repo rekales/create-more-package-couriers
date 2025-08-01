@@ -1,10 +1,12 @@
 package com.krei.cmpackagecouriers;
 
 import com.krei.cmpackagecouriers.plane.*;
+import com.krei.cmpackagecouriers.ponder.PonderScenes;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.EntityEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -70,7 +72,7 @@ public class PackageCouriers {
     public static void clientInit(final FMLClientSetupEvent event) {
         DeliveryPlaneEntityRenderer.init();
         DeliveryPlaneItemRenderer.init();
-//        PonderIndex.addPlugin(new PonderScenes());
+        PonderIndex.addPlugin(new PonderScenes());
         // Somethings wrong with registrate that makes me wanna commit seppuku
         EntityRenderers.register(
                 DELIVERY_PLANE_ENTITY.get(),
@@ -79,6 +81,6 @@ public class PackageCouriers {
     }
 
     // TODO: Replace depot sign based targeting with a new sign block
-    // TODO: Create: Factory Logistics compat
     // TODO: Wildcard Address
+    // TODO: Package plane crafting recipe or manual deploying recipe
 }

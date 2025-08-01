@@ -47,7 +47,7 @@ public class DeliveryPlaneEntity extends Projectile {
     @Nullable protected Entity targetEntityCached = null;
     @Nullable protected Vec3 targetPos = null;
     @Nullable protected ResourceKey<Level> targetPosLevel = null;
-    protected double speed = 0.0;
+    protected double speed = 0.8;
     public float newDeltaYaw = 0;
     public float oldDeltaYaw = 0;
 
@@ -113,9 +113,6 @@ public class DeliveryPlaneEntity extends Projectile {
             return;
         }
 
-        if (tickCount < 10)  // fly in a straight line for a bit after launch
-            return;
-
         if (targetPos.closerThan(this.position(), 1.5)) {
             onReachedTarget();
             remove(RemovalReason.DISCARDED);
@@ -132,7 +129,7 @@ public class DeliveryPlaneEntity extends Projectile {
         } else {
             vecTo = targetPos.subtract(this.position()).normalize();
         }
-        float augmentedDistance = (float)targetPos.subtract(this.position()).length() + Math.max(0, 60 - this.tickCount);
+        float augmentedDistance = (float)targetPos.subtract(this.position()).length() + Math.max(0, 80 - this.tickCount);
         float clampedDistance = Mth.clamp(augmentedDistance, 5, 60);
         float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.35f, 0.06f);
         this.setDeltaMovement(vecFrom.lerp(vecTo, curveAmount).normalize().scale(this.speed));
@@ -192,10 +189,10 @@ public class DeliveryPlaneEntity extends Projectile {
                 remove(RemovalReason.DISCARDED);  // Illegal State, break
             }
         }
-
-        if (this.tickCount%10 == 0) {
-            PackageCouriers.LOGGER.debug(this.getDeltaMovement()+"");
-        }
+//
+//        if (this.tickCount%10 == 0) {
+//            PackageCouriers.LOGGER.debug(this.targetPos+"");
+//        }
     }
 
     protected void onReachedTarget() {
@@ -315,6 +312,14 @@ public class DeliveryPlaneEntity extends Projectile {
     public void setPackage(ItemStack stack) {
         if (stack.getItem() instanceof PackageItem)
             this.getEntityData().set(DATA_ITEM, stack);
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 
     public static boolean isChunkTicking(Level level, Vec3 pos) {

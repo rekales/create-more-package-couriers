@@ -1,5 +1,25 @@
 {
-  "itemGroup.examplemod": "Example Mod Tab",
-  "block.examplemod.example_block": "Example Block",
-  "item.examplemod.example_item": "Example Item"
+  "block.cmpackagecouriers.example_block": "Example Block",
+  "item.cmpackagecouriers.cardboard_plane": "Cardboard Plane Parts",
+  "item.cmpackagecouriers.delivery_plane": "Delivery Plane",
+  "item.cmpackagecouriers.example_item": "Example Item",
+
+  "cmpackagecouriers.ponder.sending_planes.header": "Sending Planes",
+  "cmpackagecouriers.ponder.sending_planes.text_1": "Package planes can be created from packages",
+  "cmpackagecouriers.ponder.sending_planes.text_2": "... and can be automated using a deployer",
+  "cmpackagecouriers.ponder.sending_planes.text_3": "An ejector is needed to launch planes",
+  "cmpackagecouriers.ponder.sending_planes.text_4": "Planes can also be launched by hand with right-click while holding the plane",
+
+  "cmpackagecouriers.ponder.receiving_planes.header": "Receiving Planes & Addresses",
+  "cmpackagecouriers.ponder.receiving_planes.text_1": "Planes will deliver to the player with their name matching to the package address",
+  "cmpackagecouriers.ponder.receiving_planes.text_2": "→ John Create",
+  "cmpackagecouriers.ponder.receiving_planes.text_3": "The plane will skip unloaded chunks and can traverse through other dimensions",
+  "cmpackagecouriers.ponder.receiving_planes.text_4": "John Create",
+  "cmpackagecouriers.ponder.receiving_planes.text_5": "Pretend this is a player",
+  "cmpackagecouriers.ponder.receiving_planes.text_6": "Planes can also deliver to depots with signs matching the package address",
+  "cmpackagecouriers.ponder.receiving_planes.text_7": "→ Outpost",
+  "cmpackagecouriers.ponder.receiving_planes.text_8": "Destinations have to be chunkloaded for this to work",
+  "cmpackagecouriers.ponder.receiving_planes.text_9": "Outpost",
+  "cmpackagecouriers.ponder.receiving_planes.text_10": "If there are no available targets, the plane will be ejected as an item as usual"
+
 }

@@ -6,21 +6,15 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Position;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ProjectileItem;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -29,6 +23,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 // Copied and Altered from TridentItem
@@ -142,6 +137,12 @@ public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
         return false;
     }
 
+    public static ItemStack withPackage(ItemStack box) {
+        ItemStack plane = PackageCouriers.DELIVERY_PLANE_ITEM.asStack();
+        setPackage(plane, box);
+        return plane;
+    }
+
     public static void setPackage(ItemStack plane, ItemStack box) {
         if (box.getItem() instanceof PackageItem) {
             ItemContainerContents container = ItemContainerContents.fromItems(NonNullList.of(ItemStack.EMPTY, box.copy()));
@@ -161,6 +162,15 @@ public class DeliveryPlaneItem extends Item implements EjectorLaunchEffect {
             return PackageItem.getAddress(getPackage(plane));
         }
         return "";
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        ItemStack box = getPackage(stack);
+        if (box != null)
+            box.getItem().appendHoverText(box, context, tooltipComponents, tooltipFlag);
+        else
+            super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 
     @SuppressWarnings("removal")
