@@ -18,6 +18,8 @@
   "cmpackagecouriers.ponder.receiving_planes.text_7": "→ Outpost",
   "cmpackagecouriers.ponder.receiving_planes.text_8": "Destinations have to be chunkloaded for this to work",
   "cmpackagecouriers.ponder.receiving_planes.text_9": "Outpost",
-  "cmpackagecouriers.ponder.receiving_planes.text_10": "If there are no available targets, the plane will be ejected as an item as usual"
+  "cmpackagecouriers.ponder.receiving_planes.text_10": "If there are no available targets, the plane will be ejected as an item as usual",
 
+  "cmpackagecouriers.message.inbound": "Package Inbound",
+  "cmpackagecouriers.message.no_address": "No Valid Targets"
 }

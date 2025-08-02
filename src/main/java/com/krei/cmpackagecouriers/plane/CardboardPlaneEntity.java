@@ -11,6 +11,7 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -38,6 +39,8 @@ import java.util.UUID;
 // TODO: sync targetPos to increase entity update interval
 // TODO: NonNull targetPos and targetPosLevel
 // TODO: Use the Ender Pearl chunk loading mechanic
+// NOTE: We could implement this by adding functionality to ejectors
+// NOTE: We could implement this by using still entities and rendering ghosts
 public class CardboardPlaneEntity extends Projectile {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData
             .defineId(CardboardPlaneEntity.class, EntityDataSerializers.ITEM_STACK);
@@ -112,6 +115,11 @@ public class CardboardPlaneEntity extends Projectile {
             return;
         }
 
+        if (targetPos.closerThan(this.position(), 40)
+                && targetEntityCached instanceof Player player) {
+            player.displayClientMessage(Component.translatable(PackageCouriers.MODID + ".message.inbound"), true);
+        }
+
         if (targetPos.closerThan(this.position(), 1.5)) {
             onReachedTarget();
             remove(RemovalReason.DISCARDED);
@@ -130,7 +138,7 @@ public class CardboardPlaneEntity extends Projectile {
         }
         float augmentedDistance = (float)targetPos.subtract(this.position()).length() + Math.max(0, 100 - this.tickCount);
         float clampedDistance = Mth.clamp(augmentedDistance, 5, 60);
-        float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.35f, 0.06f);
+        float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.4f, 0.06f);
         this.setDeltaMovement(vecFrom.lerp(vecTo, curveAmount).normalize().scale(this.speed));
 
         Vec3 posAhead = this.position().add(this.getDeltaMovement().normalize().scale(20));
@@ -157,7 +165,7 @@ public class CardboardPlaneEntity extends Projectile {
                     } else if (isChunkTicking(tpLevel, targetPos)) {
                         tpVec = targetPos;
                     } else {
-                        PackageCouriers.LOGGER.debug("Target Not Loaded");
+//                        PackageCouriers.LOGGER.debug("Target Not Loaded");
                         remove(RemovalReason.DISCARDED);
                         return;
                     }
@@ -165,17 +173,13 @@ public class CardboardPlaneEntity extends Projectile {
                     if (targetPosLevel != level().dimension()) {  // Target not in the same dimension
                         // NOTE: Maybe set the proper rotations?
                         teleportTo(tpLevel, tpVec.x(), tpVec.y(), tpVec.z(), Collections.emptySet(), this.getYRot(), this.getXRot());
-                        PackageCouriers.LOGGER.debug("TP: " + tpLevel + " " + tpVec);
-//                        PackageCouriers.LOGGER.debug("YD: " + (this.position().y() - targetPos.y()));
+//                        PackageCouriers.LOGGER.debug("TP: " + tpLevel + " " + tpVec);
                     } else {
                         teleportTo(tpVec.x(), tpVec.y(), tpVec.z());
-                        PackageCouriers.LOGGER.debug("TP: " + tpVec);
-//                        PackageCouriers.LOGGER.debug("YD: " + (this.position().y() - targetPos.y()));
-
+//                        PackageCouriers.LOGGER.debug("TP: " + tpVec);
                     }
                     this.setDeltaMovement(targetPos.subtract(this.position()).normalize().scale(this.speed));
                 }
-
             }
         }
 

@@ -71,13 +71,21 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
                         stack.shrink(1);
                     }
                 }
+                player.displayClientMessage(Component.translatable(PackageCouriers.MODID + ".message.no_address"), true);
             }
         }
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        player.startUsingItem(hand);
+        if (player.isCrouching()) {
+            ItemStack box = CardboardPlaneItem.getPackage(player.getItemInHand(hand));
+            player.getItemInHand(hand).shrink(1);
+            player.getInventory().placeItemBackInInventory(box);
+            player.getInventory().placeItemBackInInventory(PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM.asStack());
+        } else {
+            player.startUsingItem(hand);
+        }
         return InteractionResultHolder.consume(player.getItemInHand(hand));
     }
 
@@ -118,7 +126,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
             CardboardPlaneEntity plane = new CardboardPlaneEntity(level);
             plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
             plane.setPackage(packageItem);
-            plane.shootFromRotation(-45F, yaw, 0.0F, 0.8F, 1.0F);
+            plane.shootFromRotation(-37.5F, yaw, 0.0F, 0.8F, 1.0F);
 
             ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
             if (serverPlayer != null) {

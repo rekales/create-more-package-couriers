@@ -24,7 +24,7 @@ public class AddressMarkerHandler {
             marker.resetTimeout();
         } else {
             markerMap.put(marker, marker);
-            PackageCouriers.LOGGER.debug("Added: " + marker);
+//            PackageCouriers.LOGGER.debug("Added: " + marker);
         }
     }
 
@@ -37,7 +37,7 @@ public class AddressMarkerHandler {
 
             if (marker.tickAndCheckTimeout()) {
                 iterator.remove();
-                PackageCouriers.LOGGER.debug("Removed: " + marker);
+//                PackageCouriers.LOGGER.debug("Removed: " + marker);
             }
         }
     }
