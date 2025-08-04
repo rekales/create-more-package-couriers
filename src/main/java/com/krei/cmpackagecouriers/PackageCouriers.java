@@ -1,7 +1,9 @@
 package com.krei.cmpackagecouriers;
 
+import com.krei.cmpackagecouriers.compat.Mods;
 import com.krei.cmpackagecouriers.plane.*;
 import com.krei.cmpackagecouriers.ponder.PonderScenes;
+import com.krei.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.EntityEntry;

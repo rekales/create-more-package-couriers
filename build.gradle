@@ -101,7 +101,7 @@ dependencies {
 //    compileOnly "curse.maven:create-mobile-packages-1232978:6717098"
 
 //    runtimeOnly "curse.maven:create-factory-logistics-1218807:6697752"
-    runtimeOnly "curse.maven:create-mobile-packages-1232978:6717098"
+//    runtimeOnly "curse.maven:create-mobile-packages-1232978:6717098"
 //    runtimeOnly "curse.maven:controlling-250398:6368976"
 //    runtimeOnly "curse.maven:searchables-858542:5831692"
 //    runtimeOnly "curse.maven:create-more-linked-remote-1277244:6638807"
