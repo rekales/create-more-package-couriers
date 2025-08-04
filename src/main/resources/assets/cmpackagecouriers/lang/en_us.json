@@ -21,5 +21,14 @@
   "cmpackagecouriers.ponder.receiving_planes.text_10": "If there are no available targets, the plane will be ejected as an item as usual",
 
   "cmpackagecouriers.message.inbound": "Package Inbound",
-  "cmpackagecouriers.message.no_address": "No Valid Targets"
+  "cmpackagecouriers.message.no_address": "No Valid Targets",
+
+  "item.cmpackagecouriers.portable_stock_ticker": "Portable Stock Ticker",
+  "item.cmpackagecouriers.portable_stock_ticker.screen_title": "Portable Stock Ticker",
+  "item.cmpackagecouriers.portable_stock_ticker.not_linked": "Not linked to Network",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.summary": "A Mobile Stock Keeper",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition1": "When sneak clicked on a Stock Link or Stock Ticker",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour1": "Portable Stock Ticker will bind to the Network",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition2": "When used",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour2": "Portable Stock Ticker will open a mobile Stock Keeper menu"
 }

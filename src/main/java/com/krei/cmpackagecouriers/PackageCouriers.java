@@ -53,7 +53,7 @@ public class PackageCouriers {
             .item("cardboard_plane_parts", CardboardPlanePartsItem::new)
             .register();
 
-    private static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
+    public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
             .createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
     public static final Supplier<DataComponentType<ItemContainerContents>> PLANE_PACKAGE = DATA_COMPONENTS
             .registerComponentType("plane_package", builder -> builder
@@ -61,6 +61,9 @@ public class PackageCouriers {
                             .networkSynchronized(ItemContainerContents.STREAM_CODEC));
 
     public PackageCouriers(IEventBus modEventBus, ModContainer modContainer) {
+        if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())
+            PortableStockTickerReg.register();
+
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
