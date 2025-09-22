@@ -5,6 +5,7 @@ import com.krei.cmpackagecouriers.marker.AddressMarkerHandler;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -56,6 +57,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
                 CardboardPlaneEntity plane = new CardboardPlaneEntity(level);
                 plane.setPos(player.getX(), player.getEyeY()-0.1f, player.getZ());
                 plane.setPackage(packageItem);
+                plane.setUnpack(stack.getOrDefault(PackageCouriers.PRE_OPENED, false));
                 plane.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.8F, 1.0F);
 
                 ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
@@ -126,6 +128,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
             CardboardPlaneEntity plane = new CardboardPlaneEntity(level);
             plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
             plane.setPackage(packageItem);
+            plane.setUnpack(stack.getOrDefault(PackageCouriers.PRE_OPENED, false));
             plane.shootFromRotation(-37.5F, yaw, 0.0F, 0.8F, 1.0F);
 
             ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
@@ -172,11 +175,23 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         return "";
     }
 
+    public static void setPreOpened(ItemStack plane, boolean preopened) {
+        if (plane.getItem() instanceof CardboardPlaneItem
+                && plane.get(PackageCouriers.PLANE_PACKAGE) instanceof ItemContainerContents container
+                && PackageItem.isPackage(container.getStackInSlot(0))) {
+            plane.set(PackageCouriers.PRE_OPENED, preopened);
+        }
+    }
+
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         ItemStack box = getPackage(stack);
-        if (box != null)
+        if (box != null) {
+            if (stack.getOrDefault(PackageCouriers.PRE_OPENED, false))
+                tooltipComponents.add(Component.translatable("tooltip.cmpackagecouriers.cardboard_plane.preopened")
+                        .withStyle(ChatFormatting.AQUA));
             box.getItem().appendHoverText(box, context, tooltipComponents, tooltipFlag);
+        }
         else
             super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }

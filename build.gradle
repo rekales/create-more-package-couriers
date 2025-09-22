@@ -97,14 +97,17 @@ dependencies {
     implementation(jarJar("ru.zznty:create_factory_abstractions-${minecraft_version}:${create_factory_abstractions_version}"))
     implementation("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
 
+    compileOnly "curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828"
     compileOnly "curse.maven:create-factory-logistics-1218807:6697752"
 //    compileOnly "curse.maven:create-mobile-packages-1232978:6717098"
 
-//    runtimeOnly "curse.maven:create-factory-logistics-1218807:6697752"
+    runtimeOnly "curse.maven:create-more-linked-remote-1277244:6638807"
+//    runtimeOnly "curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828"
+    runtimeOnly "curse.maven:create-factory-logistics-1218807:6697752"
 //    runtimeOnly "curse.maven:create-mobile-packages-1232978:6717098"
 //    runtimeOnly "curse.maven:controlling-250398:6368976"
 //    runtimeOnly "curse.maven:searchables-858542:5831692"
-//    runtimeOnly "curse.maven:create-more-linked-remote-1277244:6638807"
+//    runtimeOnly "curse.maven:garnished-923277:6875334"
 
 }
 

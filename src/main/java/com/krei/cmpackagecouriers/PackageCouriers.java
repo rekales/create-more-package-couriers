@@ -4,6 +4,7 @@ import com.krei.cmpackagecouriers.compat.Mods;
 import com.krei.cmpackagecouriers.plane.*;
 import com.krei.cmpackagecouriers.ponder.PonderScenes;
 import com.krei.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
+import com.mojang.serialization.Codec;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.EntityEntry;
@@ -12,8 +13,8 @@ import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -61,6 +62,10 @@ public class PackageCouriers {
             .registerComponentType("plane_package", builder -> builder
                             .persistent(ItemContainerContents.CODEC)
                             .networkSynchronized(ItemContainerContents.STREAM_CODEC));
+    public static final Supplier<DataComponentType<Boolean>> PRE_OPENED = DATA_COMPONENTS
+            .registerComponentType("plane_preopened", builder -> builder
+                            .persistent(Codec.BOOL)
+                            .networkSynchronized(ByteBufCodecs.BOOL));
 
     public PackageCouriers(IEventBus modEventBus, ModContainer modContainer) {
         if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())

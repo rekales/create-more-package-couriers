@@ -1,6 +1,7 @@
 package com.krei.cmpackagecouriers.plane;
 
 import com.krei.cmpackagecouriers.PackageCouriers;
+import com.krei.cmpackagecouriers.compat.cmpackagepipebomb.PackagePipebombCompat;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
@@ -30,6 +31,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -52,6 +55,7 @@ public class CardboardPlaneEntity extends Projectile {
     protected double speed = 0.8;
     public float newDeltaYaw = 0;
     public float oldDeltaYaw = 0;
+    public boolean unpack = false;
 
     public CardboardPlaneEntity(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
@@ -136,7 +140,7 @@ public class CardboardPlaneEntity extends Projectile {
         } else {
             vecTo = targetPos.subtract(this.position()).normalize();
         }
-        float augmentedDistance = (float)targetPos.subtract(this.position()).length() + Math.max(0, 100 - this.tickCount);
+        float augmentedDistance = (float)targetPos.subtract(this.position()).length() + Math.max(0, 80 - this.tickCount);
         float clampedDistance = Mth.clamp(augmentedDistance, 5, 60);
         float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.4f, 0.06f);
         this.setDeltaMovement(vecFrom.lerp(vecTo, curveAmount).normalize().scale(this.speed));
@@ -202,7 +206,21 @@ public class CardboardPlaneEntity extends Projectile {
         if (targetEntityCached != null  // Assumes entity is cached
                 && targetEntityCached instanceof Player player) {
             if (!level().isClientSide()) {
-                player.getInventory().placeItemBackInInventory(this.getPackage());
+                if (unpack) {
+                    ItemStackHandler stacks = PackageItem.getContents(this.getPackage());
+                    for (int slot = 0; slot < stacks.getSlots(); slot++) {
+                        ItemStack stack = stacks.getStackInSlot(slot);
+                        PackageCouriers.LOGGER.debug(stack+"");
+                        if (ModList.get().isLoaded("cmpackagepipebomb")
+                                &&PackagePipebombCompat.isRigged(stack)) {
+                            PackagePipebombCompat.spawnRigged(stack, level(), this.getX(), this.getY(), this.getZ());
+                        } else {
+                            player.getInventory().placeItemBackInInventory(stack);
+                        }
+                    }
+                } else {
+                    player.getInventory().placeItemBackInInventory(this.getPackage());
+                }
             }
         } else if (targetPos != null) {
             if (!level().isClientSide()) {
@@ -284,6 +302,8 @@ public class CardboardPlaneEntity extends Projectile {
             double y = compoundTag.getDouble("TargetPosY");
             double z = compoundTag.getDouble("TargetPosZ");
             targetPos = new Vec3(x, y, z);
+        } else if (compoundTag.contains("Unpack")) {
+            unpack = compoundTag.getBoolean("Unpack");
         } else {
             // Illegal state
         }
@@ -296,10 +316,11 @@ public class CardboardPlaneEntity extends Projectile {
         super.addAdditionalSaveData(compoundTag);
         ItemStack box = this.getPackage();
         compoundTag.put("Box", box.saveOptional(level().registryAccess()));
+        compoundTag.putBoolean("Unpack", unpack);
 
         if (targetEntityUUID != null) {
             compoundTag.putUUID("TargetEntity", targetEntityUUID);
-        } else if (targetPos != null){
+        } else if (targetPos != null) {
             compoundTag.putDouble("TargetPosX", targetPos.x());
             compoundTag.putDouble("TargetPosY", targetPos.y());
             compoundTag.putDouble("TargetPosZ", targetPos.z());
@@ -315,6 +336,14 @@ public class CardboardPlaneEntity extends Projectile {
     public void setPackage(ItemStack stack) {
         if (stack.getItem() instanceof PackageItem)
             this.getEntityData().set(DATA_ITEM, stack);
+    }
+
+    public boolean isUnpack() {
+        return unpack;
+    }
+
+    public void setUnpack(boolean unpack) {
+        this.unpack = unpack;
     }
 
     public double getSpeed() {
