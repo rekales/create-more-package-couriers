@@ -55,7 +55,7 @@ public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer 
                           ItemDisplayContext transformType, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         ItemStack box = CardboardPlaneItem.getPackage(stack);
         if (box.isEmpty() || !PackageItem.isPackage(box))
-            box = AllBlocks.CARDBOARD_BLOCK.asStack();
+            box = PackageStyles.getDefaultBox();
 
         // TODO: Simplify
         ms.pushPose();
@@ -92,7 +92,7 @@ public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer 
             ms.translate(0, PackageItem.getHeight(box),0);
         }
 
-        renderPlane(CardboardPlaneItem.getPackage(stack), ms, buffer, light);
+        renderPlane(box, ms, buffer, light);
         ms.popPose();
     }
 
