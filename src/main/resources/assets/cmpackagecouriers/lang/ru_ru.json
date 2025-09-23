@@ -1,0 +1,37 @@
+{
+  "item.cmpackagecouriers.cardboard_plane_parts": "Крылья картонного самолётика",
+  "item.cmpackagecouriers.cardboard_plane": "Картонный самолётик",
+  "entity.cmpackagecouriers.cardboard_plane": "Крылатая коробка",
+
+  "tooltip.cmpackagecouriers.cardboard_plane.preopened": "Самостоятельно распаковывается при подлёте к адресату",
+
+  "cmpackagecouriers.ponder.sending_planes.header": "Окрылением коробок",
+  "cmpackagecouriers.ponder.sending_planes.text_1": "Надеть крылья на коробку можно вручную...",
+  "cmpackagecouriers.ponder.sending_planes.text_2": "...или с помощью автономного активатора",
+  "cmpackagecouriers.ponder.sending_planes.text_3": "Запустить крылатую коробку может весовая катапульта...",
+  "cmpackagecouriers.ponder.sending_planes.text_4": "...или сам игрок — зажмите ПКМ, держа самолётик в руке, и отпустите",
+
+  "cmpackagecouriers.ponder.receiving_planes.header": "Маршрутизацией крылатых коробок по адресам и игрокам-адресатам",
+  "cmpackagecouriers.ponder.receiving_planes.text_1": "Если в адресе отправления указано имя игрока, коробка будет оправлена ему в руки",
+  "cmpackagecouriers.ponder.receiving_planes.text_2": "→ Pyotr_Andreevich",
+  "cmpackagecouriers.ponder.receiving_planes.text_3": "По пути самолётик преодолевает выгруженные чанки и даже способен пересекать измерения",
+  "cmpackagecouriers.ponder.receiving_planes.text_4": "Pyotr_Andreevich",
+  "cmpackagecouriers.ponder.receiving_planes.text_5": "Представьте, что это игрок-адресат",
+  "cmpackagecouriers.ponder.receiving_planes.text_6": "Доставка по воздуху возможна и на депо, если на нём размещена табличка с соответствующим адресом",
+  "cmpackagecouriers.ponder.receiving_planes.text_7": "→ Аванпост",
+  "cmpackagecouriers.ponder.receiving_planes.text_8": "Для этого чанк, в котором находится депо, должен быть загружен",
+  "cmpackagecouriers.ponder.receiving_planes.text_9": "Аванпост",
+  "cmpackagecouriers.ponder.receiving_planes.text_10": "Если указанного на коробке адреса не существует, весовая катапульта выбрасывает самолётик как обычный предмет",
+
+  "cmpackagecouriers.message.inbound": "К вам приближается заказанная коробка",
+  "cmpackagecouriers.message.no_address": "Целевой адрес не найден",
+
+  "item.cmpackagecouriers.portable_stock_ticker": "Портативный складской тикер",
+  "item.cmpackagecouriers.portable_stock_ticker.screen_title": "Портативный складской тикер",
+  "item.cmpackagecouriers.portable_stock_ticker.not_linked": "Не подключено к сети",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.summary": "Предоставляет возможность _просматривать содержимое_ привязанной складской сети и _заказывать предметы_ — без надобности в кладовщиках.",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition1": "ПКМ крадучись по складскому передатчику или тикеру",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour1": "Привязывает портативный складской тикер к _складской сети_.",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition2": "ПКМ с предметом",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour2": "Открывает _интерфейс_."
+}
