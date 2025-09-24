@@ -20,6 +20,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
@@ -79,11 +80,13 @@ public class PackageCouriers {
     public PackageCouriers(IEventBus modEventBus, ModContainer modContainer) {
         if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())
             PortableStockTickerReg.register();
-
+        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
         CardboardPlaneEntity.init();
+        modEventBus.addListener(ServerConfig::onLoad);
+        modEventBus.addListener(ServerConfig::onReload);
         // Event Handler Class: AddressMarkerHandler
     }
 

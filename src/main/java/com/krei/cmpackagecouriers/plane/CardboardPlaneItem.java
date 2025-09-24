@@ -1,6 +1,7 @@
 package com.krei.cmpackagecouriers.plane;
 
 import com.krei.cmpackagecouriers.PackageCouriers;
+import com.krei.cmpackagecouriers.ServerConfig;
 import com.krei.cmpackagecouriers.marker.AddressMarkerHandler;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
@@ -61,13 +62,13 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
                 plane.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.8F, 1.0F);
 
                 ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
-                if (serverPlayer != null) {
+                if (serverPlayer != null && ServerConfig.planePlayerTargets) {
                     plane.setTarget(serverPlayer);
                     level.addFreshEntity(plane);
                     stack.shrink(1);
                 } else {
-                    AddressMarkerHandler.MarkerTarget target =  AddressMarkerHandler.getMarkerTarget(address);
-                    if (target != null) {
+                    AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
+                    if (target != null && ServerConfig.planeLocationTargets) {
                         plane.setTarget(target.pos, target.level);
                         level.addFreshEntity(plane);
                         stack.shrink(1);
@@ -132,13 +133,13 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
             plane.shootFromRotation(-37.5F, yaw, 0.0F, 0.8F, 1.0F);
 
             ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
-            if (serverPlayer != null) {
+            if (serverPlayer != null && ServerConfig.planePlayerTargets) {
                 plane.setTarget(serverPlayer);
                 level.addFreshEntity(plane);
                 return true;
             } else {
-                AddressMarkerHandler.MarkerTarget target =  AddressMarkerHandler.getMarkerTarget(address);
-                if (target != null) {
+                AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
+                if (target != null && ServerConfig.planeLocationTargets) {
                     plane.setTarget(target.pos, target.level);
                     level.addFreshEntity(plane);
                     return true;
