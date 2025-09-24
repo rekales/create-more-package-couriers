@@ -1,6 +1,7 @@
 {
   "item.cmpackagecouriers.cardboard_plane_parts": "Cardboard Plane Parts",
   "item.cmpackagecouriers.cardboard_plane": "Cardboard Plane",
+  "entity.cmpackagecouriers.cardboard_plane": "Cardboard Plane",
 
   "tooltip.cmpackagecouriers.cardboard_plane.preopened": "[Unpacks upon arrival to player]",
 
@@ -12,9 +13,9 @@
 
   "cmpackagecouriers.ponder.receiving_planes.header": "Receiving Planes & Addresses",
   "cmpackagecouriers.ponder.receiving_planes.text_1": "Planes will deliver to the player with their name matching to the package address",
-  "cmpackagecouriers.ponder.receiving_planes.text_2": "→ John Create",
+  "cmpackagecouriers.ponder.receiving_planes.text_2": "→ John_Create",
   "cmpackagecouriers.ponder.receiving_planes.text_3": "The plane will skip unloaded chunks and can traverse through other dimensions",
-  "cmpackagecouriers.ponder.receiving_planes.text_4": "John Create",
+  "cmpackagecouriers.ponder.receiving_planes.text_4": "John_Create",
   "cmpackagecouriers.ponder.receiving_planes.text_5": "Pretend this is a player",
   "cmpackagecouriers.ponder.receiving_planes.text_6": "Planes can also deliver to depots with signs matching the package address",
   "cmpackagecouriers.ponder.receiving_planes.text_7": "→ Outpost",
