@@ -39,6 +39,9 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PonderScenes implements PonderPlugin {
     @Override
     public String getModId() {
@@ -59,6 +62,14 @@ public class PonderScenes implements PonderPlugin {
         scene.configureBasePlate(0,0, 5);
         scene.world().showSection(util.select().cuboid(util.grid().at(0,0,0), new Vec3i(4,0,4)), Direction.UP);
         scene.idle(10);
+
+        List<BlockPos> reverseSpeedPos = new ArrayList<>();
+        reverseSpeedPos.add(util.grid().at(1,1,2));
+        reverseSpeedPos.add(util.grid().at(1,1,3));
+        reverseSpeedPos.add(util.grid().at(3,1,3));
+        reverseSpeedPos.add(util.grid().at(3,3,2));
+        reverseSpeedPos.add(util.grid().at(3,3,3));
+        reverseSpeedPos.add(util.grid().at(5,0,2));
 
         BlockPos deployerPos = util.grid().at(3,3,2);
         BlockPos ejectorPos = util.grid().at(1,1,2);
@@ -94,9 +105,12 @@ public class PonderScenes implements PonderPlugin {
         scene.idle(50);
 
         scene.world().modifyEntity(itemEntity, Entity::discard);
-        scene.world().showSection(util.select().layers(1, 3), Direction.DOWN);
+        scene.world().showSection(util.select().fromTo(0,1,0, 5, 4,4), Direction.DOWN);
         scene.world().showSection(util.select().position(util.grid().at(5,0,2)), Direction.DOWN);
         scene.world().setKineticSpeed(util.select().everywhere(), 16);
+        for (BlockPos pos : reverseSpeedPos) {
+            scene.world().setKineticSpeed(util.select().position(pos), -16);
+        }
         scene.idle(10);
         scene.overlay().showText(60)
                 .placeNearTarget()
@@ -159,6 +173,14 @@ public class PonderScenes implements PonderPlugin {
         scene.configureBasePlate(0,0, 5);
         scene.removeShadow();
 
+        List<BlockPos> reverseSpeedPos = new ArrayList<>();
+        reverseSpeedPos.add(util.grid().at(1,1,2));
+        reverseSpeedPos.add(util.grid().at(1,1,3));
+        reverseSpeedPos.add(util.grid().at(3,1,3));
+        reverseSpeedPos.add(util.grid().at(3,3,2));
+        reverseSpeedPos.add(util.grid().at(3,3,3));
+        reverseSpeedPos.add(util.grid().at(5,0,2));
+
         BlockPos deployerPos = util.grid().at(3,3,2);
         BlockPos ejectorPos = util.grid().at(1,1,2);
         BlockPos beltEndPos = util.grid().at(4,1,2);
@@ -170,6 +192,9 @@ public class PonderScenes implements PonderPlugin {
         ElementLink<WorldSectionElement> mainSection = scene.world()
                 .showIndependentSection(util.select().cuboid(util.grid().at(0,0,0), new Vec3i(5,3,4)), Direction.DOWN);
         scene.world().setKineticSpeed(util.select().everywhere(), 2);
+        for (BlockPos pos : reverseSpeedPos) {
+            scene.world().setKineticSpeed(util.select().position(pos), -2);
+        }
         scene.world().modifyBlockEntityNBT(
                 util.select().position(util.grid().at(1,3,2)),
                 DeployerBlockEntity.class,
@@ -190,6 +215,9 @@ public class PonderScenes implements PonderPlugin {
         scene.idle(30);
 
         scene.world().setKineticSpeed(util.select().everywhere(), 32);
+        for (BlockPos pos : reverseSpeedPos) {
+            scene.world().setKineticSpeed(util.select().position(pos), -32);
+        }
         scene.idle(20);
         scene.world().stallBeltItem(beltItem, true);
         scene.world().moveDeployer(deployerPos, 1, 10);
@@ -285,6 +313,9 @@ public class PonderScenes implements PonderPlugin {
         mainSection = scene.world()
                 .showIndependentSection(util.select().cuboid(util.grid().at(0,0,0), new Vec3i(5,3,4)), Direction.WEST);
         scene.world().setKineticSpeed(util.select().everywhere(), 2);
+        for (BlockPos pos : reverseSpeedPos) {
+            scene.world().setKineticSpeed(util.select().position(pos), -2);
+        }
         scene.idle(10);
 
         scene.overlay().showText(80)
@@ -301,6 +332,9 @@ public class PonderScenes implements PonderPlugin {
         scene.idle(30);
 
         scene.world().setKineticSpeed(util.select().everywhere(), 32);
+        for (BlockPos pos : reverseSpeedPos) {
+            scene.world().setKineticSpeed(util.select().position(pos), -32);
+        }
         scene.idle(20);
         scene.world().stallBeltItem(beltItem, true);
         scene.world().moveDeployer(deployerPos, 1, 10);
