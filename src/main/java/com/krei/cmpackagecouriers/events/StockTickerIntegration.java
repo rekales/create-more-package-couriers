@@ -10,16 +10,15 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.minecraft.core.BlockPos;
 
 import static com.krei.cmpackagecouriers.PackageCouriers.MODID;
+import com.krei.cmpackagecouriers.ServerConfig;
 
 import com.simibubi.create.content.logistics.stockTicker.StockTickerInteractionHandler;
 import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
-import org.slf4j.Logger;
-import com.mojang.logging.LogUtils;
+
 // copied from DadudeGaming/Create.Mobile.packages.Unofficial under MIT License
 @EventBusSubscriber(modid = MODID)
 public class StockTickerIntegration {
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static void rewriteAddressIfNeeded(Player player, ItemStack heldItem) {
         if (heldItem.getItem() instanceof ShoppingListItem) {
@@ -34,6 +33,7 @@ public class StockTickerIntegration {
 
     @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.HIGHEST)
     public static void onRightClickEntity(PlayerInteractEvent.EntityInteractSpecific event) {
+        if (!ServerConfig.shopAddressReplacement) return;
         if (event.getLevel().isClientSide()) {
             return;
         }
@@ -55,6 +55,7 @@ public class StockTickerIntegration {
 
     @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.HIGHEST)
     public static void onRightClickBlock(RightClickBlock event) {
+        if (!ServerConfig.shopAddressReplacement) return;
         if (event.getLevel().isClientSide()) {
             return;
         }
