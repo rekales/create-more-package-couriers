@@ -171,7 +171,13 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
 
     public static String getAddress(ItemStack plane) {
         if (plane.getItem() instanceof CardboardPlaneItem) {
-            return PackageItem.getAddress(getPackage(plane));
+            // added handling of @ in address to alow adress chaining and identifying player names
+            String address = PackageItem.getAddress(getPackage(plane));
+            int atIndex = address.indexOf('@');
+            if (atIndex != -1) {
+                address = address.substring(atIndex + 1);
+            }
+            return address;
         }
         return "";
     }
