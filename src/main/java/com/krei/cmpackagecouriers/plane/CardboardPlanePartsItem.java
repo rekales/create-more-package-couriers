@@ -17,8 +17,8 @@ public class CardboardPlanePartsItem extends Item {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity interactionTarget, InteractionHand usedHand) {
         if (interactionTarget instanceof PackageEntity entity) {
-            stack.shrink(1);
             player.getInventory().placeItemBackInInventory(CardboardPlaneItem.withPackage(entity.box));
+            stack.shrink(1);
             entity.remove(Entity.RemovalReason.DISCARDED);
             return InteractionResult.CONSUME;
         } else {
