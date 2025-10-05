@@ -25,13 +25,13 @@ public class ServerConfig {
     public static boolean planePlayerTargets;
     public static boolean shopAddressReplacement;
 
-    static void onLoad(final ModConfigEvent event) {
+    static void onLoad(final ModConfigEvent.Loading event) {
         planeLocationTargets = PLANE_LOCATION_TARGETS.get();
         planePlayerTargets = PLANE_PLAYER_TARGETS.get();
         shopAddressReplacement = SHOP_ADDRESS_REPLACEMENT.get();
     }
 
-    static void onReload(final ModConfigEvent event) {
+    static void onReload(final ModConfigEvent.Reloading event) {
         planeLocationTargets = PLANE_LOCATION_TARGETS.get();
         planePlayerTargets = PLANE_PLAYER_TARGETS.get();
         shopAddressReplacement = SHOP_ADDRESS_REPLACEMENT.get();
