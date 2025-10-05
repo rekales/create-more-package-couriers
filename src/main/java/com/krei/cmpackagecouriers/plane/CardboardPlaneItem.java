@@ -5,6 +5,7 @@ import com.krei.cmpackagecouriers.ServerConfig;
 import com.krei.cmpackagecouriers.marker.AddressMarkerHandler;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
+import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -68,7 +70,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
                     stack.shrink(1);
                 } else {
                     AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
-                    if (target != null && ServerConfig.planeLocationTargets) {
+                    if (target != null && hasSpace(level, target.pos) && ServerConfig.planeLocationTargets) {
                         plane.setTarget(target.pos, target.level);
                         level.addFreshEntity(plane);
                         stack.shrink(1);
@@ -139,7 +141,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
                 return true;
             } else {
                 AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
-                if (target != null && ServerConfig.planeLocationTargets) {
+                if (target != null && hasSpace(level, target.pos) && ServerConfig.planeLocationTargets) {
                     plane.setTarget(target.pos, target.level);
                     level.addFreshEntity(plane);
                     return true;
@@ -147,6 +149,16 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
             }
         }
         return false;
+    }
+
+    public static boolean hasSpace(Level level, BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof DepotBlockEntity depotBlockEntity) {
+            return depotBlockEntity.getHeldItem().isEmpty();
+        }
+        // Other target types here, maybe using an injected interface for them instead of this.
+
+        return true;
     }
 
     public static ItemStack withPackage(ItemStack box) {
