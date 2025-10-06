@@ -4,6 +4,7 @@ import com.krei.cmpackagecouriers.compat.Mods;
 import com.krei.cmpackagecouriers.plane.*;
 import com.krei.cmpackagecouriers.ponder.PonderScenes;
 import com.krei.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
+import com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.mojang.serialization.Codec;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
@@ -80,6 +81,7 @@ public class PackageCouriers {
     public PackageCouriers(IEventBus modEventBus, ModContainer modContainer) {
         if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())
             PortableStockTickerReg.register();
+        LocationTransmitterReg.register();
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);

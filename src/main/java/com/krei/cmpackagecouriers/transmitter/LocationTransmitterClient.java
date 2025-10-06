@@ -1,4 +1,4 @@
-package com.krei.cmpackagecouriers.stock_ticker;
+package com.krei.cmpackagecouriers.transmitter;
 
 import com.krei.cmpackagecouriers.PackageCouriers;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -15,7 +15,7 @@ public class LocationTransmitterClient {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ItemProperties.register(
-                    PortableStockTickerReg.LOCATION_TRANSMITTER.get(),
+                    LocationTransmitterReg.LOCATION_TRANSMITTER.get(),
                     ResourceLocation.fromNamespaceAndPath(PackageCouriers.MODID, "enabled"),
                     (stack, level, entity, seed) -> LocationTransmitterItem.isEnabled(stack) ? 1.0f : 0.0f
             );

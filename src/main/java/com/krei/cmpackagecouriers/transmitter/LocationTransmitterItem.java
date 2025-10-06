@@ -1,4 +1,4 @@
-package com.krei.cmpackagecouriers.stock_ticker;
+package com.krei.cmpackagecouriers.transmitter;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.krei.cmpackagecouriers.stock_ticker.PortableStockTickerReg.TRANSMITTER_ENABLED;
+import static com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg.TRANSMITTER_ENABLED;
 
 public class LocationTransmitterItem extends Item {
 
@@ -32,9 +32,10 @@ public class LocationTransmitterItem extends Item {
         return stack.getOrDefault(TRANSMITTER_ENABLED, CustomData.EMPTY).copyTag().getBoolean("Enabled");
     }
 
-    public static void setEnabled(ItemStack stack, boolean enabled) {
+    public static void toggleState(ItemStack stack) {
+        boolean currentState = isEnabled(stack);
         CompoundTag tag = stack.getOrDefault(TRANSMITTER_ENABLED, CustomData.EMPTY).copyTag();
-        tag.putBoolean("Enabled", enabled);
+        tag.putBoolean("Enabled", !currentState);
         stack.set(TRANSMITTER_ENABLED, CustomData.of(tag));
     }
 
@@ -61,7 +62,7 @@ public class LocationTransmitterItem extends Item {
         
         if (!level.isClientSide) {
             boolean currentState = isEnabled(stack);
-            setEnabled(stack, !currentState);
+            toggleState(stack);
             
             Component message = Component.translatable(
                     !currentState ? "item.cmpackagecouriers.location_transmitter.activated" : "item.cmpackagecouriers.location_transmitter.deactivated"
