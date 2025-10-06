@@ -31,6 +31,10 @@ public class PortableStockTickerReg {
             REGISTRATE.item("portable_stock_ticker", PortableStockTicker::new)
                     .register();
 
+    public static final ItemEntry<LocationTransmitterItem> LOCATION_TRANSMITTER =
+            REGISTRATE.item("location_transmitter", LocationTransmitterItem::new)
+                    .register();
+
     public static final DataComponentType<CustomData> CMP_FREQ = register(
             "cmp_freq",
             builder -> builder.persistent(CustomData.CODEC).networkSynchronized(CustomData.STREAM_CODEC)
@@ -51,6 +55,11 @@ public class PortableStockTickerReg {
             "hidden_categories",
             builder -> builder
                     .persistent(Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT.listOf()))
+    );
+
+    public static final DataComponentType<CustomData> TRANSMITTER_ENABLED = register(
+            "transmitter_enabled",
+            builder -> builder.persistent(CustomData.CODEC).networkSynchronized(CustomData.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builder) {
