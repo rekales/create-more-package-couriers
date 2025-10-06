@@ -14,7 +14,8 @@ import java.util.function.Supplier;
 
 public enum Mods {
     JEI,
-    CREATE_MOBILE_PACKAGES;
+    CREATE_MOBILE_PACKAGES,
+    CURIOS;
 
     // from com/simibubi/create/compat/Mods.java
 

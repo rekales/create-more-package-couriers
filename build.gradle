@@ -26,8 +26,9 @@ repositories {
     maven { url = "https://maven.ftb.dev/releases" } // FTB Mods
     maven { url = 'https://maven.neoforged.net/#/releases/' }
     maven { url = "https://dl.zznty.ru/maven" } // Create Factory Abstractions, Create Factory Logistics
-
+    maven { url = "https://maven.theillusivec4.top/" }
 }
+
 
 base {
     archivesName = mod_id
@@ -108,6 +109,8 @@ dependencies {
 //    runtimeOnly "curse.maven:controlling-250398:6368976"
 //    runtimeOnly "curse.maven:searchables-858542:5831692"
 //    runtimeOnly "curse.maven:garnished-923277:6875334"
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
 }
 
@@ -125,7 +128,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_license            : mod_license,
             mod_version            : mod_version,
             mod_authors            : mod_authors,
-            mod_description        : mod_description
+            mod_description        : mod_description,
+            curios_version         : curios_version
     ]
     inputs.properties replaceProperties
     expand replaceProperties

@@ -2,6 +2,8 @@ package com.krei.cmpackagecouriers.plane;
 
 import com.krei.cmpackagecouriers.PackageCouriers;
 import com.krei.cmpackagecouriers.ServerConfig;
+import com.krei.cmpackagecouriers.compat.Mods;
+import com.krei.cmpackagecouriers.compat.curios.CuriosCompat;
 import com.krei.cmpackagecouriers.marker.AddressMarkerHandler;
 import com.krei.cmpackagecouriers.transmitter.LocationTransmitterItem;
 import com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg;
@@ -170,17 +172,23 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
     }
 
     /**
-     * Checks if the player has an enabled location transmitter in their inventory.
+     * Checks if the player has an enabled location transmitter in their inventory or Curios slots.
      * @param player The player to check
      * @return true if the player has an enabled location transmitter, false otherwise
      */
     public static boolean hasEnabledLocationTransmitter(ServerPlayer player) {
+        // Check regular inventory
         for (ItemStack stack : player.getInventory().items) {
             if (stack.getItem() instanceof LocationTransmitterItem && LocationTransmitterItem.isEnabled(stack)) {
                 return true;
             }
         }
-        // TODO: Add Curios integration here if needed
+        
+        // Check Curios slots if Curios is loaded
+        if (Mods.CURIOS.isLoaded() && CuriosCompat.isCuriosLoaded()) {
+            return CuriosCompat.hasEnabledLocationTransmitterInCurios(player);
+        }
+        
         return false;
     }
 
