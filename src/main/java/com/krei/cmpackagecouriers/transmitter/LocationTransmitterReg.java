@@ -1,6 +1,5 @@
 package com.krei.cmpackagecouriers.transmitter;
 
-import com.krei.cmpackagecouriers.PackageCouriers;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.component.CustomData;

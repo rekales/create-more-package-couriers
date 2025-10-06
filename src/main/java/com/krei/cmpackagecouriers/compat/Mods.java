@@ -7,7 +7,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import org.slf4j.Logger;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -77,4 +80,47 @@ public enum Mods {
             toExecute.get().run();
         }
     }
+
+    // /**
+    //  * Initialize all mod compatibility integrations
+    //  * Call this from the main mod constructor to set up all optional mod support
+    //  */
+    // public static void initializeCompatibility(IEventBus modEventBus, Logger logger) {
+    //     // Initialize Curios integration
+    //     CURIOS.executeIfInstalled(() -> () -> {
+    //         try {
+    //             Class.forName("com.krei.cmpackagecouriers.compat.curios.CuriosIntegration")
+    //                 .getMethod("initialize")
+    //                 .invoke(null);
+    //             logger.info("Curios integration initialized successfully");
+    //         } catch (Exception e) {
+    //             logger.warn("Failed to initialize Curios integration", e);
+    //         }
+    //     });
+
+    //     // Register data generation for Curios
+    //     modEventBus.addListener((GatherDataEvent event) -> {
+    //         CURIOS.executeIfInstalled(() -> () -> {
+    //             try {
+    //                 Class<?> dataGenClass = Class.forName("com.krei.cmpackagecouriers.compat.curios.CuriosDataGenerator");
+    //                 Object dataProvider = dataGenClass.getDeclaredConstructor(
+    //                     net.minecraft.data.PackOutput.class,
+    //                     java.util.concurrent.CompletableFuture.class,
+    //                     net.neoforged.neoforge.common.data.ExistingFileHelper.class
+    //                 ).newInstance(
+    //                     event.getGenerator().getPackOutput(),
+    //                     event.getLookupProvider(),
+    //                     event.getExistingFileHelper()
+    //                 );
+    //                 event.getGenerator().addProvider(event.includeServer(), (net.minecraft.data.DataProvider) dataProvider);
+    //                 logger.info("Curios data generation registered successfully");
+    //             } catch (Exception e) {
+    //                 logger.warn("Failed to register Curios data generation", e);
+    //             }
+    //         });
+    //     });
+
+    //     // Add other mod compatibility here in the future
+    //     // JEI.executeIfInstalled(() -> () -> { ... });
+    // }
 }
