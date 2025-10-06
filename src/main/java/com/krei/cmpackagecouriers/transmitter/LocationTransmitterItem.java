@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -29,12 +30,13 @@ public class LocationTransmitterItem extends Item {
     }
 
     public static boolean isEnabled(ItemStack stack) {
-        return stack.getOrDefault(TRANSMITTER_ENABLED, CustomData.EMPTY).copyTag().getBoolean("Enabled");
+        CompoundTag tag = ensureTag(stack);
+        return tag.getBoolean("Enabled");
     }
 
     public static void toggleState(ItemStack stack) {
         boolean currentState = isEnabled(stack);
-        CompoundTag tag = stack.getOrDefault(TRANSMITTER_ENABLED, CustomData.EMPTY).copyTag();
+        CompoundTag tag = ensureTag(stack);
         tag.putBoolean("Enabled", !currentState);
         stack.set(TRANSMITTER_ENABLED, CustomData.of(tag));
     }
@@ -69,8 +71,24 @@ public class LocationTransmitterItem extends Item {
             ).withStyle(!currentState ? ChatFormatting.GREEN : ChatFormatting.RED);
             
             player.displayClientMessage(message, true);
+            // Attempt to nudge the client to refresh the inventory/tool visuals immediately.
+            if (player instanceof ServerPlayer serverPlayer) {
+                // broadcastChanges will send container/inventory updates to the client; this
+                // helps ensure item data components are synced promptly.
+                serverPlayer.inventoryMenu.broadcastChanges();
+            }
         }
         
         return InteractionResultHolder.success(stack);
+    }
+
+    private static CompoundTag ensureTag(ItemStack stack) {
+        // Ensure a persistent CustomData tag exists with a default Enabled=false
+        CompoundTag tag = stack.getOrDefault(TRANSMITTER_ENABLED, CustomData.EMPTY).copyTag();
+        if (!tag.contains("Enabled")) {
+            tag.putBoolean("Enabled", false);
+            stack.set(TRANSMITTER_ENABLED, CustomData.of(tag));
+        }
+        return tag;
     }
 }
