@@ -13,6 +13,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
+import com.krei.cmpackagecouriers.ServerConfig;
 
 import java.util.List;
 
@@ -53,7 +54,16 @@ public class LocationTransmitterItem extends Item {
         
         tooltipComponents.add(Component.translatable("item.cmpackagecouriers.location_transmitter.status")
                 .append(": ").append(statusText));
-        
+
+        tooltipComponents.add(
+            Component.translatable("item.cmpackagecouriers.location_transmitter.server_config")
+            .append(": ")
+            .append(
+                Component.literal(String.valueOf(ServerConfig.locationTransmitterNeeded))
+                .withStyle(ServerConfig.locationTransmitterNeeded ? ChatFormatting.GREEN : ChatFormatting.RED)
+            )
+        );
+
         tooltipComponents.add(Component.translatable("item.cmpackagecouriers.location_transmitter.tooltip")
                 .withStyle(ChatFormatting.GRAY));
     }

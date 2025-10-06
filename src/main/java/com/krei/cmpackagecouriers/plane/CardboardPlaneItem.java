@@ -3,6 +3,8 @@ package com.krei.cmpackagecouriers.plane;
 import com.krei.cmpackagecouriers.PackageCouriers;
 import com.krei.cmpackagecouriers.ServerConfig;
 import com.krei.cmpackagecouriers.marker.AddressMarkerHandler;
+import com.krei.cmpackagecouriers.transmitter.LocationTransmitterItem;
+import com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
@@ -65,9 +67,12 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
 
                 ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
                 if (serverPlayer != null && ServerConfig.planePlayerTargets) {
-                    plane.setTarget(serverPlayer);
-                    level.addFreshEntity(plane);
-                    stack.shrink(1);
+                    // Check if location transmitter is required and if the target player has one enabled
+                    if (!ServerConfig.locationTransmitterNeeded || hasEnabledLocationTransmitter(serverPlayer)) {
+                        plane.setTarget(serverPlayer);
+                        level.addFreshEntity(plane);
+                        stack.shrink(1);
+                    }
                 } else {
                     AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
                     if (target != null && hasSpace(level, target.pos) && ServerConfig.planeLocationTargets) {
@@ -136,9 +141,12 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
 
             ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
             if (serverPlayer != null && ServerConfig.planePlayerTargets) {
-                plane.setTarget(serverPlayer);
-                level.addFreshEntity(plane);
-                return true;
+                // Check if location transmitter is required and if the target player has one enabled
+                if (!ServerConfig.locationTransmitterNeeded || hasEnabledLocationTransmitter(serverPlayer)) {
+                    plane.setTarget(serverPlayer);
+                    level.addFreshEntity(plane);
+                    return true;
+                }
             } else {
                 AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
                 if (target != null && hasSpace(level, target.pos) && ServerConfig.planeLocationTargets) {
@@ -159,6 +167,21 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         // Other target types here, maybe using an injected interface for them instead of this.
 
         return true;
+    }
+
+    /**
+     * Checks if the player has an enabled location transmitter in their inventory.
+     * @param player The player to check
+     * @return true if the player has an enabled location transmitter, false otherwise
+     */
+    public static boolean hasEnabledLocationTransmitter(ServerPlayer player) {
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.getItem() instanceof LocationTransmitterItem && LocationTransmitterItem.isEnabled(stack)) {
+                return true;
+            }
+        }
+        // TODO: Add Curios integration here if needed
+        return false;
     }
 
     public static ItemStack withPackage(ItemStack box) {

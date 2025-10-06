@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "T": {
+      "item": "create:transmitter"
+    },
+    "C": {
+      "item": "minecraft:compass"
+    },
+    "B": {
+      "item": "create:copper_casing"
+    },
+    "L": {
+      "item": "minecraft:lever"
+    },
+    "E": {
+      "item": "create:electron_tube"
+    }
+  },
+  "pattern": [
+    " T ",
+    " C ",
+    "LBE"
+  ],
+  "result": {
+    "count": 1,
+    "id": "cmpackagecouriers:location_transmitter"
+  }
+}

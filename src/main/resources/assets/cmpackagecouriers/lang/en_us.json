@@ -41,5 +41,6 @@
   "item.cmpackagecouriers.location_transmitter.disabled": "Disabled",
   "item.cmpackagecouriers.location_transmitter.activated": "Location Transmitter Activated",
   "item.cmpackagecouriers.location_transmitter.deactivated": "Location Transmitter Deactivated",
-  "item.cmpackagecouriers.location_transmitter.tooltip": "Right-click to toggle"
+  "item.cmpackagecouriers.location_transmitter.tooltip": "Right-click to toggle",
+  "item.cmpackagecouriers.location_transmitter.server_config": "Transmitter needed for Player Targeting"
 }
