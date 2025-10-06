@@ -20,14 +20,12 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 public class Curios {
 
     public static void init(IEventBus modEventBus) {
-        PackageCouriers.LOGGER.info("Initializing Curios integration for cmpackagecouriers");
         modEventBus.addListener(Curios::onClientSetup);
         modEventBus.addListener(Curios::registerCapabilities);
         modEventBus.addListener(Curios::gatherData);
     }
 
     public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
-        PackageCouriers.LOGGER.info("Registering Curios capabilities for Location Transmitter");
         event.registerItem(
             top.theillusivec4.curios.api.CuriosCapability.ITEM,
             (stack, context) -> new ICurio() {
@@ -47,7 +45,6 @@ public class Curios {
     }
 
     public static void gatherData(GatherDataEvent event) {
-        PackageCouriers.LOGGER.info("Adding Curios data provider to data generation");
         event.getGenerator().addProvider(
             event.includeServer(),
             new CuriosDataGenerator(
@@ -59,7 +56,6 @@ public class Curios {
     }
 
     private static void onClientSetup(final FMLClientSetupEvent event) {
-        PackageCouriers.LOGGER.info("Setting up Curios client-side renderers");
         // Register Curios renderers during client setup
         CuriosRenderers.register();
     }

@@ -7,10 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
-import org.slf4j.Logger;
 
 import java.util.Optional;
 import java.util.function.Supplier;

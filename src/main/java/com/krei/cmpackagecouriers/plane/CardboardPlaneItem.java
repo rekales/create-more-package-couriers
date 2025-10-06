@@ -6,7 +6,6 @@ import com.krei.cmpackagecouriers.compat.Mods;
 import com.krei.cmpackagecouriers.compat.curios.CuriosCompat;
 import com.krei.cmpackagecouriers.marker.AddressMarkerHandler;
 import com.krei.cmpackagecouriers.transmitter.LocationTransmitterItem;
-import com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
