@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "cmpackagecouriers:item/location_transmitter_enabled",
+      "predicate": {
+        "cmpackagecouriers:enabled": 1.0
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "cmpackagecouriers:item/location_transmitter"
+  }
+}
