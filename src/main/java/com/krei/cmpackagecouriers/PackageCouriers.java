@@ -1,9 +1,12 @@
 package com.krei.cmpackagecouriers;
 
 import com.krei.cmpackagecouriers.compat.Mods;
+import com.krei.cmpackagecouriers.compat.curios.Curios;
+
 import com.krei.cmpackagecouriers.plane.*;
 import com.krei.cmpackagecouriers.ponder.PonderScenes;
 import com.krei.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
+import com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.mojang.serialization.Codec;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
@@ -22,6 +25,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
@@ -60,10 +64,12 @@ public class PackageCouriers {
 
     public static final ItemEntry<CardboardPlaneItem> CARDBOARD_PLANE_ITEM = REGISTRATE
             .item("cardboard_plane", CardboardPlaneItem::new)
+            .model((ctx, prov) -> {}) // Skip model generation - uses custom renderer
             .register();
 
     public static final ItemEntry<CardboardPlanePartsItem> CARDBOARD_PLANE_PARTS_ITEM = REGISTRATE
             .item("cardboard_plane_parts", CardboardPlanePartsItem::new)
+            .model((ctx, prov) -> {}) // Skip model generation - uses custom renderer
             .register();
 
     public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
@@ -80,10 +86,14 @@ public class PackageCouriers {
     public PackageCouriers(IEventBus modEventBus, ModContainer modContainer) {
         if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())
             PortableStockTickerReg.register();
+        LocationTransmitterReg.register();
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
+        
+        Mods.CURIOS.executeIfInstalled(() -> () -> Curios.init(modEventBus));
+        
         CardboardPlaneEntity.init();
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);

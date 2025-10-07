@@ -33,5 +33,14 @@
   "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition1": "When sneak clicked on a Stock Link or Stock Ticker",
   "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour1": "Portable Stock Ticker will bind to the Network",
   "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition2": "When used",
-  "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour2": "Portable Stock Ticker will open a mobile Stock Keeper menu"
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour2": "Portable Stock Ticker will open a mobile Stock Keeper menu",
+
+  "item.cmpackagecouriers.location_transmitter": "Location Transmitter",
+  "item.cmpackagecouriers.location_transmitter.status": "Status",
+  "item.cmpackagecouriers.location_transmitter.enabled": "Enabled",
+  "item.cmpackagecouriers.location_transmitter.disabled": "Disabled",
+  "item.cmpackagecouriers.location_transmitter.activated": "Location Transmitter Activated",
+  "item.cmpackagecouriers.location_transmitter.deactivated": "Location Transmitter Deactivated",
+  "item.cmpackagecouriers.location_transmitter.tooltip": "Right-click to toggle",
+  "item.cmpackagecouriers.location_transmitter.server_config": "Transmitter needed for Player Targeting"
 }
