@@ -10,5 +10,28 @@
   ],
   "textures": {
     "layer0": "cmpackagecouriers:item/location_transmitter"
-  }
+  },
+  "display": {
+		"thirdperson_righthand": {
+			"rotation": [23, -32, 0],
+			"translation": [-2.75, 4, 1.25],
+			"scale": [0.6, 0.6, 1]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [23, -32, 0],
+			"translation": [-2.75, 4, 1.25],
+			"scale": [0.6, 0.6, 1]
+		},
+		"firstperson_righthand": {
+			"rotation": [-4, -62, 15],
+			"translation": [-1.25, 6.75, 0]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-4, -62, 15],
+			"translation": [-1.25, 6.75, 0]
+		},
+		"ground": {
+			"translation": [0, 4.25, 0]
+		}
+	}
 }
