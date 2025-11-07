@@ -34,4 +34,13 @@
   "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour1": "Привязывает портативный складской тикер к _складской сети_.",
   "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition2": "ПКМ с предметом",
   "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour2": "Открывает _интерфейс_."
+
+  "item.cmpackagecouriers.location_transmitter": "Передатчик местонахождения",
+  "item.cmpackagecouriers.location_transmitter.status": "Состояние:",
+  "item.cmpackagecouriers.location_transmitter.enabled": "Включён",
+  "item.cmpackagecouriers.location_transmitter.disabled": "Выключен",
+  "item.cmpackagecouriers.location_transmitter.activated": "Передача местонахождения включена",
+  "item.cmpackagecouriers.location_transmitter.deactivated": "Передача местонахождения выключена",
+  "item.cmpackagecouriers.location_transmitter.tooltip": "ПКМ для переключения",
+  "item.cmpackagecouriers.location_transmitter.server_config": "Необходим для направления крылатых коробок, адресованных вам."
 }
