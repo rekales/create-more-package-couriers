@@ -23,6 +23,10 @@
   "cmpackagecouriers.ponder.receiving_planes.text_9": "Outpost",
   "cmpackagecouriers.ponder.receiving_planes.text_10": "If there are no available targets, the plane will be ejected as an item as usual",
 
+  "cmpackagecouriers.ponder.auto_opening_planes.header": "Auto-Unpacking Planes",
+  "cmpackagecouriers.ponder.auto_opening_planes.text_1": "Sawing planes auto-unpacks them upon arrival.",
+  "cmpackagecouriers.ponder.auto_opening_planes.text_2": "Also works with player targets",
+
   "cmpackagecouriers.message.inbound": "Package Inbound",
   "cmpackagecouriers.message.no_address": "No Valid Targets",
 
