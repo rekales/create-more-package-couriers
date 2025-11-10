@@ -284,6 +284,14 @@ public class PonderScenes implements PonderPlugin {
                 .text("Pretend this is a player");
         scene.idle(20);
 
+        // TODO: Conditionally add segment when config is enabled
+        // NOTE: Maybe not possible due to how translations work
+        // TODO: Extend Ponder to add item only overlay
+        scene.overlay().showText(80)
+                .pointAt(util.vector().of(2,2.5,2))
+                .text("Players are required to have a location transmitter in their inventory to be targeted by a plane");
+        scene.idle(90);
+
         planeEntity = scene.world().createEntity(w -> {
             CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
             plane.setPos(util.vector().of(10,6.5,2));
