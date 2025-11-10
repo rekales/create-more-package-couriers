@@ -3,6 +3,7 @@ package com.krei.cmpackagecouriers.ponder;
 import com.krei.cmpackagecouriers.PackageCouriers;
 import com.krei.cmpackagecouriers.plane.CardboardPlaneEntity;
 import com.krei.cmpackagecouriers.plane.CardboardPlaneItem;
+import com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
@@ -277,20 +278,24 @@ public class PonderScenes implements PonderPlugin {
         scene.overlay().showText(40)
                 .pointAt(util.vector().of(2,2.5,2))
                 .colored(PonderPalette.BLUE)
+                .placeNearTarget()
                 .text("John Create");
         scene.idle(20);
 
         scene.overlay().showText(60)
                 .text("Pretend this is a player");
-        scene.idle(20);
+        scene.idle(60);
 
         // TODO: Conditionally add segment when config is enabled
         // NOTE: Maybe not possible due to how translations work
-        // TODO: Extend Ponder to add item only overlay
-        scene.overlay().showText(80)
+        scene.overlay()
+                .showControls(util.vector().of(2, 2, 2), Pointing.UP, 90)
+                .withItem(new ItemStack(LocationTransmitterReg.LOCATION_TRANSMITTER.get()));
+        scene.overlay().showText(100)
                 .pointAt(util.vector().of(2,2.5,2))
+                .placeNearTarget()
                 .text("Players are required to have a location transmitter in their inventory to be targeted by a plane");
-        scene.idle(90);
+        scene.idle(100);
 
         planeEntity = scene.world().createEntity(w -> {
             CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
