@@ -27,6 +27,7 @@ repositories {
     maven { url = 'https://maven.neoforged.net/#/releases/' }
     maven { url = "https://dl.zznty.ru/maven" } // Create Factory Abstractions, Create Factory Logistics
     maven { url = "https://maven.theillusivec4.top/" }
+    maven { url = "https://maven.squiddev.cc" } // CC: Tweaked
 }
 
 
@@ -112,6 +113,9 @@ dependencies {
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cc_tweaked_version}")
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${cc_tweaked_version}")
+    runtimeOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cc_tweaked_version}")
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
