@@ -3,13 +3,13 @@
   "item.cmpackagecouriers.cardboard_plane": "纸壳飞机",
   "entity.cmpackagecouriers.cardboard_plane": "纸壳飞机",
 
-  "tooltip.cmpackagecouriers.cardboard_plane.preopened": "[送达玩家时自动拆包]",
+  "tooltip.cmpackagecouriers.cardboard_plane.preopened": "[送达玩家时自动拆解包裹]",
 
   "cmpackagecouriers.ponder.sending_planes.header": "发送飞机",
   "cmpackagecouriers.ponder.sending_planes.text_1": "包裹飞机可由包裹制作而来",
-  "cmpackagecouriers.ponder.sending_planes.text_2": "…也可用机械手自动组装",
-  "cmpackagecouriers.ponder.sending_planes.text_3": "需要用弹射置物台发射飞机",
-  "cmpackagecouriers.ponder.sending_planes.text_4": "也可以在手持飞机时长按使用来手动发射",
+  "cmpackagecouriers.ponder.sending_planes.text_2": "……也可用机械手自动组装",
+  "cmpackagecouriers.ponder.sending_planes.text_3": "飞机需要用弹射置物台发射",
+  "cmpackagecouriers.ponder.sending_planes.text_4": "也可以在手持飞机时长按右键来手动发射",
 
   "cmpackagecouriers.ponder.receiving_planes.header": "接收飞机与设定地址",
   "cmpackagecouriers.ponder.receiving_planes.text_1": "飞机会投递到名字和包裹地址相符的玩家",
@@ -17,11 +17,16 @@
   "cmpackagecouriers.ponder.receiving_planes.text_3": "飞机能跨越未加载区块和不同维度",
   "cmpackagecouriers.ponder.receiving_planes.text_4": "李华_机械动力",
   "cmpackagecouriers.ponder.receiving_planes.text_5": "假装这是个玩家",
-  "cmpackagecouriers.ponder.receiving_planes.text_6": "若旁边告示牌上的字和地址相符，飞机也能自动投递到置物台上",
-  "cmpackagecouriers.ponder.receiving_planes.text_7": "→ 前哨",
-  "cmpackagecouriers.ponder.receiving_planes.text_8": "这种投递方式需要加载目的地所在区块",
-  "cmpackagecouriers.ponder.receiving_planes.text_9": "前哨",
-  "cmpackagecouriers.ponder.receiving_planes.text_10": "如果找不到目标，飞机就会像一般物品一样被弹射",
+  "cmpackagecouriers.ponder.receiving_planes.text_6": "玩家需携带定位器才能成为飞机的目标",
+  "cmpackagecouriers.ponder.receiving_planes.text_7": "若告示牌上的字和地址相符，飞机也能自动投递到置物台上",
+  "cmpackagecouriers.ponder.receiving_planes.text_8": "→ 前哨",
+  "cmpackagecouriers.ponder.receiving_planes.text_9": "这种投递方式需要加载目的地所在区块",
+  "cmpackagecouriers.ponder.receiving_planes.text_10": "前哨",
+  "cmpackagecouriers.ponder.receiving_planes.text_11": "如果找不到目标，飞机就会像一般物品一样被弹射",
+
+  "cmpackagecouriers.ponder.auto_opening_planes.header": "让飞机自动拆解包裹",
+  "cmpackagecouriers.ponder.auto_opening_planes.text_1": "动力锯切削会使飞机在送达时自动拆解包裹。",
+  "cmpackagecouriers.ponder.auto_opening_planes.text_2": "投递给玩家时也一样",
 
   "cmpackagecouriers.message.inbound": "包裹即将到达",
   "cmpackagecouriers.message.no_address": "找不到有效目标",
@@ -39,8 +44,8 @@
   "item.cmpackagecouriers.location_transmitter.status": "状态",
   "item.cmpackagecouriers.location_transmitter.enabled": "启用",
   "item.cmpackagecouriers.location_transmitter.disabled": "禁用",
-  "item.cmpackagecouriers.location_transmitter.activated": "定位器已激活",
-  "item.cmpackagecouriers.location_transmitter.deactivated": "定位器已关闭",
+  "item.cmpackagecouriers.location_transmitter.activated": "定位器已启用",
+  "item.cmpackagecouriers.location_transmitter.deactivated": "定位器已禁用",
   "item.cmpackagecouriers.location_transmitter.tooltip": "右键以开关",
   "item.cmpackagecouriers.location_transmitter.server_config": "向玩家投递需要启用定位器"
 }
