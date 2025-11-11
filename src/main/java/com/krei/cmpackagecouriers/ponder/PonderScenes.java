@@ -3,6 +3,7 @@ package com.krei.cmpackagecouriers.ponder;
 import com.krei.cmpackagecouriers.PackageCouriers;
 import com.krei.cmpackagecouriers.plane.CardboardPlaneEntity;
 import com.krei.cmpackagecouriers.plane.CardboardPlaneItem;
+import com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
@@ -37,14 +38,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PonderScenes implements PonderPlugin {
     @Override
-    public String getModId() {
+    public @NotNull String getModId() {
         return PackageCouriers.MODID;
     }
 
@@ -53,7 +56,8 @@ public class PonderScenes implements PonderPlugin {
         PonderSceneRegistrationHelper<ItemProviderEntry<?,?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
         HELPER.forComponents(PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM)
                 .addStoryBoard("planes", PonderScenes::sendingPlanes)
-                .addStoryBoard("planes", PonderScenes::receivingPlanes);
+                .addStoryBoard("planes", PonderScenes::receivingPlanes)
+                .addStoryBoard("saw_planes", PonderScenes::autoOpeningPlanes);
     }
 
     public static void sendingPlanes(SceneBuilder builder, SceneBuildingUtil util) {
@@ -274,12 +278,24 @@ public class PonderScenes implements PonderPlugin {
         scene.overlay().showText(40)
                 .pointAt(util.vector().of(2,2.5,2))
                 .colored(PonderPalette.BLUE)
+                .placeNearTarget()
                 .text("John Create");
         scene.idle(20);
 
         scene.overlay().showText(60)
                 .text("Pretend this is a player");
-        scene.idle(20);
+        scene.idle(60);
+
+        // TODO: Conditionally add segment when config is enabled
+        // NOTE: Maybe not possible due to how translations work
+        scene.overlay()
+                .showControls(util.vector().of(2, 2, 2), Pointing.UP, 90)
+                .withItem(new ItemStack(LocationTransmitterReg.LOCATION_TRANSMITTER.get()));
+        scene.overlay().showText(100)
+                .pointAt(util.vector().of(2,2.5,2))
+                .placeNearTarget()
+                .text("Players are required to have a location transmitter in their inventory to be targeted by a plane");
+        scene.idle(100);
 
         planeEntity = scene.world().createEntity(w -> {
             CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
@@ -407,8 +423,7 @@ public class PonderScenes implements PonderPlugin {
         scene.idle(40);
 
 
-        mainSection = scene.world()
-                .showIndependentSection(util.select().cuboid(util.grid().at(0,0,0), new Vec3i(5,3,4)), Direction.WEST);
+        scene.world().showIndependentSection(util.select().cuboid(util.grid().at(0,0,0), new Vec3i(5,3,4)), Direction.WEST);
         scene.idle(10);
 
         scene.overlay().showText(100)
@@ -432,6 +447,95 @@ public class PonderScenes implements PonderPlugin {
                 EjectorBlockEntity.class,
                 EjectorBlockEntity::activate);
         scene.idle(10);
+    }
+
+    public static void autoOpeningPlanes(SceneBuilder builder, SceneBuildingUtil util) {
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("auto_opening_planes", "Auto-Unpacking Planes");
+        scene.configureBasePlate(0,0, 5);
+        scene.removeShadow();
+
+        List<BlockPos> reverseSpeedPos = new ArrayList<>();
+        reverseSpeedPos.add(util.grid().at(2,1,2));
+        reverseSpeedPos.add(util.grid().at(2,1,3));
+        reverseSpeedPos.add(util.grid().at(5,0,2));
+//
+        BlockPos ejectorPos = util.grid().at(1,1,2);
+        BlockPos sawPos = util.grid().at(2,1,2);
+        BlockPos beltEndPos = util.grid().at(4,1,2);
+        BlockPos depotPos = util.grid().at(8, 1,2);
+        ItemStack packageItem = PackageStyles.getDefaultBox();
+        ItemStack planeItem = CardboardPlaneItem.withPackage(packageItem);
+
+        ElementLink<WorldSectionElement> mainSection = scene.world()
+                .showIndependentSection(util.select().cuboid(util.grid().at(0,0,0), new Vec3i(5,3,4)), Direction.DOWN);
+        scene.world().setKineticSpeed(util.select().everywhere(), 12);
+        for (BlockPos pos : reverseSpeedPos) {
+            scene.world().setKineticSpeed(util.select().position(pos), -12);
+        }
+
+        scene.idle(20);
+        scene.world().createItemOnBelt(beltEndPos, Direction.EAST, planeItem);
+        scene.idle(10);
+        scene.overlay().showText(60)
+                .placeNearTarget()
+                .pointAt(util.vector().topOf(sawPos))
+                .text("Sawing planes auto-unpacks them upon arrival.")
+                .colored(PonderPalette.OUTPUT);
+        scene.idle(100);
+
+        scene.world().modifyBlockEntity(
+                ejectorPos,
+                EjectorBlockEntity.class,
+                be -> be.getBehaviour(DepotBehaviour.TYPE).setHeldItem(new TransportedItemStack(ItemStack.EMPTY)));
+        scene.world().modifyBlockEntity(
+                ejectorPos,
+                EjectorBlockEntity.class,
+                EjectorBlockEntity::activate);
+        ElementLink<EntityElement> planeEntity = scene.world().createEntity(w -> {
+            CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
+            plane.setPos(util.vector().topOf(ejectorPos));
+            plane.setPackage(packageItem);
+            plane.setSpeed(0.4);
+            plane.shootFromRotation(-30F, 90, 0.0F, 0.6F, 1.0F);
+            plane.setTarget(util.grid().at(12,1,12), w);
+            return plane;
+        });
+        scene.world().hideIndependentSection(mainSection, Direction.EAST);
+        scene.idle(40);
+        scene.world().modifyEntity(planeEntity, Entity::discard);
+
+
+        ElementLink<WorldSectionElement> outpostSection = scene.world()
+                .showIndependentSection(util.select().cuboid(util.grid().at(6,0,0), new Vec3i(4,1,4)), Direction.EAST);
+        scene.world().moveSection(outpostSection, util.vector().of(-6, 0, 0), 0);
+        scene.idle(20);
+
+        scene.addKeyframe();
+
+        planeEntity = scene.world().createEntity(w -> {
+            CardboardPlaneEntity plane = new CardboardPlaneEntity(w);
+            plane.setPos(util.vector().of(10,6.5,2));
+            plane.setPackage(packageItem);
+            plane.setSpeed(0.4);
+            plane.shootFromRotation(25F, 90, 0.0F, 0.4F, 0.0F);
+            plane.setTarget(util.grid().at(2,2,2), w);
+            return plane;
+        });
+        scene.idle(19);
+
+        ParticleEmitter cardboardParticleEmitter = scene.effects().particleEmitterWithinBlockSpace(
+                new ItemParticleOption(ParticleTypes.ITEM, AllItems.CARDBOARD.asStack()),
+                util.vector().of(0, 0, 0));
+        scene.effects().emitParticles(util.vector().of(3,3,2), cardboardParticleEmitter, 20, 1);
+        scene.world().modifyEntity(planeEntity, Entity::discard);
+        scene.world().modifyBlockEntity(depotPos, DepotBlockEntity.class, depot -> depot.setHeldItem(new ItemStack(Items.OAK_LOG, 32)));
+        scene.idle(10);
+
+        scene.overlay().showText(60)
+                .text("Also works with player targets");
+        scene.idle(40);
+
     }
 
 }
