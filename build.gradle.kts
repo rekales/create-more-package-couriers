@@ -31,6 +31,8 @@ dependencies {
 neoForge {
     version = property("neo_version").toString()
 
+    accessTransformers.from("src/main/resources/META-INF/accesstransformer.cfg")
+
     parchment {
         mappingsVersion = property("parchment_mappings_version")!!.toString()
         minecraftVersion = property("parchment_minecraft_version")!!.toString()
@@ -56,6 +58,12 @@ neoForge {
         create("gameTestServer") {
             type.set("gameTestServer")
             systemProperty("neoforge.enabledGameTestNamespaces", property("mod_id")!!.toString())
+        }
+    }
+
+    mods {
+        create(property("mod_id")!!.toString()) {
+            sourceSet(sourceSets["main"])
         }
     }
 }
