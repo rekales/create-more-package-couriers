@@ -30,7 +30,7 @@ side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="create"
-mandatory=true
+type="required"
 versionRange="${create_version_range}"
 ordering="NONE"
 side="BOTH"
