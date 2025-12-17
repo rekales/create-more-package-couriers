@@ -68,6 +68,10 @@ legacyForge {
     }
 }
 
+mixin {
+    config("${property("mod_id")}.mixins.json")
+}
+
 tasks.processResources {
     val props = project.providers.gradlePropertiesPrefixedBy("").get()
     inputs.properties(props)
