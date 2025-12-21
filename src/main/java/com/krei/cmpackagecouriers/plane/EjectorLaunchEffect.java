@@ -10,5 +10,5 @@ public interface EjectorLaunchEffect {
     /**
      * @return false if the item should be ejected normally
      */
-    boolean onEject(ItemStack stack, Level level, BlockPos pos);
+    boolean onEject(ItemStack stack, Level level, BlockPos pos, float yaw);
 }

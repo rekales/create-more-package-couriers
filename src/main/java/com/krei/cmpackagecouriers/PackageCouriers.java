@@ -2,11 +2,12 @@ package com.krei.cmpackagecouriers;
 
 import com.krei.cmpackagecouriers.compat.Mods;
 import com.krei.cmpackagecouriers.compat.curios.Curios;
-
+import com.krei.cmpackagecouriers.compat.supplementaries.SupplementariesCompat;
 import com.krei.cmpackagecouriers.plane.*;
 import com.krei.cmpackagecouriers.ponder.PonderScenes;
 import com.krei.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
 import com.krei.cmpackagecouriers.transmitter.LocationTransmitterReg;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
@@ -23,17 +24,13 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.component.ItemContainerContents;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-
-import net.neoforged.neoforge.registries.DeferredRegister;
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
-
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.slf4j.Logger;
 
 import java.util.function.Supplier;
 
@@ -91,8 +88,9 @@ public class PackageCouriers {
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
-        
+
         Mods.CURIOS.executeIfInstalled(() -> () -> Curios.init(modEventBus));
+		Mods.SUPPLEMENTARIES.executeIfInstalled(() -> SupplementariesCompat::init);
         
         CardboardPlaneEntity.init();
         modEventBus.addListener(ServerConfig::onLoad);
