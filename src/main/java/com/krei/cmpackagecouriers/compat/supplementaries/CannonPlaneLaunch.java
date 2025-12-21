@@ -13,7 +13,7 @@ public class CannonPlaneLaunch implements IFireItemBehavior {
 	public boolean fire(ItemStack stack, ServerLevel level, Vec3 origin, Vec3 direction, float power, int inaccuracy, @Nullable Player player) {
 		var item = stack.getItem();
 		if (item instanceof CardboardPlaneItem plane) {
-			var pitch = (float) -(Math.atan(direction.y) * 73.0D);
+			var pitch = (float) (Math.asin(-direction.y) * 180.0 / Math.PI);
 			var realYaw = (float) (Math.atan2(direction.z, direction.x) * 180.0 / Math.PI);
 			return plane.fire(stack, level, origin, realYaw - 90, pitch);
 		}
