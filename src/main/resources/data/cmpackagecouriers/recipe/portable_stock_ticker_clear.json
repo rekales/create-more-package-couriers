@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "cmpackagecouriers:portable_stock_ticker"
+    }
+  ],
+  "result": {
+    "id": "cmpackagecouriers:portable_stock_ticker",
+    "count": 1
+  }
+}

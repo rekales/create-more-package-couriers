@@ -1,0 +1,16 @@
+{
+  "type": "create:deploying",
+  "ingredients": [
+    {
+      "tag": "create:packages"
+    },
+    {
+      "item": "cmpackagecouriers:cardboard_plane_parts"
+    }
+  ],
+  "results": [
+    {
+      "id": "cmpackagecouriers:cardboard_plane"
+    }
+  ]
+}

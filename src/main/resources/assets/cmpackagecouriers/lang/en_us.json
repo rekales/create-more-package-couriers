@@ -1,0 +1,51 @@
+{
+  "item.cmpackagecouriers.cardboard_plane_parts": "Cardboard Plane Parts",
+  "item.cmpackagecouriers.cardboard_plane": "Cardboard Plane",
+  "entity.cmpackagecouriers.cardboard_plane": "Cardboard Plane",
+
+  "tooltip.cmpackagecouriers.cardboard_plane.preopened": "[Unpacks upon arrival to player]",
+
+  "cmpackagecouriers.ponder.sending_planes.header": "Sending Planes",
+  "cmpackagecouriers.ponder.sending_planes.text_1": "Package planes can be created from packages",
+  "cmpackagecouriers.ponder.sending_planes.text_2": "... and can be automated using a deployer",
+  "cmpackagecouriers.ponder.sending_planes.text_3": "An ejector is needed to launch planes",
+  "cmpackagecouriers.ponder.sending_planes.text_4": "Planes can also be launched by hand with right-click while holding the plane",
+
+  "cmpackagecouriers.ponder.receiving_planes.header": "Receiving Planes & Addresses",
+  "cmpackagecouriers.ponder.receiving_planes.text_1": "Planes will deliver to the player with their name matching to the package address",
+  "cmpackagecouriers.ponder.receiving_planes.text_2": "→ John_Create",
+  "cmpackagecouriers.ponder.receiving_planes.text_3": "The plane will skip unloaded chunks and can traverse through other dimensions",
+  "cmpackagecouriers.ponder.receiving_planes.text_4": "John_Create",
+  "cmpackagecouriers.ponder.receiving_planes.text_5": "Pretend this is a player",
+  "cmpackagecouriers.ponder.receiving_planes.text_6": "Players are required to have a location transmitter in their inventory to be targeted by a plane",
+  "cmpackagecouriers.ponder.receiving_planes.text_7": "Planes can also deliver to depots with signs matching the package address",
+  "cmpackagecouriers.ponder.receiving_planes.text_8": "→ Outpost",
+  "cmpackagecouriers.ponder.receiving_planes.text_9": "Destinations have to be chunkloaded for this to work",
+  "cmpackagecouriers.ponder.receiving_planes.text_10": "Outpost",
+  "cmpackagecouriers.ponder.receiving_planes.text_11": "If there are no available targets, the plane will be ejected as an item as usual",
+
+  "cmpackagecouriers.ponder.auto_opening_planes.header": "Auto-Unpacking Planes",
+  "cmpackagecouriers.ponder.auto_opening_planes.text_1": "Sawing planes auto-unpacks them upon arrival.",
+  "cmpackagecouriers.ponder.auto_opening_planes.text_2": "Also works with player targets",
+
+  "cmpackagecouriers.message.inbound": "Package Inbound",
+  "cmpackagecouriers.message.no_address": "No Valid Targets",
+
+  "item.cmpackagecouriers.portable_stock_ticker": "Portable Stock Ticker",
+  "item.cmpackagecouriers.portable_stock_ticker.screen_title": "Portable Stock Ticker",
+  "item.cmpackagecouriers.portable_stock_ticker.not_linked": "Not linked to Network",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.summary": "A Mobile Stock Keeper",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition1": "When sneak clicked on a Stock Link or Stock Ticker",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour1": "Portable Stock Ticker will bind to the Network",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.condition2": "When used",
+  "item.cmpackagecouriers.portable_stock_ticker.tooltip.behaviour2": "Portable Stock Ticker will open a mobile Stock Keeper menu",
+
+  "item.cmpackagecouriers.location_transmitter": "Location Transmitter",
+  "item.cmpackagecouriers.location_transmitter.status": "Status",
+  "item.cmpackagecouriers.location_transmitter.enabled": "Enabled",
+  "item.cmpackagecouriers.location_transmitter.disabled": "Disabled",
+  "item.cmpackagecouriers.location_transmitter.activated": "Location Transmitter Activated",
+  "item.cmpackagecouriers.location_transmitter.deactivated": "Location Transmitter Deactivated",
+  "item.cmpackagecouriers.location_transmitter.tooltip": "Right-click to toggle",
+  "item.cmpackagecouriers.location_transmitter.server_config": "Transmitter needed for Player Targeting"
+}

@@ -1,0 +1,16 @@
+{
+  "type": "create:deploying",
+  "ingredients": [
+    {
+      "item": "cmpackagecouriers:cardboard_plane"
+    },
+    {
+      "item": "minecraft:shears"
+    }
+  ],
+  "results": [
+    {
+      "id": "cmpackagecouriers:cardboard_plane"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "create:item/package_transforms",
+	"textures": {
+		"0": "create:item/package/cardboard",
+		"particle": "create:item/package/cardboard"
+	},
+	"elements": [
+		{
+			"name": "rope_10x8",
+			"from": [2.9, -0.1, 2.9],
+			"to": [13.1, 8.1, 13.1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 4, 8]},
+			"faces": {
+				"north": {"uv": [12.75, 2.5, 15.25, 4.5], "texture": "#0"},
+				"south": {"uv": [15.25, 2.5, 12.75, 4.5], "texture": "#0"},
+				"up": {"uv": [12.75, 2, 15.25, 4.5], "rotation": 180, "texture": "#0"},
+				"down": {"uv": [12.75, 2, 15.25, 4.5], "rotation": 180, "texture": "#0"}
+			}
+		}
+	]
+}
