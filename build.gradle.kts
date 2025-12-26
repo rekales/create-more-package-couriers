@@ -81,6 +81,7 @@ tasks.processResources {
 tasks {
     jar {
         archiveBaseName.set("${rootProject.property("mod_id")}-forge")
+        manifest.attributes("MixinConfigs" to "${rootProject.property("mod_id")}.mixins.json")
     }
 }
 
