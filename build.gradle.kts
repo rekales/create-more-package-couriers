@@ -2,7 +2,7 @@ plugins {
     id("idea")
     id("java")
     id("java-library")
-    id("net.neoforged.moddev.legacyforge") version("2.0.74")
+    id("net.neoforged.moddev.legacyforge") version("2.0.107")
 }
 
 version = project.properties["mod_version"]!!
@@ -28,6 +28,7 @@ dependencies {
     modImplementation("com.tterrag.registrate:Registrate:${property("registrate_version")}")
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1")!!)
     implementation("io.github.llamalad7:mixinextras-forge:0.4.1")
+    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 
     // Dev QOL
     modRuntimeOnly("curse.maven:jei-238222:7270446")
@@ -70,6 +71,7 @@ legacyForge {
 
 mixin {
     config("${property("mod_id")}.mixins.json")
+    add(sourceSets.main.get(), "${property("mod_id")}.refmap.json")
 }
 
 tasks.processResources {
