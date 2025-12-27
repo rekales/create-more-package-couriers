@@ -2,6 +2,7 @@ package com.kreidev.cmpackagecouriers;
 
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.curios.Curios;
+import com.kreidev.cmpackagecouriers.compat.supplementaries.SupplementariesCompat;
 import com.kreidev.cmpackagecouriers.plane.*;
 import com.kreidev.cmpackagecouriers.ponder.PonderScenes;
 import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
@@ -88,9 +89,10 @@ public class PackageCouriers {
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
-        
+
         Mods.CURIOS.executeIfInstalled(() -> () -> Curios.init(modEventBus));
-        
+        Mods.SUPPLEMENTARIES.executeIfInstalled(() -> SupplementariesCompat::init);
+
         CardboardPlaneEntity.init();
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);

@@ -44,6 +44,8 @@ dependencies {
 
     implementation("mezz.jei:jei-${property("minecraft_version")}-neoforge:${property("jei_version")}")
 
+    compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-neoforge")
+
     // Dev QOL
     runtimeOnly("curse.maven:jei-238222:7270455")
 }
