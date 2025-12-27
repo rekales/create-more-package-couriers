@@ -4,8 +4,8 @@
   "package": "com.krei.cmpackagecouriers.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "EjectorBlockEntityMixin",
     "BeltDeployerCallbacksMixin",
+    "EjectorBlockEntityMixin",
     "SignBlockEntityMixin"
   ],
   "minVersion": "0.8.5"
