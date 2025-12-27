@@ -18,6 +18,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -27,12 +28,12 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -45,46 +46,18 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         super(p.stacksTo(1));
     }
 
+    // TODO: throwing angles are a bit off, double check later.
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
         if (entityLiving instanceof Player player
                 && this.getUseDuration(stack, entityLiving) - timeLeft >= 10
                 && !level.isClientSide()) {
 
-            String address = getAddress(stack);
-            ItemStack packageItem;
-            ItemContainerContents container = stack.get(PackageCouriers.PLANE_PACKAGE);
-            if (container != null && container.getStackInSlot(0).getItem() instanceof PackageItem) {
-                packageItem = container.getStackInSlot(0);
+            Vec3 pos = player.getEyePosition().subtract(0, 0.1, 0);
+            boolean wasFired = this.fire(stack, level, pos, player.getXRot(), player.getYRot(), player);
+            if (wasFired) {
+                stack.shrink(1);
             } else {
-                packageItem = PackageStyles.getRandomBox();
-                // TODO: Do some exception because this shouldn't happen
-            }
-
-            MinecraftServer server = level.getServer();
-            if (server != null) {
-                CardboardPlaneEntity plane = new CardboardPlaneEntity(level);
-                plane.setPos(player.getX(), player.getEyeY()-0.1f, player.getZ());
-                plane.setPackage(packageItem);
-                plane.setUnpack(stack.getOrDefault(PackageCouriers.PRE_OPENED, false));
-                plane.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.8F, 1.0F);
-
-                ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
-                if (serverPlayer != null && ServerConfig.planePlayerTargets) {
-                    // Check if location transmitter is required and if the target player has one enabled
-                    if (!ServerConfig.locationTransmitterNeeded || hasEnabledLocationTransmitter(serverPlayer)) {
-                        plane.setTarget(serverPlayer);
-                        level.addFreshEntity(plane);
-                        stack.shrink(1);
-                    }
-                } else {
-                    AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
-                    if (target != null && hasSpace(level, target.pos) && ServerConfig.planeLocationTargets) {
-                        plane.setTarget(target.pos, target.level);
-                        level.addFreshEntity(plane);
-                        stack.shrink(1);
-                    }
-                }
                 player.displayClientMessage(Component.translatable(PackageCouriers.MOD_ID + ".message.no_address"), true);
             }
         }
@@ -114,16 +87,17 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
     }
 
     @Override
-    public boolean onEject(ItemStack stack, Level level, BlockPos pos) {
+    public boolean onEject(ItemStack stack, Level level, BlockPos pos, float yaw) {
+        return fire(stack, level, Vec3.atCenterOf(pos.above()), yaw, -37.5F);
+    }
+
+    public boolean fire(ItemStack stack, Level level, Vec3 pos, float yaw, float pitch) {
+        return fire(stack, level, pos, yaw, pitch, null);
+    }
+
+    public boolean fire(ItemStack stack, Level level, Vec3 pos, float yaw, float pitch, @Nullable Entity shooter) {
         if (level.isClientSide())
             return false;
-
-        float yaw = switch (level.getBlockState(pos).getValue(BlockStateProperties.HORIZONTAL_FACING)) {
-            case NORTH -> 180f;
-            case SOUTH -> 0f;
-            case WEST  -> 90f;
-            default    -> -90f;
-        };
 
         String address = getAddress(stack);
         ItemStack packageItem;
@@ -138,10 +112,14 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         MinecraftServer server = level.getServer();
         if (server != null) {
             CardboardPlaneEntity plane = new CardboardPlaneEntity(level);
-            plane.setPos(Vec3.atCenterOf(pos).add(0,1,0));
+            plane.setPos(pos);
             plane.setPackage(packageItem);
             plane.setUnpack(stack.getOrDefault(PackageCouriers.PRE_OPENED, false));
-            plane.shootFromRotation(-37.5F, yaw, 0.0F, 0.8F, 1.0F);
+            if (shooter != null) {
+                plane.shootFromRotation(shooter, pitch, yaw, 0.0F, 0.8F, 1.0F);
+            } else {
+                plane.shootFromRotation(pitch, yaw, 0.0F, 0.8F, 1.0F);
+            }
 
             ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
             if (serverPlayer != null && ServerConfig.planePlayerTargets) {
@@ -151,6 +129,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
                     level.addFreshEntity(plane);
                     return true;
                 }
+                // TODO: handle this edge case properly
             } else {
                 AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
                 if (target != null && hasSpace(level, target.pos) && ServerConfig.planeLocationTargets) {
@@ -185,12 +164,12 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
                 return true;
             }
         }
-        
+
         // Check Curios slots if Curios is loaded
         if (Mods.CURIOS.isLoaded() && CuriosCompat.isCuriosLoaded()) {
             return CuriosCompat.hasEnabledLocationTransmitterInCurios(player);
         }
-        
+
         return false;
     }
 
