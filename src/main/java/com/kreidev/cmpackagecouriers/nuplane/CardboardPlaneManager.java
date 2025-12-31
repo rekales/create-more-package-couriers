@@ -46,7 +46,15 @@ public class CardboardPlaneManager {
 
             plane.tick(event.getServer());
 
+            if (plane.hasTeleported()) {
+                if (entity != null) entity.remove(Entity.RemovalReason.DISCARDED);
+                pair.setSecond(null);
+                plane.setTeleported(false);
+                PackageCouriers.LOGGER.debug("plane teleported");
+            }
+
             if (plane.getTickCount() > LIFESPAN_TICKS) {
+                plane.onReachedTarget(server);
                 if (entity != null) entity.remove(Entity.RemovalReason.DISCARDED);
                 iterator.remove();
                 PackageCouriers.LOGGER.debug("timed-out plane");
@@ -61,8 +69,7 @@ public class CardboardPlaneManager {
                 continue;
             }
 
-            ServerLevel level = server.getLevel(Level.OVERWORLD);
-
+            ServerLevel level = server.getLevel(plane.getCurrentDim());
             if (isChunkTicking(level, plane.getPos())) {
                 if (entity == null) {
                     entity = new CardboardPlaneNuEntity(level, plane);
@@ -88,10 +95,10 @@ public class CardboardPlaneManager {
     /**
      * @return false if plane failed to launch
      */
-    public static boolean addPlane(Level level, Vec3 pos, float yaw, float pitch, ItemStack box, boolean unpack) {
+    public static boolean addPlane(Level currentLevel, Vec3 pos, float yaw, float pitch, ItemStack box, boolean unpack) {
         if (!PackageItem.isPackage(box)) return false;
-        if (level.isClientSide()) return false;
-        MinecraftServer server = level.getServer();
+        if (currentLevel.isClientSide()) return false;
+        MinecraftServer server = currentLevel.getServer();
         if (server == null) return false;
 
         CardboardPlane plane = null;
@@ -100,12 +107,12 @@ public class CardboardPlaneManager {
         ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
         if (serverPlayer != null && ServerConfig.planePlayerTargets) {
             if (!ServerConfig.locationTransmitterNeeded || hasEnabledLocationTransmitter(serverPlayer)) {
-                plane = new CardboardPlane(serverPlayer, box);
+                plane = new CardboardPlane(currentLevel, serverPlayer, box);
             }
         } else {
             AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
-            if (target != null && hasSpace(level, target.pos) && ServerConfig.planeLocationTargets) {
-                plane = new CardboardPlane(target.level, target.pos, box);
+            if (target != null && hasSpace(target.level, target.pos) && ServerConfig.planeLocationTargets) {
+                plane = new CardboardPlane(currentLevel, target.level, target.pos, box);
                 // TODO: MarkerTarget getters pattern
             }
         }

@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers.nuplane;
 
+import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllItems;
@@ -8,6 +9,7 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
+import net.createmod.catnip.codecs.stream.CatnipLargerStreamCodecs;
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
@@ -45,10 +47,11 @@ public class CardboardPlane {
             t1 -> ResourceKey.create(Registries.DIMENSION, t1)
     );
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, CardboardPlane> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, CardboardPlane> STREAM_CODEC = CatnipLargerStreamCodecs.composite(
             UUIDUtil.STREAM_CODEC, CardboardPlane::getId,
             CatnipStreamCodecs.VEC3, CardboardPlane::getDeltaMovement,
             CatnipStreamCodecs.VEC3, CardboardPlane::getPos,
+            DIMENSION_STREAM_CODEC, CardboardPlane::getCurrentDim,
             DIMENSION_STREAM_CODEC, CardboardPlane::getTargetDim,
             CatnipStreamCodecs.VEC3, CardboardPlane::getTargetPos,
             ItemStack.STREAM_CODEC, CardboardPlane::getPackage,
@@ -59,7 +62,8 @@ public class CardboardPlane {
             UUIDUtil.CODEC.fieldOf("ID").forGetter(CardboardPlane::getId),
             Vec3.CODEC.fieldOf("Delta").forGetter(CardboardPlane::getDeltaMovement),
             Vec3.CODEC.fieldOf("Pos").forGetter(CardboardPlane::getPos),
-            ResourceKey.codec(Registries.DIMENSION).fieldOf("DeltaMovement").forGetter(CardboardPlane::getTargetDim),
+            ResourceKey.codec(Registries.DIMENSION).fieldOf("CurrentDim").forGetter(CardboardPlane::getTargetDim),
+            ResourceKey.codec(Registries.DIMENSION).fieldOf("TargetDim").forGetter(CardboardPlane::getTargetDim),
             Vec3.CODEC.fieldOf("TargetPos").forGetter(CardboardPlane::getTargetPos),
             ItemStack.CODEC.fieldOf("Box").forGetter(CardboardPlane::getPackage)
     ).apply(instance, CardboardPlane::new));
@@ -70,6 +74,7 @@ public class CardboardPlane {
     @NotNull public UUID id;
     @NotNull public Vec3 deltaMovement;
     @NotNull public Vec3 pos;
+    @NotNull public ResourceKey<Level> currentDim;
     public int tickCount = 0;
 
     @Nullable public UUID targetEntityUUID = null;
@@ -79,9 +84,11 @@ public class CardboardPlane {
 
     @NotNull public ItemStack box;
     public boolean unpack = false;
+    public boolean hasTeleported = false;  // NOTE: For notifying the manager, don't forget to reset
 
-    public CardboardPlane(Entity targetEntity, @NotNull ItemStack box) {
+    public CardboardPlane(@NotNull Level currentLevel, @NotNull Entity targetEntity, @NotNull ItemStack box) {
         this.id = UUID.randomUUID();
+        this.currentDim = currentLevel.dimension();
         this.targetPos = Vec3.ZERO;  // So warnings can shut it
         this.targetDim = Level.OVERWORLD;  // So warnings can shut it
         this.setTarget(targetEntity);
@@ -90,8 +97,9 @@ public class CardboardPlane {
         this.setPackage(box);
     }
 
-    public CardboardPlane(@NotNull Level targetLevel, @NotNull BlockPos targetPos, @NotNull ItemStack box) {
+    public CardboardPlane(@NotNull Level currentLevel, @NotNull Level targetLevel, @NotNull BlockPos targetPos, @NotNull ItemStack box) {
         this.id = UUID.randomUUID();
+        this.currentDim = currentLevel.dimension();
         this.targetPos = Vec3.ZERO;  // So warnings can shut it
         this.targetDim = Level.OVERWORLD;  // So warnings can shut it
         this.setTarget(targetLevel, targetPos);
@@ -101,11 +109,12 @@ public class CardboardPlane {
     }
 
     // For serialization purposes
-    public CardboardPlane(@NotNull UUID id, @NotNull Vec3 deltaMovement, @NotNull Vec3 pos,
+    public CardboardPlane(@NotNull UUID id, @NotNull Vec3 deltaMovement, @NotNull Vec3 pos, @NotNull ResourceKey<Level> currentDim,
                           @NotNull ResourceKey<Level> targetDim, @NotNull Vec3 targetPos, @NotNull ItemStack box) {
         this.id = id;
         this.deltaMovement = deltaMovement;
         this.pos = pos;
+        this.currentDim = currentDim;
         this.targetPos = targetPos;
         this.targetDim = targetDim;
         this.setPackage(box);
@@ -117,7 +126,13 @@ public class CardboardPlane {
 
         this.pos = this.pos.add(this.deltaMovement);
 
-        this.updateDelta(server.getLevel(this.targetDim));
+        this.updateDelta(server.getLevel(this.currentDim));
+
+        if (this.tickCount > 120 && (!targetPos.closerThan(pos, 80) || this.currentDim != this.targetDim)) {
+
+
+            this.tpCloserToTarget();
+        }
     }
 
     public boolean hasReachedTarget() {
@@ -178,7 +193,6 @@ public class CardboardPlane {
             if (this.targetEntityCached == null) {
                 this.targetEntityCached = level.getEntity(targetEntityUUID);
             }
-
             if (this.targetEntityCached instanceof LivingEntity) {
                 this.targetPos = this.targetEntityCached.getEyePosition();
             } else if (targetEntityCached != null) {
@@ -190,17 +204,32 @@ public class CardboardPlane {
         Vec3 vecTo;
         if (this.targetDim != level.dimension()) {  // Target not in the same dimension
             vecTo = this.getDeltaMovement().normalize();
-        } else if (!targetPos.closerThan(this.getPos(), 80)) {  // Target is far, fly upwards in the general direction
-            vecTo = targetPos.subtract(this.getPos());
+        } else if (!targetPos.closerThan(this.pos, 80)) {  // Target is far, fly upwards in the general direction
+            vecTo = targetPos.subtract(this.pos);
             vecTo = new Vec3(vecTo.x(), vecTo.y() + vecTo.length()/2, vecTo.z()).normalize();
         } else {
-            vecTo = targetPos.subtract(this.getPos()).normalize();
+            vecTo = targetPos.subtract(this.pos).normalize();
         }
 
-        float augmentedDistance = (float)targetPos.subtract(this.getPos()).length() + Math.max(0, 80 - this.tickCount);
+        float augmentedDistance = (float)targetPos.subtract(this.pos).length() + Math.max(0, 80 - this.tickCount);
         float clampedDistance = Mth.clamp(augmentedDistance, 5, 60);
         float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.4f, 0.06f);
         this.setDeltaMovement(vecFrom.lerp(vecTo, curveAmount).normalize().scale(SPEED));
+    }
+
+    public void tpCloserToTarget() {
+        PackageCouriers.LOGGER.debug(this.pos.subtract(this.targetPos)+"");
+        PackageCouriers.LOGGER.debug(this.pos.subtract(this.targetPos).length()+"");
+
+        Vec3 dirVec = this.pos.subtract(this.targetPos).normalize();
+
+        dirVec = new Vec3(dirVec.x(), 0.5, dirVec.z()).normalize();
+        Vec3 tpVec = targetPos.add(dirVec.scale(60));
+
+        this.currentDim = this.targetDim;
+        this.pos = tpVec;
+        this.setDeltaMovement(this.targetPos.subtract(this.pos).normalize().scale(SPEED));
+        this.hasTeleported = true;
     }
 
     public void setTarget(Entity targetEntity) {
@@ -229,50 +258,49 @@ public class CardboardPlane {
 
 
     public @NotNull UUID getId() {
-        return id;
+        return this.id;
     }
-
     public @NotNull Vec3 getDeltaMovement() {
         return this.deltaMovement;
     }
-
     public void setDeltaMovement(@NotNull Vec3 deltaMovement) {
         this.deltaMovement = deltaMovement;
     }
-
     @NotNull public Vec3 getPos() {
-        return pos;
+        return this.pos;
     }
-
     public void setPos(@NotNull Vec3 pos) {
         this.pos = pos;
     }
-
+    public @NotNull ResourceKey<Level> getCurrentDim() {
+        return this.currentDim;
+    }
     public int getTickCount() {
         return this.tickCount;
     }
-
     public @NotNull Vec3 getTargetPos() {
-        return targetPos;
+        return this.targetPos;
     }
-
     public @NotNull ResourceKey<Level> getTargetDim() {
-        return targetDim;
+        return this.targetDim;
     }
-
     public ItemStack getPackage() {
-        return box;
+        return this.box;
     }
-
     public void setPackage(ItemStack box) {
         if (!PackageItem.isPackage(box)) {
             box = PackageStyles.getDefaultBox();
         }
         this.box = box;
     }
-
     public void setUnpack(boolean unpack) {
         this.unpack = unpack;
+    }
+    public boolean hasTeleported() {
+        return this.hasTeleported;
+    }
+    public void setTeleported(boolean teleported) {
+        this.hasTeleported = teleported;
     }
 
     @Override
@@ -299,6 +327,4 @@ public class CardboardPlane {
                 cosYRot * cosXRot
         );
     }
-
-    // TODO: handle ultralong distance and cross dimensional shit
 }
