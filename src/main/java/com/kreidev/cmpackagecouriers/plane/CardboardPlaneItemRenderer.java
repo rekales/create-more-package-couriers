@@ -32,10 +32,12 @@ import net.neoforged.fml.ModList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.kreidev.cmpackagecouriers.PackageCouriers.resLoc;
+
 @OnlyIn(Dist.CLIENT)
 public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer {
-    public static final PartialModel DELIVERY_PLANE = PartialModel.of(ResourceLocation.fromNamespaceAndPath(PackageCouriers.MOD_ID,
-            "item/cardboard_plane"));
+    public static final PartialModel DELIVERY_PLANE = PartialModel.of(resLoc("item/cardboard_plane"));
+
     public static final Map<ResourceLocation, PartialModel> PACKAGE_ROPE = new HashMap<>();
 
     static {
@@ -47,7 +49,7 @@ public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer 
 
     public static ResourceLocation getRopeModel(int width, int height) {
         String size = width + "x" + height;
-        return ResourceLocation.fromNamespaceAndPath(PackageCouriers.MOD_ID, "item/rope_" + size);
+        return resLoc("item/rope_" + size);
     }
 
 

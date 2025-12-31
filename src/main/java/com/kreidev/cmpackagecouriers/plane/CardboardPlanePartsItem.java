@@ -1,6 +1,7 @@
 package com.kreidev.cmpackagecouriers.plane;
 
 import com.simibubi.create.content.logistics.box.PackageEntity;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -9,6 +10,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CardboardPlanePartsItem extends Item {
     public CardboardPlanePartsItem(Properties properties) {
         super(properties);

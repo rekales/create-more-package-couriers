@@ -21,8 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
-import static com.kreidev.cmpackagecouriers.PackageCouriers.DATA_COMPONENTS;
-import static com.kreidev.cmpackagecouriers.PackageCouriers.REGISTRATE;
+import static com.kreidev.cmpackagecouriers.PackageCouriers.*;
 
 // Shamelessly copied from Create: Mobile Packages
 public class PortableStockTickerReg {
@@ -83,7 +82,7 @@ public class PortableStockTickerReg {
         <T extends BasePacketPayload> PortableStockTickerPackets(Class<T> clazz, StreamCodec<? super RegistryFriendlyByteBuf, T> codec) {
             String name = this.name().toLowerCase(Locale.ROOT);
             this.type = new CatnipPacketRegistry.PacketType<>(
-                    new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(PackageCouriers.MOD_ID, name)),
+                    new CustomPacketPayload.Type<>(resLoc(name)),
                     clazz, codec
             );
         }

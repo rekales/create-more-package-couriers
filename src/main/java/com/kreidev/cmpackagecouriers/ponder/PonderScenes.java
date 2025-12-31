@@ -3,6 +3,7 @@ package com.kreidev.cmpackagecouriers.ponder;
 import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.plane.CardboardPlaneEntity;
 import com.kreidev.cmpackagecouriers.plane.CardboardPlaneItem;
+import com.kreidev.cmpackagecouriers.plane.CardboardPlaneReg;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
@@ -54,7 +55,7 @@ public class PonderScenes implements PonderPlugin {
     @Override
     public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
         PonderSceneRegistrationHelper<ItemProviderEntry<?,?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
-        HELPER.forComponents(PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM)
+        HELPER.forComponents(CardboardPlaneReg.CARDBOARD_PLANE_PARTS_ITEM)
                 .addStoryBoard("planes", PonderScenes::sendingPlanes)
                 .addStoryBoard("planes", PonderScenes::receivingPlanes)
                 .addStoryBoard("saw_planes", PonderScenes::autoOpeningPlanes);
@@ -80,7 +81,7 @@ public class PonderScenes implements PonderPlugin {
         BlockPos beltEndPos = util.grid().at(4,1,2);
         ItemStack packageItem = PackageStyles.getDefaultBox();
         ItemStack planeItem = CardboardPlaneItem.withPackage(packageItem);
-        ItemStack planePartsItem = PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM.asStack();
+        ItemStack planePartsItem = CardboardPlaneReg.CARDBOARD_PLANE_PARTS_ITEM.asStack();
 
         ElementLink<EntityElement> packageEntity = scene.world().createEntity(w -> {
             Vec3 p = util.vector().topOf(util.grid().at(2, 0, 2));
@@ -191,7 +192,7 @@ public class PonderScenes implements PonderPlugin {
         BlockPos depotPos = util.grid().at(8, 1,2);
         ItemStack packageItem = PackageStyles.getDefaultBox();
         ItemStack planeItem = CardboardPlaneItem.withPackage(packageItem);
-        ItemStack planePartsItem = PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM.asStack();
+        ItemStack planePartsItem = CardboardPlaneReg.CARDBOARD_PLANE_PARTS_ITEM.asStack();
 
         ElementLink<WorldSectionElement> mainSection = scene.world()
                 .showIndependentSection(util.select().cuboid(util.grid().at(0,0,0), new Vec3i(5,3,4)), Direction.DOWN);

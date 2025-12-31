@@ -1,7 +1,7 @@
 package com.kreidev.cmpackagecouriers.mixin;
 
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.plane.CardboardPlaneItem;
+import com.kreidev.cmpackagecouriers.plane.CardboardPlaneReg;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.kinetics.deployer.BeltDeployerCallbacks;
@@ -30,7 +30,7 @@ public class BeltDeployerCallbacksMixin {
         if (collect != null
                 && !collect.isEmpty()
                 && PackageItem.isPackage(transported.stack)
-                && PackageCouriers.CARDBOARD_PLANE_PARTS_ITEM.isIn(blockEntity.getPlayer().getMainHandItem())
+                && CardboardPlaneReg.CARDBOARD_PLANE_PARTS_ITEM.isIn(blockEntity.getPlayer().getMainHandItem())
                 && collect.getFirst().stack.getItem() instanceof CardboardPlaneItem) {
             CardboardPlaneItem.setPackage(collect.getFirst().stack, transported.stack);
         }

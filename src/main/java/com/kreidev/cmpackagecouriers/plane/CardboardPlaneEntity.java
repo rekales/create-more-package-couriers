@@ -1,6 +1,5 @@
 package com.kreidev.cmpackagecouriers.plane;
 
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -28,7 +27,7 @@ public class CardboardPlaneEntity extends Entity {
     }
 
     public CardboardPlaneEntity(Level level, CardboardPlane plane) {
-        super(PackageCouriers.CARDBOARD_PLANE_ENTITY.get(), level);
+        super(CardboardPlaneReg.CARDBOARD_PLANE_ENTITY.get(), level);
         this.plane = plane;
         this.setPos(plane.getPos());
         this.setDeltaMovement(plane.getDeltaMovement());
@@ -42,7 +41,7 @@ public class CardboardPlaneEntity extends Entity {
 
     // For ponder use
     public CardboardPlaneEntity(Level level) {
-        super(PackageCouriers.CARDBOARD_PLANE_ENTITY.get(), level);
+        super(CardboardPlaneReg.CARDBOARD_PLANE_ENTITY.get(), level);
     }
 
     @Override
