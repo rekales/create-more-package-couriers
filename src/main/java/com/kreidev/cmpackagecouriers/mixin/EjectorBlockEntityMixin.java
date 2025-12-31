@@ -16,13 +16,7 @@ public abstract class EjectorBlockEntityMixin {
     private void addToLaunchedItems(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
         if (stack.getItem() instanceof EjectorLaunchEffect ejectable) {
             EjectorBlockEntity be = (EjectorBlockEntity) (Object) this;
-            float yaw = switch (be.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)) {
-                case NORTH -> 180f;
-                case SOUTH -> 0f;
-                case WEST  -> 90f;
-                default    -> -90f;
-            };
-            if (ejectable.onEject(stack, be.getLevel(), be.getBlockPos(), yaw))
+            if (ejectable.onEject(stack, be.getLevel(), be.getBlockPos(), be.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)))
                 cir.setReturnValue(false);
         }
     }

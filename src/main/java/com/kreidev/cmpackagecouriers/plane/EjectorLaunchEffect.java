@@ -1,6 +1,7 @@
 package com.kreidev.cmpackagecouriers.plane;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -10,5 +11,5 @@ public interface EjectorLaunchEffect {
     /**
      * @return false if the item should be ejected normally
      */
-    boolean onEject(ItemStack stack, Level level, BlockPos pos, float yaw);
+    boolean onEject(ItemStack stack, Level level, BlockPos pos, Direction facing);
 }

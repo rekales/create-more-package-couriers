@@ -2,15 +2,16 @@ package com.kreidev.cmpackagecouriers.nuplane;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
-// NOTE: Entity for rendering purposes
+// Entity for rendering purposes
+// Use CardboardPlaneManager for adding and removing planes
 public class CardboardPlaneNuEntity extends Entity {
 
     // NOTE: only relevant in server side
@@ -73,17 +74,17 @@ public class CardboardPlaneNuEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
 
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
+    protected void readAdditionalSaveData(@NotNull CompoundTag compoundTag) {
 
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+    protected void addAdditionalSaveData(@NotNull CompoundTag compoundTag) {
 
     }
 
