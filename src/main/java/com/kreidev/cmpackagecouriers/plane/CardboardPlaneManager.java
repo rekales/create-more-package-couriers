@@ -1,4 +1,4 @@
-package com.kreidev.cmpackagecouriers.nuplane;
+package com.kreidev.cmpackagecouriers.plane;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.ServerConfig;
@@ -25,7 +25,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.Iterator;
 
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "ConstantValue", "DataFlowIssue", "unused"})
 @EventBusSubscriber(modid= PackageCouriers.MOD_ID)
 public class CardboardPlaneManager {
 
@@ -40,10 +40,10 @@ public class CardboardPlaneManager {
 
         MinecraftServer server = event.getServer();
 
-        for (Iterator<Pair<CardboardPlane, CardboardPlaneNuEntity>> iterator = INSTANCE.pairedPlanes.iterator(); iterator.hasNext();) {
-            Pair<CardboardPlane, CardboardPlaneNuEntity> pair = iterator.next();
+        for (Iterator<Pair<CardboardPlane, CardboardPlaneEntity>> iterator = INSTANCE.pairedPlanes.iterator(); iterator.hasNext();) {
+            Pair<CardboardPlane, CardboardPlaneEntity> pair = iterator.next();
             CardboardPlane plane = pair.getFirst();
-            CardboardPlaneNuEntity entity = pair.getSecond();
+            CardboardPlaneEntity entity = pair.getSecond();
 
             plane.tick(event.getServer());
 
@@ -73,7 +73,7 @@ public class CardboardPlaneManager {
             ServerLevel level = server.getLevel(plane.getCurrentDim());
             if (isChunkTicking(level, plane.getPos())) {
                 if (entity == null) {
-                    entity = new CardboardPlaneNuEntity(level, plane);
+                    entity = new CardboardPlaneEntity(level, plane);
                     pair.setSecond(entity);
                     level.addFreshEntity(entity);
                     PackageCouriers.LOGGER.debug("spawned plane entity");

@@ -20,7 +20,7 @@ public class CardboardPlanePartsItem extends Item {
             player.getInventory().placeItemBackInInventory(CardboardPlaneItem.withPackage(entity.box));
             stack.shrink(1);
             entity.remove(Entity.RemovalReason.DISCARDED);
-            return InteractionResult.CONSUME;
+            return InteractionResult.SUCCESS;
         } else {
             return super.interactLivingEntity(stack, player, interactionTarget, usedHand);
         }

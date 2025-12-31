@@ -1,4 +1,4 @@
-package com.kreidev.cmpackagecouriers.nuplane;
+package com.kreidev.cmpackagecouriers.plane;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.mojang.serialization.MapCodec;

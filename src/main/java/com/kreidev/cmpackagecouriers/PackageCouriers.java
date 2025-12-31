@@ -3,7 +3,6 @@ package com.kreidev.cmpackagecouriers;
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.curios.Curios;
 import com.kreidev.cmpackagecouriers.compat.supplementaries.SupplementariesCompat;
-import com.kreidev.cmpackagecouriers.nuplane.*;
 import com.kreidev.cmpackagecouriers.plane.*;
 import com.kreidev.cmpackagecouriers.ponder.PonderScenes;
 import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
@@ -33,8 +32,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
@@ -65,17 +62,6 @@ public class PackageCouriers {
 //        .renderer(() -> DeliveryPlaneRenderer::new)
         .register();
 
-    public static final EntityEntry<CardboardPlaneNuEntity> CARDBOARD_PLANE_NU_ENTITY = REGISTRATE
-            .entity("cardboard_nu_plane", CardboardPlaneNuEntity::createEmpty, MobCategory.MISC)
-            .properties(p -> p
-                    .sized(0.5f, 0.5f)
-                    .eyeHeight(0.25f)
-                    .clientTrackingRange(80)
-                    .noSave()
-                    .updateInterval(1))
-//        .renderer(() -> DeliveryPlaneRenderer::new)
-            .register();
-
     public static final ItemEntry<CardboardPlaneItem> CARDBOARD_PLANE_ITEM = REGISTRATE
             .item("cardboard_plane", CardboardPlaneItem::new)
             .model((ctx, prov) -> {}) // Skip model generation - uses custom renderer
@@ -84,10 +70,6 @@ public class PackageCouriers {
     public static final ItemEntry<CardboardPlanePartsItem> CARDBOARD_PLANE_PARTS_ITEM = REGISTRATE
             .item("cardboard_plane_parts", CardboardPlanePartsItem::new)
             .model((ctx, prov) -> {}) // Skip model generation - uses custom renderer
-            .register();
-
-    public static final ItemEntry<NuPlaneSpawner> CARDBOARD_PLANE_SPAWNER = REGISTRATE
-            .item("nu_plane_spawner", NuPlaneSpawner::new)
             .register();
 
     public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
@@ -116,7 +98,6 @@ public class PackageCouriers {
         CardboardPlaneEntity.init();
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);
-        modEventBus.addListener(PackageCouriers::registerPackets);
         NeoForge.EVENT_BUS.addListener(CardboardPlaneSavedData::onServerStarting);
         // Event Handler Class: AddressMarkerHandler
         // Event Handler Class: CardboardPlaneManager
@@ -131,21 +112,6 @@ public class PackageCouriers {
                 CARDBOARD_PLANE_ENTITY.get(),
                 CardboardPlaneEntityRenderer::new
         );
-        EntityRenderers.register(
-                CARDBOARD_PLANE_NU_ENTITY.get(),
-                CardboardPlaneNuEntityRenderer::new
-        );
-
-    }
-
-    public static void registerPackets(RegisterPayloadHandlersEvent event) {
-//        event.registrar("1").executesOn(HandlerThread.MAIN)
-//                .playToClient(
-//                        CardboardPlanePacket.TYPE,
-//                        CardboardPlanePacket.STREAM_CODEC,
-//                        CardboardPlaneManagerClient::planePacketHandler
-//                );
-
     }
 
     public static ResourceLocation resLoc(String path) {

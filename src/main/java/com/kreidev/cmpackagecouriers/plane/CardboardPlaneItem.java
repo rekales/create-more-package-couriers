@@ -1,7 +1,6 @@
 package com.kreidev.cmpackagecouriers.plane;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
-import com.kreidev.cmpackagecouriers.nuplane.CardboardPlaneManager;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import net.minecraft.ChatFormatting;

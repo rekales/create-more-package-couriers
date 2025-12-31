@@ -1,4 +1,4 @@
-package com.kreidev.cmpackagecouriers.nuplane;
+package com.kreidev.cmpackagecouriers.plane;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -23,7 +23,7 @@ public class CardboardPlaneSavedData extends SavedData {
     public static final Codec<List<CardboardPlane>> CODEC =
             Codec.list(CardboardPlane.CODEC.codec());
 
-    public List<Pair<CardboardPlane, CardboardPlaneNuEntity>> pairedPlanes;
+    public List<Pair<CardboardPlane, CardboardPlaneEntity>> pairedPlanes;
 
     public CardboardPlaneSavedData() {
         super();
@@ -39,7 +39,7 @@ public class CardboardPlaneSavedData extends SavedData {
             );
 
             this.pairedPlanes = planeList.stream()
-                    .map(plane -> Pair.of(plane, (CardboardPlaneNuEntity) null))
+                    .map(plane -> Pair.of(plane, (CardboardPlaneEntity) null))
                     .collect(Collectors.toCollection(ArrayList::new));
         } else {
             this.pairedPlanes = new ArrayList<>();

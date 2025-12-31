@@ -2,6 +2,7 @@ package com.kreidev.cmpackagecouriers.plane;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.simibubi.create.content.logistics.box.PackageStyles;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -22,6 +23,12 @@ public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneE
         // NOTE: Better tilt when curving, seems to be delayed/ahead by 1 tick
         // NOTE: Should use relative delta yaw for delta yaw instead of absolute delta yaw
         // TODO: Fade out at far distances
+        // TODO: dynamic package render
+
+        if (entity.tickCount < 4) {  // Skip first few ticks cuz it's jittery
+            super.render(entity, yaw, partialTicks, ms, buffer, light);
+            return;
+        }
 
         ms.pushPose();
         ms.translate(0, 0.25, 0);
@@ -30,7 +37,7 @@ public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneE
         ms.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entity.oldDeltaYaw, entity.newDeltaYaw)*-4));
         ms.mulPose(Axis.ZP.rotationDegrees(-Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
 
-        CardboardPlaneItemRenderer.renderPlane(entity.getPackage(), ms, buffer, light);
+        CardboardPlaneItemRenderer.renderPlane(PackageStyles.getDefaultBox(), ms, buffer, light);
 
         ms.popPose();
 
