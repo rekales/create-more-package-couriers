@@ -9,18 +9,13 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
-import net.createmod.catnip.codecs.stream.CatnipLargerStreamCodecs;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -42,22 +37,6 @@ import java.util.UUID;
 // Use CardboardPlaneManager for adding and removing planes
 public class CardboardPlane {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ResourceKey<Level>> DIMENSION_STREAM_CODEC = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC, ResourceKey::location,
-            t1 -> ResourceKey.create(Registries.DIMENSION, t1)
-    );
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, CardboardPlane> STREAM_CODEC = CatnipLargerStreamCodecs.composite(
-            UUIDUtil.STREAM_CODEC, CardboardPlane::getId,
-            CatnipStreamCodecs.VEC3, CardboardPlane::getDeltaMovement,
-            CatnipStreamCodecs.VEC3, CardboardPlane::getPos,
-            DIMENSION_STREAM_CODEC, CardboardPlane::getCurrentDim,
-            DIMENSION_STREAM_CODEC, CardboardPlane::getTargetDim,
-            CatnipStreamCodecs.VEC3, CardboardPlane::getTargetPos,
-            ItemStack.STREAM_CODEC, CardboardPlane::getPackage,
-            CardboardPlane::new
-    );
-
     public static final MapCodec<CardboardPlane> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             UUIDUtil.CODEC.fieldOf("ID").forGetter(CardboardPlane::getId),
             Vec3.CODEC.fieldOf("Delta").forGetter(CardboardPlane::getDeltaMovement),
@@ -65,9 +44,9 @@ public class CardboardPlane {
             ResourceKey.codec(Registries.DIMENSION).fieldOf("CurrentDim").forGetter(CardboardPlane::getTargetDim),
             ResourceKey.codec(Registries.DIMENSION).fieldOf("TargetDim").forGetter(CardboardPlane::getTargetDim),
             Vec3.CODEC.fieldOf("TargetPos").forGetter(CardboardPlane::getTargetPos),
+            UUIDUtil.CODEC.fieldOf("TargetEntity").forGetter(CardboardPlane::getTargetEntityUUID),
             ItemStack.CODEC.fieldOf("Box").forGetter(CardboardPlane::getPackage)
     ).apply(instance, CardboardPlane::new));
-
 
     public static final double SPEED = 0.8;
 
@@ -110,13 +89,14 @@ public class CardboardPlane {
 
     // For serialization purposes
     public CardboardPlane(@NotNull UUID id, @NotNull Vec3 deltaMovement, @NotNull Vec3 pos, @NotNull ResourceKey<Level> currentDim,
-                          @NotNull ResourceKey<Level> targetDim, @NotNull Vec3 targetPos, @NotNull ItemStack box) {
+                          @NotNull ResourceKey<Level> targetDim, @NotNull Vec3 targetPos, @Nullable UUID targetEntityUUID, @NotNull ItemStack box) {
         this.id = id;
         this.deltaMovement = deltaMovement;
         this.pos = pos;
         this.currentDim = currentDim;
         this.targetPos = targetPos;
         this.targetDim = targetDim;
+        this.targetEntityUUID = targetEntityUUID;
         this.setPackage(box);
     }
 
@@ -248,10 +228,6 @@ public class CardboardPlane {
         this.targetEntityUUID = null;
     }
 
-    public void setRot(Vec3 delta) {
-        this.deltaMovement = delta.normalize().scale(SPEED);
-    }
-
     public void setRot(float xRot, float yRot) {
         this.deltaMovement = getDeltaMovementFromRotation(xRot, yRot);
     }
@@ -301,6 +277,9 @@ public class CardboardPlane {
     }
     public void setTeleported(boolean teleported) {
         this.hasTeleported = teleported;
+    }
+    public @Nullable UUID getTargetEntityUUID() {
+        return targetEntityUUID;
     }
 
     @Override

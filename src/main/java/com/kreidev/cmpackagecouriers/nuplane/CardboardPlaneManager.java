@@ -23,9 +23,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 @SuppressWarnings("UnusedReturnValue")
 @EventBusSubscriber(modid= PackageCouriers.MOD_ID)
@@ -33,13 +31,16 @@ public class CardboardPlaneManager {
 
     public static final int LIFESPAN_TICKS = 400;
 
-    public static List<Pair<CardboardPlane, CardboardPlaneNuEntity>> pairedPlanes = new ArrayList<>();
+    public static CardboardPlaneSavedData INSTANCE;
 
     @SubscribeEvent
     public static void serverTick(ServerTickEvent.Post event) {
+        if (INSTANCE == null) return;
+        if (!INSTANCE.pairedPlanes.isEmpty()) INSTANCE.setDirty();
+
         MinecraftServer server = event.getServer();
 
-        for (Iterator<Pair<CardboardPlane, CardboardPlaneNuEntity>> iterator = pairedPlanes.iterator(); iterator.hasNext();) {
+        for (Iterator<Pair<CardboardPlane, CardboardPlaneNuEntity>> iterator = INSTANCE.pairedPlanes.iterator(); iterator.hasNext();) {
             Pair<CardboardPlane, CardboardPlaneNuEntity> pair = iterator.next();
             CardboardPlane plane = pair.getFirst();
             CardboardPlaneNuEntity entity = pair.getSecond();
@@ -121,7 +122,7 @@ public class CardboardPlaneManager {
         plane.setPos(pos);
         plane.setRot(pitch, yaw);
         plane.setUnpack(unpack);
-        pairedPlanes.add(Pair.of(plane, null));
+        INSTANCE.pairedPlanes.add(Pair.of(plane, null));
         PackageCouriers.LOGGER.debug("added plane");
         return true;
     }

@@ -26,11 +26,13 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -99,7 +101,7 @@ public class PackageCouriers {
                             .persistent(Codec.BOOL)
                             .networkSynchronized(ByteBufCodecs.BOOL));
 
-    public PackageCouriers(IEventBus modEventBus, ModContainer modContainer) {
+    public PackageCouriers(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())
             PortableStockTickerReg.register();
         LocationTransmitterReg.register();
@@ -115,6 +117,7 @@ public class PackageCouriers {
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);
         modEventBus.addListener(PackageCouriers::registerPackets);
+        NeoForge.EVENT_BUS.addListener(CardboardPlaneSavedData::onServerStarting);
         // Event Handler Class: AddressMarkerHandler
         // Event Handler Class: CardboardPlaneManager
     }
