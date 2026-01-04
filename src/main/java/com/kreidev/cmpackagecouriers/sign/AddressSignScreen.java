@@ -10,6 +10,7 @@ import com.simibubi.create.foundation.gui.widget.IconButton;
 import net.createmod.catnip.gui.TextureSheetSegment;
 import net.createmod.catnip.gui.element.GuiGameElement;
 import net.createmod.catnip.gui.element.ScreenElement;
+import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
@@ -53,6 +54,7 @@ public class AddressSignScreen extends AbstractSimiContainerScreen<AddressSignMe
 
         confirmButton = new IconButton(x + background.getWidth() - 33, y + background.getHeight() - 24, AllIcons.I_CONFIRM);
         confirmButton.withCallback(() -> {
+            if (minecraft == null || minecraft.player == null) return;
             minecraft.player.closeContainer();
         });
         addRenderableWidget(confirmButton);
@@ -103,6 +105,7 @@ public class AddressSignScreen extends AbstractSimiContainerScreen<AddressSignMe
     private void onAddressEdited(String s) {
         // TODO: block save packets
         this.address = s;
+        CatnipServices.NETWORK.sendToServer(new AddressSignDataPacket(this.be.getBlockPos(), s));
     }
 
     public static class GuiTexture implements ScreenElement, TextureSheetSegment {

@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import static com.kreidev.cmpackagecouriers.PackageCouriers.REGISTRATE;
 
@@ -36,8 +38,8 @@ public class AddressSignReg {
             .register();
 
     public static void register(IEventBus modEventBus) {
-
         modEventBus.addListener(AddressSignReg::clientInit);
+        modEventBus.addListener(AddressSignReg::registerPackets);
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {
@@ -47,4 +49,8 @@ public class AddressSignReg {
                 AddressSignRenderer::new
         );
     }
-}
+
+    private static void registerPackets(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar("1");
+        registrar.playToServer(AddressSignDataPacket.TYPE, AddressSignDataPacket.STREAM_CODEC, new AddressSignDataPacket.Handler());
+    }}

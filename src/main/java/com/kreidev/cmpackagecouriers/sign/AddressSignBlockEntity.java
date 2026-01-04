@@ -33,7 +33,7 @@ public class AddressSignBlockEntity extends SignBlockEntity implements MenuProvi
 
     public void setAddress(String address) {
         SignText text = this.getText(true);
-        text.setMessage(0, Component.literal(address));
+        text = text.setMessage(0, Component.literal(address));
         this.setText(text, true);
     }
 
