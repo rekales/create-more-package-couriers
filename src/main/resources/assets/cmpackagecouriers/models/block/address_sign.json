@@ -1,0 +1,38 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"3": "create:block/cardboard_block_top",
+		"8": "cmpackagecouriers:block/address_sign",
+		"particle": "cmpackagecouriers:block/address_sign"
+	},
+	"elements": [
+		{
+			"from": [15, 5, 1],
+			"to": [16, 10, 15],
+			"rotation": {"angle": 0, "axis": "y", "origin": [15, 5, 1]},
+			"faces": {
+				"north": {"uv": [1, 1, 2, 6], "texture": "#8"},
+				"east": {"uv": [1, 1, 15, 6], "texture": "#8"},
+				"south": {"uv": [14, 1, 15, 6], "texture": "#8"},
+				"west": {"uv": [1, 1, 15, 6], "texture": "#8"},
+				"up": {"uv": [1, 5, 15, 6], "rotation": 90, "texture": "#8"},
+				"down": {"uv": [1, 1, 15, 2], "rotation": 90, "texture": "#8"}
+			}
+		},
+		{
+			"from": [15.5, 5, 1],
+			"to": [15.5, 10, 15],
+			"rotation": {"angle": 0, "axis": "y", "origin": [15, 5, 1]},
+			"faces": {
+				"north": {"uv": [0, 0, 0, 5], "texture": "#3"},
+				"east": {"uv": [1, 7, 15, 12], "texture": "#3"},
+				"south": {"uv": [0, 0, 0, 5], "texture": "#3"},
+				"west": {"uv": [1, 7, 15, 12], "texture": "#3"},
+				"up": {"uv": [0, 0, 0, 14], "texture": "#3"},
+				"down": {"uv": [0, 0, 0, 14], "texture": "#3"}
+			}
+		}
+	]
+}
