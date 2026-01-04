@@ -5,6 +5,7 @@ import com.kreidev.cmpackagecouriers.compat.curios.Curios;
 import com.kreidev.cmpackagecouriers.compat.supplementaries.SupplementariesCompat;
 import com.kreidev.cmpackagecouriers.plane.*;
 import com.kreidev.cmpackagecouriers.ponder.PonderScenes;
+import com.kreidev.cmpackagecouriers.sign.AddressSignReg;
 import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.mojang.logging.LogUtils;
@@ -50,6 +51,7 @@ public class PackageCouriers {
             PortableStockTickerReg.register();
         LocationTransmitterReg.register();
         CardboardPlaneReg.register();
+        AddressSignReg.register();
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
@@ -69,6 +71,7 @@ public class PackageCouriers {
     public static void clientInit(final FMLClientSetupEvent event) {
         PonderIndex.addPlugin(new PonderScenes());
         CardboardPlaneReg.clientInit();
+        AddressSignReg.clientInit();
     }
 
     public static ResourceLocation resLoc(String path) {
