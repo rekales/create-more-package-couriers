@@ -2,19 +2,25 @@ package com.kreidev.cmpackagecouriers.sign;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class AddressSignBlock extends WallSignBlock {
 
     public static final Map<Direction, VoxelShape> AABBS = Maps.newEnumMap(
@@ -47,5 +53,13 @@ public class AddressSignBlock extends WallSignBlock {
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return AABBS.get(state.getValue(FACING));
+    }
+
+    @Override
+    public void openTextEdit(Player player, SignBlockEntity signEntity, boolean isFrontText) {
+        signEntity.setAllowedPlayerEditor(player.getUUID());
+        if (signEntity instanceof AddressSignBlockEntity be) {
+            player.openMenu(be, be.getBlockPos());
+        }
     }
 }

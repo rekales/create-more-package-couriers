@@ -50,8 +50,8 @@ public class PackageCouriers {
         if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())
             PortableStockTickerReg.register();
         LocationTransmitterReg.register();
-        CardboardPlaneReg.register();
-        AddressSignReg.register();
+        CardboardPlaneReg.register(modEventBus);
+        AddressSignReg.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
@@ -70,8 +70,6 @@ public class PackageCouriers {
 
     public static void clientInit(final FMLClientSetupEvent event) {
         PonderIndex.addPlugin(new PonderScenes());
-        CardboardPlaneReg.clientInit();
-        AddressSignReg.clientInit();
     }
 
     public static ResourceLocation resLoc(String path) {

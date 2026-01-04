@@ -38,9 +38,9 @@ public class AddressSignRenderer implements BlockEntityRenderer<AddressSignBlock
 
     public final Font font;
 
-//    private static final Vec3 TEXT_OFFSET = new Vec3(0.0, 0.33333334F, 1.05/32f);
-    private static final Vec3 TEXT_OFFSET = new Vec3(0.0, 0.155, -0.01);
-
+    private static final Vec3 TEXT_OFFSET = new Vec3(0.0, 0.465, -0.01);
+    public static final float TEXT_RENDER_SCALE = 0.5F;  // Normal signs use 0.666667F
+    public static final float MODEL_RENDER_SCALE = 0.6666667F;
     private static final int OUTLINE_RENDER_DISTANCE = Mth.square(16);
 
     public AddressSignRenderer(BlockEntityRendererProvider.Context context) {
@@ -52,7 +52,6 @@ public class AddressSignRenderer implements BlockEntityRenderer<AddressSignBlock
         BlockState state = blockEntity.getBlockState();
         SignBlock signblock = (SignBlock) state.getBlock();
 
-
         ms.pushPose();
 
         // TODO: don't use renderer to draw the model
@@ -62,8 +61,6 @@ public class AddressSignRenderer implements BlockEntityRenderer<AddressSignBlock
             case Direction.WEST  -> 0f;
             default              -> 180f;
         };
-
-//        ms.mulPose(Axis.YP.rotationDegrees(yaw));
 
         CachedBuffers.partial(ADDRESS_SIGN, AddressSignReg.ADDRESS_SIGN_BLOCK.getDefaultState())
                 .light(light)
@@ -76,42 +73,37 @@ public class AddressSignRenderer implements BlockEntityRenderer<AddressSignBlock
 
         this.translateSign(ms, -signblock.getYRotationDegrees(state), state);
 
-        this.renderSignText(
-                blockEntity.getBlockPos(),
-                blockEntity.getFrontText(),
-                ms,
-                buffer,
-                light,
-                blockEntity.getTextLineHeight(),
-                blockEntity.getMaxTextLineWidth()
-        );
+        this.renderSignText(blockEntity.getBlockPos(), blockEntity.getFrontText(), ms, buffer, light,
+                blockEntity.getTextLineHeight(), blockEntity.getMaxTextLineWidth());
 
         ms.popPose();
     }
 
+    void translateSign(PoseStack poseStack, float yRot, BlockState state) {
+        poseStack.translate(0.5F, 0.75F * MODEL_RENDER_SCALE, 0.5F);
+        poseStack.mulPose(Axis.YP.rotationDegrees(yRot));
+        if (!(state.getBlock() instanceof StandingSignBlock)) {
+            poseStack.translate(0.0F, -0.3125F, -0.4375F);
+        }
+    }
 
     void renderSignText(BlockPos pos, SignText text, PoseStack poseStack, MultiBufferSource buffer,
             int packedLight, int lineHeight, int maxWidth) {
         poseStack.pushPose();
 
-        // translate
-        float textScale = 0.015625F * this.getSignTextRenderScale();
+        // translate text
+        float textScale = 0.015625F * TEXT_RENDER_SCALE;
         poseStack.translate(TEXT_OFFSET.x(), TEXT_OFFSET.y(), TEXT_OFFSET.z());
         poseStack.scale(textScale, -textScale, textScale);
-
 
         int i = getDarkColor(text);
         int j = 4 * lineHeight / 2;
 
-        FormattedCharSequence charseq = text.getRenderMessages(Minecraft.getInstance().isTextFilteringEnabled(), component -> {
+        FormattedCharSequence charSeq = text.getRenderMessages(Minecraft.getInstance().isTextFilteringEnabled(), component -> {
             List<FormattedCharSequence> list = this.font.split(component, maxWidth);
             return list.isEmpty() ? FormattedCharSequence.EMPTY : list.getFirst();
         })[0];
 
-        FormattedCharSequence[] aformattedcharsequence = text.getRenderMessages(Minecraft.getInstance().isTextFilteringEnabled(), p_277227_ -> {
-            List<FormattedCharSequence> list = this.font.split(p_277227_, maxWidth);
-            return list.isEmpty() ? FormattedCharSequence.EMPTY : list.getFirst();
-        });
         int k;
         boolean flag;
         int l;
@@ -125,25 +117,16 @@ public class AddressSignRenderer implements BlockEntityRenderer<AddressSignBlock
             l = packedLight;
         }
 
-
-
-        for (int i1 = 0; i1 < 4; i1++) {
-            FormattedCharSequence formattedcharsequence = aformattedcharsequence[i1];
-            float f = (float)(-this.font.width(formattedcharsequence) / 2);
-            if (flag) {
-                this.font.drawInBatch8xOutline(formattedcharsequence, f, (float)(i1 * lineHeight - j), k, i,
-                        poseStack.last().pose(), buffer, l);
-            } else {
-                this.font.drawInBatch(formattedcharsequence, f, (float)(i1 * lineHeight - j), k, false,
-                        poseStack.last().pose(), buffer, Font.DisplayMode.POLYGON_OFFSET, 0, l);
-            }
+        float f = (float)(-this.font.width(charSeq) / 2);
+        if (flag) {
+            this.font.drawInBatch8xOutline(charSeq, f, (float)(j), k, i,
+                    poseStack.last().pose(), buffer, l);
+        } else {
+            this.font.drawInBatch(charSeq, f, (float)(j), k, false,
+                    poseStack.last().pose(), buffer, Font.DisplayMode.POLYGON_OFFSET, 0, l);
         }
 
         poseStack.popPose();
-    }
-
-    public float getSignTextRenderScale() {
-        return 0.5F;
     }
 
     static boolean isOutlineVisible(BlockPos pos, int textColor) {
@@ -160,19 +143,6 @@ public class AddressSignRenderer implements BlockEntityRenderer<AddressSignBlock
             }
         }
     }
-
-    void translateSign(PoseStack poseStack, float yRot, BlockState state) {
-        poseStack.translate(0.5F, 0.75F * this.getSignModelRenderScale(), 0.5F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(yRot));
-        if (!(state.getBlock() instanceof StandingSignBlock)) {
-            poseStack.translate(0.0F, -0.3125F, -0.4375F);
-        }
-    }
-
-    public float getSignModelRenderScale() {
-        return 0.6666667F;
-    }
-
 
     public static void init() {}
 

@@ -8,11 +8,14 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 import java.util.function.Supplier;
 
 import static com.kreidev.cmpackagecouriers.PackageCouriers.*;
 
+@SuppressWarnings("unused")
 public class CardboardPlaneReg {
 
     public static final EntityEntry<CardboardPlaneEntity> CARDBOARD_PLANE_ENTITY = REGISTRATE
@@ -44,11 +47,11 @@ public class CardboardPlaneReg {
                     .persistent(Codec.BOOL)
                     .networkSynchronized(ByteBufCodecs.BOOL));
 
-    public static void register() {
-
+    public static void register(IEventBus modEventBus) {
+        modEventBus.addListener(CardboardPlaneReg::clientInit);
     }
 
-    public static void clientInit() {
+    public static void clientInit(final FMLClientSetupEvent event) {
         CardboardPlaneEntityRenderer.init();
         CardboardPlaneItemRenderer.init();
         // Somethings wrong with registrate that makes me wanna commit seppuku

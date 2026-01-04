@@ -168,6 +168,7 @@ public class CardboardPlane {
         );
     }
 
+    // TODO: better flight alg
     private void updateDelta(ServerLevel level) {
         if (this.targetEntityUUID != null) {
             if (this.targetEntityCached == null) {
