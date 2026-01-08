@@ -26,13 +26,13 @@ public class AddressSignBlock extends WallSignBlock {
     public static final Map<Direction, VoxelShape> AABBS = Maps.newEnumMap(
             ImmutableMap.of(
                     Direction.NORTH,
-                    Block.box(1.0, 5.0, 15.0, 15.0, 10.0, 16.0),
+                    Block.box(1.0, 6.0, 15.0, 15.0, 11.0, 16.0),
                     Direction.SOUTH,
-                    Block.box(1.0, 5.0, 0.0, 15.0, 10.0, 1.0),
+                    Block.box(1.0, 6.0, 0.0, 15.0, 11.0, 1.0),
                     Direction.EAST,
-                    Block.box(0.0, 5.0, 1.0, 1.0, 10.0, 15.0),
+                    Block.box(0.0, 6.0, 1.0, 1.0, 11.0, 15.0),
                     Direction.WEST,
-                    Block.box(15.0, 5.0, 1.0, 16.0, 10.0, 15.0)
+                    Block.box(15.0, 6.0, 1.0, 16.0, 11.0, 15.0)
             )
     );
 

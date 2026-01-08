@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers.sign;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,6 +16,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import static com.kreidev.cmpackagecouriers.PackageCouriers.resLoc;
 
 @ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public record AddressSignDataPacket(BlockPos pos, String address) implements CustomPacketPayload {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, AddressSignDataPacket> STREAM_CODEC = StreamCodec.composite(

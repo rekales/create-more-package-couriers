@@ -29,10 +29,10 @@ public class AddressSignReg {
     public static final BlockEntityEntry<AddressSignBlockEntity> ADDRESS_SIGN_BLOCK_ENTITY = REGISTRATE
             .blockEntity("address_sign", AddressSignBlockEntity::new)
             .validBlock(ADDRESS_SIGN_BLOCK)
-//            .renderer(() -> AddressSignBlockEntityRenderer::new)
 //            .renderer(() -> AddressSignRenderer::new)
             .register();
 
+    @SuppressWarnings("DataFlowIssue")
     public static final MenuEntry<AddressSignMenu> ADDRESS_SIGN_MENU = REGISTRATE
             .menu("address_sign", AddressSignMenu::new, () -> AddressSignScreen::new)
             .register();

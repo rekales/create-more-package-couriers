@@ -38,7 +38,7 @@ public class AddressSignRenderer implements BlockEntityRenderer<AddressSignBlock
 
     public final Font font;
 
-    private static final Vec3 TEXT_OFFSET = new Vec3(0.0, 0.465, -0.01);
+    private static final Vec3 TEXT_OFFSET = new Vec3(0.0, 0.53, -0.01);
     public static final float TEXT_RENDER_SCALE = 0.5F;  // Normal signs use 0.666667F
     public static final float MODEL_RENDER_SCALE = 0.6666667F;
     private static final int OUTLINE_RENDER_DISTANCE = Mth.square(16);
@@ -54,27 +54,16 @@ public class AddressSignRenderer implements BlockEntityRenderer<AddressSignBlock
 
         ms.pushPose();
 
-        // TODO: don't use renderer to draw the model
-        float yaw = switch (blockEntity.getBlockState().getValue(WallSignBlock.FACING)) {
-            case Direction.NORTH -> -90f;
-            case Direction.SOUTH -> 90f;
-            case Direction.WEST  -> 0f;
-            default              -> 180f;
-        };
-
         CachedBuffers.partial(ADDRESS_SIGN, AddressSignReg.ADDRESS_SIGN_BLOCK.getDefaultState())
                 .light(light)
-                .rotateCentered((float)Math.toRadians(yaw), Direction.Axis.Y)
+                .rotateCentered((float)Math.toRadians(-signblock.getYRotationDegrees(state)), Direction.Axis.Y)
                 .renderInto(ms, buffer.getBuffer(RenderType.CUTOUT));
 
-        ms.popPose();
-
         ms.pushPose();
-
         this.translateSign(ms, -signblock.getYRotationDegrees(state), state);
-
         this.renderSignText(blockEntity.getBlockPos(), blockEntity.getFrontText(), ms, buffer, light,
                 blockEntity.getTextLineHeight(), blockEntity.getMaxTextLineWidth());
+        ms.popPose();
 
         ms.popPose();
     }

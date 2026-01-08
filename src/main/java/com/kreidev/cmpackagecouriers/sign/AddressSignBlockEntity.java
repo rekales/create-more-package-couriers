@@ -22,10 +22,6 @@ public class AddressSignBlockEntity extends SignBlockEntity implements MenuProvi
         super(type, pos, blockState);
     }
 
-//    public AddressSignBlockEntity(BlockPos pos, BlockState blockState) {
-//        super(AddressSignReg.ADDRESS_SIGN_BLOCK_ENTITY.get(), pos, blockState);
-//    }
-
     public String getAddress() {
         SignText text = this.getText(true);
         return text.getMessages(false)[0].getString().trim();
