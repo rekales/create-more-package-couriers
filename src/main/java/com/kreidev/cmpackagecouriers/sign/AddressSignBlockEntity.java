@@ -1,5 +1,7 @@
 package com.kreidev.cmpackagecouriers.sign;
 
+import com.kreidev.cmpackagecouriers.Utils;
+import com.simibubi.create.content.logistics.depot.DepotBlock;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -7,13 +9,17 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import static net.minecraft.world.level.block.WallSignBlock.FACING;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -36,6 +42,19 @@ public class AddressSignBlockEntity extends SignBlockEntity implements MenuProvi
     @Override
     public Component getDisplayName() {
         return Component.literal("");
+    }
+
+    public static void tick(Level level, BlockPos pos, BlockState state, AddressSignBlockEntity be) {
+        SignBlockEntity.tick(level, pos, state, be);
+
+        BlockPos targetPos = pos.relative(state.getValue(FACING).getOpposite());
+        if (level.getBlockState(targetPos).getBlock() instanceof DepotBlock
+                && Utils.isChunkTicking(level, new Vec3(targetPos.getX(), targetPos.getY(), targetPos.getZ()))) {
+            String address = be.getAddress();
+            if (!address.isBlank()) {
+                AddressSignHandler.addOrUpdateTarget(level, targetPos, address.trim());
+            }
+        }
     }
 
     @Override

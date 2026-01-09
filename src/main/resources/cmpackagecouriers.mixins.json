@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "EjectorBlockEntityMixin",
-    "BeltDeployerCallbacksMixin",
-    "SignBlockEntityMixin"
+    "BeltDeployerCallbacksMixin"
   ],
   "minVersion": "0.8.5"
 }

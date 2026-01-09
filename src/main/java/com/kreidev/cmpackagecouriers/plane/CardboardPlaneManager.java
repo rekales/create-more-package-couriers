@@ -2,9 +2,10 @@ package com.kreidev.cmpackagecouriers.plane;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.ServerConfig;
+import com.kreidev.cmpackagecouriers.Utils;
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.curios.CuriosCompat;
-import com.kreidev.cmpackagecouriers.marker.AddressMarkerHandler;
+import com.kreidev.cmpackagecouriers.sign.AddressSignHandler;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterItem;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
@@ -15,7 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
@@ -71,7 +71,7 @@ public class CardboardPlaneManager {
             }
 
             ServerLevel level = server.getLevel(plane.getCurrentDim());
-            if (isChunkTicking(level, plane.getPos())) {
+            if (Utils.isChunkTicking(level, plane.getPos())) {
                 if (entity == null) {
                     entity = new CardboardPlaneEntity(level, plane);
                     pair.setSecond(entity);
@@ -111,7 +111,7 @@ public class CardboardPlaneManager {
                 plane = new CardboardPlane(currentLevel, serverPlayer, box);
             }
         } else {
-            AddressMarkerHandler.MarkerTarget target = AddressMarkerHandler.getMarkerTarget(address);
+            AddressSignHandler.AddressSignTarget target = AddressSignHandler.getTarget(address);
             if (target != null && hasSpace(target.level, target.pos) && ServerConfig.planeLocationTargets) {
                 plane = new CardboardPlane(currentLevel, target.level, target.pos, box);
                 // TODO: MarkerTarget getters pattern
@@ -125,15 +125,6 @@ public class CardboardPlaneManager {
         INSTANCE.pairedPlanes.add(Pair.of(plane, null));
         PackageCouriers.LOGGER.debug("added plane");
         return true;
-    }
-
-    public static boolean isChunkTicking(Level level, Vec3 pos) {
-        if (level instanceof ServerLevel serverLevel) {
-            BlockPos blockPos = new BlockPos((int) pos.x(),(int)  pos.y(),(int)  pos.z());
-            return serverLevel.getChunkSource().chunkMap.getDistanceManager()
-                    .inEntityTickingRange(ChunkPos.asLong(blockPos));
-        }
-        return false;
     }
 
     /**
