@@ -117,6 +117,4 @@ public class CardboardPlaneEntity extends Entity {
     public static CardboardPlaneEntity createEmpty(EntityType<? extends CardboardPlaneEntity> entityType, Level level) {
         return new CardboardPlaneEntity(entityType, level);
     }
-
-    public static void init() {}
 }

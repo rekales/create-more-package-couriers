@@ -1,6 +1,5 @@
-package com.kreidev.cmpackagecouriers.events;
+package com.kreidev.cmpackagecouriers;
 
-import com.kreidev.cmpackagecouriers.ServerConfig;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerInteractionHandler;
 import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
@@ -9,6 +8,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -31,21 +31,17 @@ public class StockTickerIntegration {
         }
     }
 
-    @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onRightClickEntity(PlayerInteractEvent.EntityInteractSpecific event) {
+        if (event.getLevel().isClientSide()) return;
         if (!ServerConfig.shopAddressReplacement) return;
-        if (event.getLevel().isClientSide()) {
-            return;
-        }
 
         Entity target = event.getTarget();
         Player player = event.getEntity();
         InteractionHand hand = event.getHand();
         ItemStack heldItem = player.getItemInHand(hand);
 
-        if (player == null || target == null || player.isSpectator() || hand != InteractionHand.MAIN_HAND) {
-            return;
-        }
+        if (player.isSpectator() || hand != InteractionHand.MAIN_HAND) return;
 
         BlockPos stockTickerPos = StockTickerInteractionHandler.getStockTickerPosition(target);
         if (stockTickerPos != null) {
@@ -53,23 +49,18 @@ public class StockTickerIntegration {
         }
     }
 
-    @SubscribeEvent(priority = net.neoforged.bus.api.EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onRightClickBlock(RightClickBlock event) {
+        if (event.getLevel().isClientSide()) return;
         if (!ServerConfig.shopAddressReplacement) return;
-        if (event.getLevel().isClientSide()) {
-            return;
-        }
 
         Player player = event.getEntity();
         InteractionHand hand = event.getHand();
         ItemStack heldItem = player.getItemInHand(hand);
         BlockPos pos = event.getPos();
 
-        if (player == null || player.isSpectator() || hand != InteractionHand.MAIN_HAND) {
-            return;
-        }
+        if (player.isSpectator() || hand != InteractionHand.MAIN_HAND) return;
 
-        // Check if the block is a Blaze Burner
         if (event.getLevel().getBlockState(pos).getBlock() instanceof BlazeBurnerBlock) {
             rewriteAddressIfNeeded(player, heldItem);
         }

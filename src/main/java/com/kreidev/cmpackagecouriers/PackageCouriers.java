@@ -53,7 +53,7 @@ public class PackageCouriers {
         LocationTransmitterReg.register(modEventBus);
         CardboardPlaneReg.register(modEventBus);
         AddressSignReg.register(modEventBus);
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
@@ -61,12 +61,13 @@ public class PackageCouriers {
         Mods.CURIOS.executeIfInstalled(() -> () -> Curios.init(modEventBus));
         Mods.SUPPLEMENTARIES.executeIfInstalled(() -> SupplementariesCompat::init);
 
-        CardboardPlaneEntity.init();
+        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);
-        NeoForge.EVENT_BUS.addListener(CardboardPlaneSavedData::onServerStarting);
+
         // Event Handler Class: AddressMarkerHandler
         // Event Handler Class: CardboardPlaneManager
+        // Event Handler Class: StockTickerIntegration
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {
@@ -76,7 +77,5 @@ public class PackageCouriers {
     public static ResourceLocation resLoc(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
-
-    // TODO: Replace depot sign based targeting with a new sign block
 
 }

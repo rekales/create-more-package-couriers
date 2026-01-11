@@ -10,6 +10,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.function.Supplier;
 
@@ -49,6 +50,7 @@ public class CardboardPlaneReg {
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(CardboardPlaneReg::clientInit);
+        NeoForge.EVENT_BUS.addListener(CardboardPlaneSavedData::onServerStarting);
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {
