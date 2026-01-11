@@ -97,8 +97,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         PackageCouriers.LOGGER.debug(pitch+" pitch");
 
         ItemStack packageItem = getPackage(stack);
-        boolean unpack = stack.getOrDefault(CardboardPlaneReg.PRE_OPENED, false);
-        return CardboardPlaneManager.addPlane(level, pos, yaw, pitch, packageItem, unpack);
+        return CardboardPlaneManager.addPlane(level, pos, yaw, pitch, packageItem, isPreOpened(stack));
     }
 
     public static ItemStack withPackage(ItemStack box) {
@@ -119,6 +118,10 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         if (container == null)
             return ItemStack.EMPTY;
         return container.getStackInSlot(0);
+    }
+
+    public static boolean isPreOpened(ItemStack plane) {
+        return plane.getOrDefault(CardboardPlaneReg.PRE_OPENED, false);
     }
 
     public static void setPreOpened(ItemStack plane, boolean preopened) {

@@ -1,32 +1,29 @@
 package com.kreidev.cmpackagecouriers.transmitter;
 
+import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.neoforged.bus.api.IEventBus;
 
-import java.util.function.UnaryOperator;
+import java.util.function.Supplier;
 
 import static com.kreidev.cmpackagecouriers.PackageCouriers.DATA_COMPONENTS;
 import static com.kreidev.cmpackagecouriers.PackageCouriers.REGISTRATE;
 
+@SuppressWarnings("unused")
 public class LocationTransmitterReg {
 
-    public static final ItemEntry<LocationTransmitterItem> LOCATION_TRANSMITTER =
-            REGISTRATE.item("location_transmitter", LocationTransmitterItem::new)
-                    .register();
+    public static final ItemEntry<LocationTransmitterItem> LOCATION_TRANSMITTER = REGISTRATE
+            .item("location_transmitter", LocationTransmitterItem::new)
+            .register();
 
-    public static final DataComponentType<CustomData> TRANSMITTER_ENABLED = register(
-            "transmitter_enabled",
-            builder -> builder.persistent(CustomData.CODEC).networkSynchronized(CustomData.STREAM_CODEC)
-    );
+    public static final Supplier<DataComponentType<Boolean>> TRANSMITTER_ENABLED = DATA_COMPONENTS
+            .registerComponentType("transmitter_enabled", builder -> builder
+                    .persistent(Codec.BOOL)
+                    .networkSynchronized(ByteBufCodecs.BOOL));
 
-    private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> builder) {
-        DataComponentType<T> type = builder.apply(DataComponentType.builder()).build();
-        DATA_COMPONENTS.register(name, () -> type);
-        return type;
-    }
+    public static void register(IEventBus modEventBus) {
 
-    public static void register() {
-        // This method is called to ensure static initialization
     }
 }

@@ -28,6 +28,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
+@SuppressWarnings("unused")
 @Mod(PackageCouriers.MOD_ID)
 public class PackageCouriers {
     public static final String MOD_ID = "cmpackagecouriers";
@@ -49,7 +50,7 @@ public class PackageCouriers {
     public PackageCouriers(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())
             PortableStockTickerReg.register();
-        LocationTransmitterReg.register();
+        LocationTransmitterReg.register(modEventBus);
         CardboardPlaneReg.register(modEventBus);
         AddressSignReg.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
