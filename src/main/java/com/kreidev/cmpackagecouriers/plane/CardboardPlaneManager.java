@@ -105,6 +105,13 @@ public class CardboardPlaneManager {
         CardboardPlane plane = null;
 
         String address = PackageItem.getAddress(box);
+
+        // Special "@PlayerName" interaction
+        int atIndex = address.indexOf('@');
+        if (atIndex != -1) {
+            address = address.substring(atIndex + 1);
+        }
+
         ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
         if (serverPlayer != null && ServerConfig.planePlayerTargets) {
             if (!ServerConfig.locationTransmitterNeeded || hasEnabledLocationTransmitter(serverPlayer)) {
