@@ -1,0 +1,15 @@
+{
+  "type": "create:cutting",
+  "ingredients": [
+    {
+      "item": "cmpackagecouriers:cardboard_plane"
+    }
+  ],
+  "processing_time": 10,
+  "results": [
+    {
+      "count": 1,
+      "id": "create:cardboard_package_12x12"
+    }
+  ]
+}

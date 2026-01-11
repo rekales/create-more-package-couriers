@@ -4,8 +4,9 @@
   "package": "com.kreidev.cmpackagecouriers.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "BeltDeployerCallbacksMixin",
     "EjectorBlockEntityMixin",
-    "BeltDeployerCallbacksMixin"
+    "SawBlockEntityMixin"
   ],
   "minVersion": "0.8.5"
 }
