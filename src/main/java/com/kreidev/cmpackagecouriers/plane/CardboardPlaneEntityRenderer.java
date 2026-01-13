@@ -31,12 +31,12 @@ public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneE
         }
 
         ms.pushPose();
-        ms.translate(0, 0.25, 0);
-        ms.scale(0.75f, 0.75f, 0.75f);
-        ms.mulPose(Axis.YP.rotationDegrees(90+yaw));
-        ms.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entity.oldDeltaYaw, entity.newDeltaYaw)*-4));
-        ms.mulPose(Axis.ZP.rotationDegrees(-Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
+        ms.mulPose(Axis.YP.rotationDegrees(yaw));
+        ms.mulPose(Axis.XP.rotationDegrees(-Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
+        ms.mulPose(Axis.ZP.rotationDegrees(-Mth.lerp(partialTicks, entity.oldDeltaYaw, entity.newDeltaYaw)*-4));
 
+        ms.scale(2, 2, 2);
+        ms.translate(0,0.35f,0.15f);
         CardboardPlaneItemRenderer.renderPlane(PackageStyles.getDefaultBox(), ms, buffer, light);
 
         ms.popPose();

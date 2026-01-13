@@ -26,41 +26,38 @@ public class JarPlaneRenderer {
 
     public static void renderJar(ItemStack box, PoseStack ms, MultiBufferSource buffer, int light) {
         ms.pushPose();
-        ms.scale(1.25f, 1.25f, 1.25f);
 
         ms.pushPose();
-        ms.translate(-0.25, -0.25, 0);
-        ms.mulPose(Axis.ZP.rotationDegrees(90));
+        ms.scale(1.25f, 1.25f, 1.25f);
         PartialModel model = AllPartialModels.PACKAGES.get(BuiltInRegistries.ITEM.getKey(box.getItem()));
         if (model != null)
             CachedBuffers.partial(model, Blocks.AIR.defaultBlockState())
-                    .translate(-.5, -PackageItem.getHeight(box), -.5)
-                    .rotateCentered(-AngleHelper.rad(180), Direction.UP)
+                    .translate(-0.5, -PackageItem.getHeight(box)-0.25f, -1)
+                    .rotateCentered(-AngleHelper.rad(90), Direction.EAST)
                     .light(light)
                     .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
+
+        FluidStack fluidStack = FluidUtil.getFluidContained(box).orElse(FluidStack.EMPTY);
+        ms.scale(0.98f, 0.98f, 0.98f);
+        ms.translate(0, -0.01f, -0.01f);
+        ms.translate(-4/16f, -8/16f, -10/16f);
+        FLUID_RENDERER.renderFluidBox(fluidStack, 0f, 0f, 0f, 8/16f, 8/16f, 10/16f, buffer,
+                ms, light, true, true);
         ms.popPose();
 
         ms.pushPose();
-        ms.translate(-0.075, 0, 0);
-        float scaleFactor = PackageItem.getHeight(box)/0.75f;
-        ms.scale(scaleFactor, scaleFactor, scaleFactor);
-        ms.translate(0, -0.25, 0);
+        ms.scale(0.825f, 0.825f, 0.825f);
         PartialModel rope = CardboardPlaneItemRenderer.PACKAGE_ROPE.get(BuiltInRegistries.ITEM.getKey(PackageStyles.getDefaultBox().getItem()));
         if (rope != null)
             CachedBuffers.partial(rope, Blocks.AIR.defaultBlockState())
-                    .translate(-.5, -PackageItem.getHeight(box), -.5)
+                    .translate(-0.5, -PackageItem.getHeight(box)-0.25f, -1)
+                    .rotateCentered(-AngleHelper.rad(90), Direction.UP)
                     .light(light)
                     .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
-        ms.popPose();
-
-        ms.pushPose();
-        FluidStack fluidStack = FluidUtil.getFluidContained(box).orElse(FluidStack.EMPTY);
-        ms.scale(0.9f, 0.9f, 0.9f);
-        ms.translate(-0.375f, -0.5f, -0.25f);
-        FLUID_RENDERER.renderFluidBox(fluidStack, 0f, 0f, 0f, 0.625f, 0.5f, 0.5f, buffer,
-                ms, light, true, true);
         ms.popPose();
 
         ms.popPose();
     }
+
+    public static void init() {}
 }

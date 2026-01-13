@@ -32,8 +32,10 @@ dependencies {
 
     implementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.8")!!)
 
+    compileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.8")
+    runtimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.8")
+
     compileOnly("curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828")
-    compileOnly("curse.maven:create-factory-logistics-1218807:6697752")
 
     compileOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}:api")
     runtimeOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}")

@@ -46,6 +46,7 @@ public class AddressSignBlockEntity extends SignBlockEntity implements MenuProvi
 
     public static void tick(Level level, BlockPos pos, BlockState state, AddressSignBlockEntity be) {
         SignBlockEntity.tick(level, pos, state, be);
+        if (level.isClientSide()) return;
 
         BlockPos targetPos = pos.relative(state.getValue(FACING).getOpposite());
         if (level.getBlockState(targetPos).getBlock() instanceof DepotBlock
@@ -55,6 +56,8 @@ public class AddressSignBlockEntity extends SignBlockEntity implements MenuProvi
                 AddressSignHandler.addOrUpdateTarget(level, targetPos, address.trim());
             }
         }
+
+        // TODO: postboxes as offline delivery target
     }
 
     @Override

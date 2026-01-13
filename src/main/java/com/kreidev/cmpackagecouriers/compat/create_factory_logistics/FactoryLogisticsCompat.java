@@ -7,4 +7,8 @@ public class FactoryLogisticsCompat {
     public static boolean isJar(ItemStack itemStack) {
         return itemStack.getItem() instanceof JarPackageItem;
     }
+
+    public static void init() {
+        JarPlaneRenderer.init();
+    }
 }

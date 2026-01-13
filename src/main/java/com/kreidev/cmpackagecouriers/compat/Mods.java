@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 public enum Mods {
     JEI,
     CREATE_MOBILE_PACKAGES,
+    CRATE_FACTORY_LOGISTICS,
     CURIOS,
     SUPPLEMENTARIES;
 

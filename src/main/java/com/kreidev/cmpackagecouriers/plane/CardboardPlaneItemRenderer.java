@@ -59,59 +59,27 @@ public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer 
         if (box.isEmpty() || !PackageItem.isPackage(box))
             box = PackageStyles.getDefaultBox();
 
-        // TODO: Simplify
+        // TODO: Throwing animation
+
         ms.pushPose();
-
-        if (transformType == ItemDisplayContext.GUI) {
-            ms.translate(-0.2f, -0.3f, 0);
-            ms.scale(0.3f, 0.3f, 0.3f);
-        } else if (transformType.firstPerson()) {
-            LocalPlayer player = Minecraft.getInstance().player;
-            if (player != null && player.isUsingItem()) {
-                ms.mulPose(Axis.YP.rotationDegrees(-90));
-                ms.mulPose(Axis.ZP.rotationDegrees(-120));
-                ms.mulPose(Axis.XP.rotationDegrees(-10));
-                ms.translate(1f, -0.5f, 0);
-                ms.scale(0.5f, 0.5f, 0.5f);
-            } else {
-                ms.mulPose(Axis.YP.rotationDegrees(90));
-                ms.translate(0.25f, -0.4f, 0);
-                ms.scale(0.5f, 0.5f, 0.5f);
-            }
-        } else if (transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
-        || transformType == ItemDisplayContext.THIRD_PERSON_LEFT_HAND) {
-            ms.mulPose(Axis.YP.rotationDegrees(90));
-            ms.translate(0.25f, -0.75f, 0f);
-            ms.scale(1/3f, 1/3f, 1/3f);
-            ms.translate(0, PackageItem.getHeight(box),0);
-        } else if (transformType == ItemDisplayContext.GROUND){
-            ms.translate(0, -0.5f, 0);
-            ms.scale(1/4f, 1/4f, 1/4f);
-            ms.translate(0, PackageItem.getHeight(box),0);
-        } else {
-            ms.mulPose(Axis.XP.rotationDegrees(90));
-            ms.translate(0, -0.25f, 0.5f);
-            ms.translate(0, PackageItem.getHeight(box),0);
-        }
-
+        ms.translate(0, -4/16f + PackageItem.getHeight(box)/3f, 0);
         renderPlane(box, ms, buffer, light);
         ms.popPose();
     }
 
     public static void renderPlane(ItemStack box, PoseStack ms, MultiBufferSource buffer, int light) {
         if (box.isEmpty() || !PackageItem.isPackage(box))
-            box = AllBlocks.CARDBOARD_BLOCK.asStack();
+            box = PackageStyles.getDefaultBox();
 
         ms.pushPose();
-        ms.mulPose(Axis.YP.rotationDegrees(-90));
+        ms.translate(0, -4/16f, 0);
+
         CachedBuffers.partial(DELIVERY_PLANE, Blocks.AIR.defaultBlockState())
+                .translate(-0.5f, 0, -0.5f)
                 .light(light)
-                .translate(-24/16f, 0, -16/16f)
-                .scale(3)
                 .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
-        ms.popPose();
 
-        ms.pushPose();
+        ms.scale(1/3f, 1/3f, 1/3f);
         if (ModList.get().isLoaded("create_factory_logistics")
                 && FactoryLogisticsCompat.isJar(box)) {
             JarPlaneRenderer.renderJar(box, ms, buffer, light);
@@ -119,15 +87,16 @@ public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer 
             PartialModel model = AllPartialModels.PACKAGES.get(BuiltInRegistries.ITEM.getKey(box.getItem()));
             if (model != null)
                 CachedBuffers.partial(model, Blocks.AIR.defaultBlockState())
-                        .translate(-.5, -PackageItem.getHeight(box), -.5)
-                        .rotateCentered(-AngleHelper.rad(180), Direction.UP)
+                        .translate(-0.5, -PackageItem.getHeight(box), -1)
+                        .rotateCentered(-AngleHelper.rad(90), Direction.UP)
                         .light(light)
                         .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
 
             PartialModel rope = PACKAGE_ROPE.get(BuiltInRegistries.ITEM.getKey(box.getItem()));
             if (rope != null)
                 CachedBuffers.partial(rope, Blocks.AIR.defaultBlockState())
-                        .translate(-.5, -PackageItem.getHeight(box), -.5)
+                        .translate(-0.5, -PackageItem.getHeight(box), -1)
+                        .rotateCentered(-AngleHelper.rad(90), Direction.UP)
                         .light(light)
                         .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
         }

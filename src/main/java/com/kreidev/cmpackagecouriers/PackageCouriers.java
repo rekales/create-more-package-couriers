@@ -1,6 +1,7 @@
 package com.kreidev.cmpackagecouriers;
 
 import com.kreidev.cmpackagecouriers.compat.Mods;
+import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
 import com.kreidev.cmpackagecouriers.compat.curios.Curios;
 import com.kreidev.cmpackagecouriers.compat.supplementaries.SupplementariesCompat;
 import com.kreidev.cmpackagecouriers.plane.*;
@@ -60,6 +61,7 @@ public class PackageCouriers {
 
         Mods.CURIOS.executeIfInstalled(() -> () -> Curios.init(modEventBus));
         Mods.SUPPLEMENTARIES.executeIfInstalled(() -> SupplementariesCompat::init);
+        Mods.CRATE_FACTORY_LOGISTICS.executeIfInstalled(() -> FactoryLogisticsCompat::init);
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modEventBus.addListener(ServerConfig::onLoad);

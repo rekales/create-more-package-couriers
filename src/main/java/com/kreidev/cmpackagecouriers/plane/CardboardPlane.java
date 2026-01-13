@@ -7,8 +7,6 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
-import com.simibubi.create.content.logistics.depot.DepotBlock;
-import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -25,7 +23,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -109,8 +106,6 @@ public class CardboardPlane {
         this.updateDelta(server.getLevel(this.currentDim));
 
         if (this.tickCount > 120 && (!targetPos.closerThan(pos, 80) || this.currentDim != this.targetDim)) {
-
-
             this.tpCloserToTarget();
         }
     }
@@ -138,12 +133,9 @@ public class CardboardPlane {
             }
         } else {
             BlockPos blockPos = new BlockPos((int)Math.floor(this.targetPos.x()), (int)Math.floor(this.targetPos.y()), (int)Math.floor(this.targetPos.z()));
-            if (level.getBlockState(blockPos).getBlock() instanceof DepotBlock
-                    && level.getBlockEntity(blockPos) instanceof DepotBlockEntity depot
-                    && depot.getHeldItem().is(Items.AIR)) {
-                depot.setHeldItem(this.getPackage());
-                depot.notifyUpdate();
-                //TODO: add behaviors on belts and shit and check behaviours if exists
+            if (level.getBlockState(blockPos).getBlock() instanceof PlaneDestination be
+                    && be.cmpc$hasSpace(level, blockPos, this)) {
+                be.cmpc$onReachedDestination(level, blockPos, this);
             } else {
                 level.addFreshEntity(PackageEntity.fromItemStack(level, this.pos, this.getPackage()));
             }

@@ -25,6 +25,7 @@ public class CardboardPlaneReg {
                     .sized(0.5f, 0.5f)
                     .eyeHeight(0.25f)
                     .clientTrackingRange(80)
+                    .noSave()
                     .updateInterval(1))
 //        .renderer(() -> DeliveryPlaneRenderer::new)
             .register();
