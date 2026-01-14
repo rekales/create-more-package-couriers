@@ -118,11 +118,10 @@ public class CardboardPlaneManager {
         } else {
             AddressSignHandler.AddressSignTarget target = AddressSignHandler.getTarget(address);
             if (target != null
-                    && target.level.getBlockState(target.pos).getBlock() instanceof PlaneDestination dest
-                    && dest.cmpc$hasSpace(target.level, target.pos)
+                    && target.getLevel().getBlockState(target.getPos()).getBlock() instanceof PlaneDestination dest
+                    && dest.cmpc$hasSpace(target.getLevel(), target.getPos())
                     && ServerConfig.planeLocationTargets) {
-                plane = new CardboardPlane(currentLevel, target.level, target.pos, box);
-                // TODO: MarkerTarget getters pattern
+                plane = new CardboardPlane(currentLevel, target.getLevel(), target.getPos(), box);
             }
         }
 

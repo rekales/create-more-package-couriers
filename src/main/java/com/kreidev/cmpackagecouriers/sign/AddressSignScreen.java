@@ -103,7 +103,6 @@ public class AddressSignScreen extends AbstractSimiContainerScreen<AddressSignMe
     }
 
     private void onAddressEdited(String s) {
-        // TODO: block save packets
         this.address = s;
         CatnipServices.NETWORK.sendToServer(new AddressSignDataPacket(this.be.getBlockPos(), s));
     }

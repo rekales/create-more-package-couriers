@@ -46,7 +46,7 @@ public class AddressSignHandler {
     public static @Nullable AddressSignTarget getTarget(String address) {
         // Linear search is good enough
         for (AddressSignTarget marker : targetMap.values()) {
-            if (PackageItem.matchAddress(address, marker.address)) {
+            if (PackageItem.matchAddress(address, marker.getAddress())) {
                 return marker;
             }
         }
@@ -83,6 +83,18 @@ public static class AddressSignTarget {
         return Objects.equals(pos, other.pos) &&
                 Objects.equals(level.dimension(), other.level.dimension()) && // compare by dimension
                 Objects.equals(address, other.address);
+    }
+
+    public BlockPos getPos() {
+        return pos;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     @Override

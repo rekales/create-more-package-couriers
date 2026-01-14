@@ -1,11 +1,9 @@
 package com.kreidev.cmpackagecouriers.plane;
 
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.JarPlaneRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
@@ -41,6 +39,7 @@ public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer 
     public static final Map<ResourceLocation, PartialModel> PACKAGE_ROPE = new HashMap<>();
 
     static {
+        //noinspection UnstableApiUsage
         for (PackageStyles.PackageStyle style : PackageStyles.STYLES) {
             ResourceLocation key = style.getItemId();
             PACKAGE_ROPE.put(key, PartialModel.of(getRopeModel(style.width(), style.height())));
@@ -59,9 +58,15 @@ public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer 
         if (box.isEmpty() || !PackageItem.isPackage(box))
             box = PackageStyles.getDefaultBox();
 
-        // TODO: Throwing animation
-
         ms.pushPose();
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (transformType.firstPerson() && player != null && player.isUsingItem()) {
+            ms.mulPose(Axis.YP.rotationDegrees(-160));
+            ms.mulPose(Axis.XP.rotationDegrees(-120));
+            ms.mulPose(Axis.YP.rotationDegrees(10));
+            ms.translate(0, -0.2, -0.75);
+        }
+
         ms.translate(0, -4/16f + PackageItem.getHeight(box)/3f, 0);
         renderPlane(box, ms, buffer, light);
         ms.popPose();

@@ -38,7 +38,6 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         super(p.stacksTo(1));
     }
 
-    // TODO: throwing angles are a bit off, double check later.
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
         if (entityLiving instanceof Player player
