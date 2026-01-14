@@ -1,8 +1,10 @@
 package com.kreidev.cmpackagecouriers.plane;
 
-import com.simibubi.create.content.logistics.box.PackageStyles;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 // Entity for rendering purposes
 // Use CardboardPlaneManager for adding and removing planes
 public class CardboardPlaneEntity extends Entity {
+    private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData
+            .defineId(CardboardPlaneEntity.class, EntityDataSerializers.ITEM_STACK);
 
     // NOTE: only relevant in server side
     public CardboardPlane plane;
@@ -56,6 +60,10 @@ public class CardboardPlaneEntity extends Entity {
         if (!level().isClientSide()) {
             this.setDeltaMovement(plane.getDeltaMovement());
 
+            if (!plane.getPackage().equals(this.getPackage())) {
+                this.setPackage(plane.getPackage());
+            }
+
             if (tickCount%20 == 1) {  // Synchronize pos just in case
                 this.setPos(plane.getPos());
             }
@@ -71,11 +79,12 @@ public class CardboardPlaneEntity extends Entity {
     }
 
     public ItemStack getPackage() {
-        return PackageStyles.getDefaultBox();
+        return this.getEntityData().get(DATA_ITEM);
     }
 
-    public void setPackage(ItemStack box) {
-
+    public void setPackage(ItemStack stack) {
+        if (stack.getItem() instanceof PackageItem)
+            this.getEntityData().set(DATA_ITEM, stack);
     }
 
     public void setSpeed(double speed) {
@@ -104,7 +113,7 @@ public class CardboardPlaneEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-
+        builder.define(DATA_ITEM, ItemStack.EMPTY);
     }
 
     @Override

@@ -23,7 +23,6 @@ public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneE
         // NOTE: Better tilt when curving, seems to be delayed/ahead by 1 tick
         // NOTE: Should use relative delta yaw for delta yaw instead of absolute delta yaw
         // TODO: Fade out at far distances
-        // TODO: dynamic package render
 
         if (entity.tickCount < 4) {  // Skip first few ticks cuz it's jittery
             super.render(entity, yaw, partialTicks, ms, buffer, light);
@@ -37,7 +36,7 @@ public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneE
 
         ms.scale(2, 2, 2);
         ms.translate(0,0.35f,0.15f);
-        CardboardPlaneItemRenderer.renderPlane(PackageStyles.getDefaultBox(), ms, buffer, light);
+        CardboardPlaneItemRenderer.renderPlane(entity.getPackage(), ms, buffer, light);
 
         ms.popPose();
 
