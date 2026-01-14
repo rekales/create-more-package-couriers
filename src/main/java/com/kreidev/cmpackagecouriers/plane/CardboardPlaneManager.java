@@ -1,6 +1,7 @@
 package com.kreidev.cmpackagecouriers.plane;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
+import com.kreidev.cmpackagecouriers.PlaneDestination;
 import com.kreidev.cmpackagecouriers.ServerConfig;
 import com.kreidev.cmpackagecouriers.Utils;
 import com.kreidev.cmpackagecouriers.compat.Mods;
@@ -8,16 +9,13 @@ import com.kreidev.cmpackagecouriers.compat.curios.CuriosCompat;
 import com.kreidev.cmpackagecouriers.sign.AddressSignHandler;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterItem;
 import com.simibubi.create.content.logistics.box.PackageItem;
-import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.createmod.catnip.data.Pair;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -119,7 +117,10 @@ public class CardboardPlaneManager {
             }
         } else {
             AddressSignHandler.AddressSignTarget target = AddressSignHandler.getTarget(address);
-            if (target != null && hasSpace(target.level, target.pos) && ServerConfig.planeLocationTargets) {
+            if (target != null
+                    && target.level.getBlockState(target.pos).getBlock() instanceof PlaneDestination dest
+                    && dest.cmpc$hasSpace(target.level, target.pos)
+                    && ServerConfig.planeLocationTargets) {
                 plane = new CardboardPlane(currentLevel, target.level, target.pos, box);
                 // TODO: MarkerTarget getters pattern
             }
@@ -154,16 +155,4 @@ public class CardboardPlaneManager {
 
         return false;
     }
-
-    public static boolean hasSpace(Level level, BlockPos pos) {
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof DepotBlockEntity depotBlockEntity) {
-            return depotBlockEntity.getHeldItem().isEmpty();
-        }
-        // TODO: add behaviors on belts and shit and check behaviours if exists
-        // Other target types here, maybe using an injected interface for them instead of this.
-
-        return true;
-    }
-
 }

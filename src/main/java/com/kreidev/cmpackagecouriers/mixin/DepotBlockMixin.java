@@ -1,7 +1,7 @@
 package com.kreidev.cmpackagecouriers.mixin;
 
 import com.kreidev.cmpackagecouriers.plane.CardboardPlane;
-import com.kreidev.cmpackagecouriers.plane.PlaneDestination;
+import com.kreidev.cmpackagecouriers.PlaneDestination;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -21,7 +21,7 @@ public class DepotBlockMixin implements PlaneDestination {
     }
 
     @Override
-    public boolean cmpc$hasSpace(Level level, BlockPos pos, CardboardPlane plane) {
+    public boolean cmpc$hasSpace(Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof DepotBlockEntity depot) {
             return depot.getHeldItem().is(Items.AIR);
         }

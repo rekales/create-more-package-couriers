@@ -1,6 +1,7 @@
 package com.kreidev.cmpackagecouriers.plane;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
+import com.kreidev.cmpackagecouriers.PlaneDestination;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllItems;
@@ -133,9 +134,9 @@ public class CardboardPlane {
             }
         } else {
             BlockPos blockPos = new BlockPos((int)Math.floor(this.targetPos.x()), (int)Math.floor(this.targetPos.y()), (int)Math.floor(this.targetPos.z()));
-            if (level.getBlockState(blockPos).getBlock() instanceof PlaneDestination be
-                    && be.cmpc$hasSpace(level, blockPos, this)) {
-                be.cmpc$onReachedDestination(level, blockPos, this);
+            if (level.getBlockState(blockPos).getBlock() instanceof PlaneDestination dest
+                    && dest.cmpc$hasSpace(level, blockPos)) {
+                dest.cmpc$onReachedDestination(level, blockPos, this);
             } else {
                 level.addFreshEntity(PackageEntity.fromItemStack(level, this.pos, this.getPackage()));
             }
@@ -160,7 +161,6 @@ public class CardboardPlane {
         );
     }
 
-    // TODO: better flight alg
     private void updateDelta(ServerLevel level) {
         if (this.targetEntityUUID != null) {
             if (this.targetEntityCached == null) {
@@ -177,14 +177,17 @@ public class CardboardPlane {
         Vec3 vecTo;
         if (this.targetDim != level.dimension()) {  // Target not in the same dimension
             vecTo = this.getDeltaMovement().normalize();
-        } else if (!targetPos.closerThan(this.pos, 80)) {  // Target is far, fly upwards in the general direction
-            vecTo = targetPos.subtract(this.pos);
-            vecTo = new Vec3(vecTo.x(), vecTo.y() + vecTo.length()/2, vecTo.z()).normalize();
         } else {
-            vecTo = targetPos.subtract(this.pos).normalize();
+            double xzDistance = Math.sqrt(Math.pow(this.targetPos.x-this.pos.x, 2) + Math.pow(this.targetPos.z-this.pos.z, 2));
+            Vec3 adjustedTargetPos = new Vec3(
+                    targetPos.x,
+                    targetPos.y + (xzDistance > 2 ? xzDistance/4 : 0),
+                    targetPos.z
+            );
+            vecTo = adjustedTargetPos.subtract(this.pos).normalize();
         }
 
-        float augmentedDistance = (float)targetPos.subtract(this.pos).length() + Math.max(0, 80 - this.tickCount);
+        float augmentedDistance = (float)targetPos.subtract(this.pos).length() + Math.max(0, 70 - this.tickCount);
         float clampedDistance = Mth.clamp(augmentedDistance, 5, 60);
         float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.4f, 0.06f);
         this.setDeltaMovement(vecFrom.lerp(vecTo, curveAmount).normalize().scale(SPEED));

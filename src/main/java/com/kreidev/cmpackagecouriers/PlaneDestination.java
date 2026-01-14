@@ -1,5 +1,6 @@
-package com.kreidev.cmpackagecouriers.plane;
+package com.kreidev.cmpackagecouriers;
 
+import com.kreidev.cmpackagecouriers.plane.CardboardPlane;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -8,5 +9,5 @@ import net.minecraft.world.level.Level;
 public interface PlaneDestination {
 
     void cmpc$onReachedDestination(Level level, BlockPos pos, CardboardPlane plane);
-    boolean cmpc$hasSpace(Level level, BlockPos pos, CardboardPlane plane);
+    boolean cmpc$hasSpace(Level level, BlockPos pos);
 }

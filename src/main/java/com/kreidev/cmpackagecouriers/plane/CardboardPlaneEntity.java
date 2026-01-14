@@ -2,6 +2,7 @@ package com.kreidev.cmpackagecouriers.plane;
 
 import com.simibubi.create.content.logistics.box.PackageItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -57,7 +58,20 @@ public class CardboardPlaneEntity extends Entity {
         this.oldDeltaYaw = this.newDeltaYaw;
         this.newDeltaYaw = this.yRotO-this.getYRot();
 
-        if (!level().isClientSide()) {
+        if (level().isClientSide()) {
+            if (this.tickCount%3 == 0) {
+                Vec3 lookAngle = this.getLookAngle().scale(0.5);
+                this.level().addParticle(
+                        ParticleTypes.FIREWORK,
+                        this.getX() + lookAngle.x(),
+                        this.getY() + lookAngle.y(),
+                        this.getZ() + lookAngle.z(),
+                        this.random.nextGaussian() * 0.05,
+                        -this.getDeltaMovement().y * 0.5,
+                        this.random.nextGaussian() * 0.05
+                );
+            }
+        } else {
             this.setDeltaMovement(plane.getDeltaMovement());
 
             if (!plane.getPackage().equals(this.getPackage())) {

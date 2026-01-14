@@ -1,35 +1,36 @@
 package com.kreidev.cmpackagecouriers.mixin;
 
 import com.kreidev.cmpackagecouriers.plane.CardboardPlane;
-import com.kreidev.cmpackagecouriers.plane.PlaneDestination;
+import com.kreidev.cmpackagecouriers.PlaneDestination;
+import com.simibubi.create.content.kinetics.belt.BeltBlock;
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
 import com.simibubi.create.content.kinetics.belt.BeltHelper;
-import com.simibubi.create.content.logistics.depot.DepotBlock;
-import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
+import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(value = DepotBlock.class, remap = false)
+@Mixin(value = BeltBlock.class, remap = false)
 public class BeltBlockMixin implements PlaneDestination {
 
     @Override
     public void cmpc$onReachedDestination(Level level, BlockPos pos, CardboardPlane plane) {
         BeltBlockEntity belt = BeltHelper.getSegmentBE(level, pos);
         if (belt == null) return;
+        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, belt.getBlockPos(), null);
+        if (handler == null) return;
 
-        if (level.getBlockEntity(pos) instanceof DepotBlockEntity depot) {
-            depot.setHeldItem(plane.getPackage());
-            depot.notifyUpdate();
-        }
+        handler.insertItem(0, plane.getPackage(), false);
     }
 
     @Override
-    public boolean cmpc$hasSpace(Level level, BlockPos pos, CardboardPlane plane) {
-        if (level.getBlockEntity(pos) instanceof DepotBlockEntity depot) {
-            return depot.getHeldItem().is(Items.AIR);
-        }
-        return false;
+    public boolean cmpc$hasSpace(Level level, BlockPos pos) {
+        BeltBlockEntity belt = BeltHelper.getSegmentBE(level, pos);
+        if (belt == null) return false;
+
+        TransportedItemStack tStack = belt.getInventory().getStackAtOffset(belt.index);
+        return tStack == null;
     }
 }

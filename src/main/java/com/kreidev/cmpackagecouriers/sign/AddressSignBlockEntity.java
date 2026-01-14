@@ -1,7 +1,7 @@
 package com.kreidev.cmpackagecouriers.sign;
 
+import com.kreidev.cmpackagecouriers.PlaneDestination;
 import com.kreidev.cmpackagecouriers.Utils;
-import com.simibubi.create.content.logistics.depot.DepotBlock;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -49,7 +49,7 @@ public class AddressSignBlockEntity extends SignBlockEntity implements MenuProvi
         if (level.isClientSide()) return;
 
         BlockPos targetPos = pos.relative(state.getValue(FACING).getOpposite());
-        if (level.getBlockState(targetPos).getBlock() instanceof DepotBlock
+        if (level.getBlockState(targetPos).getBlock() instanceof PlaneDestination
                 && Utils.isChunkTicking(level, new Vec3(targetPos.getX(), targetPos.getY(), targetPos.getZ()))) {
             String address = be.getAddress();
             if (!address.isBlank()) {
