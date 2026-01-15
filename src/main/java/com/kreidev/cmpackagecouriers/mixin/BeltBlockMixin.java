@@ -1,7 +1,7 @@
 package com.kreidev.cmpackagecouriers.mixin;
 
+import com.kreidev.cmpackagecouriers.CourierDestination;
 import com.kreidev.cmpackagecouriers.plane.CardboardPlane;
-import com.kreidev.cmpackagecouriers.PlaneDestination;
 import com.simibubi.create.content.kinetics.belt.BeltBlock;
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
 import com.simibubi.create.content.kinetics.belt.BeltHelper;
@@ -13,7 +13,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(value = BeltBlock.class, remap = false)
-public class BeltBlockMixin implements PlaneDestination {
+public class BeltBlockMixin implements CourierDestination {
 
     @Override
     public void cmpc$onReachedDestination(Level level, BlockPos pos, CardboardPlane plane) {

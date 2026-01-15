@@ -6,7 +6,6 @@ import com.kreidev.cmpackagecouriers.compat.curios.Curios;
 import com.kreidev.cmpackagecouriers.compat.supplementaries.SupplementariesCompat;
 import com.kreidev.cmpackagecouriers.plane.*;
 import com.kreidev.cmpackagecouriers.ponder.PonderScenes;
-import com.kreidev.cmpackagecouriers.sign.AddressSignReg;
 import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.mojang.logging.LogUtils;
@@ -53,7 +52,6 @@ public class PackageCouriers {
             PortableStockTickerReg.register();
         LocationTransmitterReg.register(modEventBus);
         CardboardPlaneReg.register(modEventBus);
-        AddressSignReg.register(modEventBus);
 
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
@@ -67,7 +65,7 @@ public class PackageCouriers {
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);
 
-        // Event Handler Class: AddressMarkerHandler
+        // Event Handler Class: CourierTarget
         // Event Handler Class: CardboardPlaneManager
         // Event Handler Class: StockTickerIntegration
     }

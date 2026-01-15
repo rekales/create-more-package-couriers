@@ -1,18 +1,10 @@
 package com.kreidev.cmpackagecouriers.plane;
 
-import com.kreidev.cmpackagecouriers.PackageCouriers;
-import com.kreidev.cmpackagecouriers.PlaneDestination;
-import com.kreidev.cmpackagecouriers.ServerConfig;
-import com.kreidev.cmpackagecouriers.Utils;
-import com.kreidev.cmpackagecouriers.compat.Mods;
-import com.kreidev.cmpackagecouriers.compat.curios.CuriosCompat;
-import com.kreidev.cmpackagecouriers.sign.AddressSignHandler;
-import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterItem;
+import com.kreidev.cmpackagecouriers.*;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import net.createmod.catnip.data.Pair;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -100,58 +92,25 @@ public class CardboardPlaneManager {
         MinecraftServer server = currentLevel.getServer();
         if (server == null) return false;
 
-        CardboardPlane plane = null;
-
         String address = PackageItem.getAddress(box);
 
-        // Special "@PlayerName" interaction
+        // Special "@Address" interaction
         int atIndex = address.indexOf('@');
         if (atIndex != -1) {
             address = address.substring(atIndex + 1);
         }
 
-        ServerPlayer serverPlayer = server.getPlayerList().getPlayerByName(address);
-        if (serverPlayer != null && ServerConfig.planePlayerTargets) {
-            if (!ServerConfig.locationTransmitterNeeded || hasEnabledLocationTransmitter(serverPlayer)) {
-                plane = new CardboardPlane(currentLevel, serverPlayer, box);
-            }
-        } else {
-            AddressSignHandler.AddressSignTarget target = AddressSignHandler.getTarget(address);
-            if (target != null
-                    && target.getLevel().getBlockState(target.getPos()).getBlock() instanceof PlaneDestination dest
-                    && dest.cmpc$hasSpace(target.getLevel(), target.getPos())
-                    && ServerConfig.planeLocationTargets) {
-                plane = new CardboardPlane(currentLevel, target.getLevel(), target.getPos(), box);
-            }
+        CourierTarget target = CourierTarget.getActiveTarget(address);
+        if (target.getType() == CourierTarget.Type.BLOCK && ServerConfig.planeLocationTargets
+                || target.getType() == CourierTarget.Type.ENTITY && ServerConfig.planePlayerTargets) {
+            CardboardPlane plane = new CardboardPlane(currentLevel, target, box);
+            plane.setPos(pos);
+            plane.setRot(pitch, yaw);
+            plane.setUnpack(unpack);
+            INSTANCE.pairedPlanes.add(Pair.of(plane, null));
+            PackageCouriers.LOGGER.debug("added plane");
+            return true;
         }
-
-        if (plane == null) return false;
-        plane.setPos(pos);
-        plane.setRot(pitch, yaw);
-        plane.setUnpack(unpack);
-        INSTANCE.pairedPlanes.add(Pair.of(plane, null));
-        PackageCouriers.LOGGER.debug("added plane");
-        return true;
-    }
-
-    /**
-     * Checks if the player has an enabled location transmitter in their inventory or Curios slots.
-     * @param player The player to check
-     * @return true if the player has an enabled location transmitter, false otherwise
-     */
-    public static boolean hasEnabledLocationTransmitter(ServerPlayer player) {
-        // Check regular inventory
-        for (ItemStack stack : player.getInventory().items) {
-            if (stack.getItem() instanceof LocationTransmitterItem && LocationTransmitterItem.isEnabled(stack)) {
-                return true;
-            }
-        }
-
-        // Check Curios slots if Curios is loaded
-        if (Mods.CURIOS.isLoaded() && CuriosCompat.isCuriosLoaded()) {
-            return CuriosCompat.hasEnabledLocationTransmitterInCurios(player);
-        }
-
         return false;
     }
 }

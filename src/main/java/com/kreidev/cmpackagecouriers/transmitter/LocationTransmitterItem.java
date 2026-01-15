@@ -1,20 +1,24 @@
 package com.kreidev.cmpackagecouriers.transmitter;
 
+import com.kreidev.cmpackagecouriers.CourierTarget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.List;
 
-public class LocationTransmitterItem extends Item {
+public class LocationTransmitterItem extends Item implements ICurioItem {
 
     public LocationTransmitterItem(Properties properties) {
         super(properties.stacksTo(1));
@@ -75,6 +79,24 @@ public class LocationTransmitterItem extends Item {
         return InteractionResultHolder.success(stack);
     }
 
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (!level.isClientSide()) return;
+        if (isEnabled(stack)) {
+            CourierTarget.addOrUpdateTarget(new CourierTarget(entity.getName().getString(), entity));
+        }
+    }
+
+    @Override
+    public void curioTick(SlotContext slotContext, ItemStack stack) {
+        ICurioItem.super.curioTick(slotContext, stack);
+        Entity entity = slotContext.entity();
+        if (!entity.level().isClientSide()) return;
+        if (isEnabled(stack)) {
+            CourierTarget.addOrUpdateTarget(new CourierTarget(entity.getName().getString(), entity));
+        }
+    }
 
     public static boolean isEnabled(ItemStack stack) {
         return stack.getOrDefault(LocationTransmitterReg.TRANSMITTER_ENABLED, false);

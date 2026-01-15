@@ -8,7 +8,8 @@
     "BeltDeployerCallbacksMixin",
     "DepotBlockMixin",
     "EjectorBlockEntityMixin",
-    "SawBlockEntityMixin"
+    "SawBlockEntityMixin",
+    "SignBlockEntityMixin"
   ],
   "minVersion": "0.8.5"
 }

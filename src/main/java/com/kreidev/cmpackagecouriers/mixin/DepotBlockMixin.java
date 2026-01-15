@@ -1,7 +1,7 @@
 package com.kreidev.cmpackagecouriers.mixin;
 
+import com.kreidev.cmpackagecouriers.CourierDestination;
 import com.kreidev.cmpackagecouriers.plane.CardboardPlane;
-import com.kreidev.cmpackagecouriers.PlaneDestination;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(value = DepotBlock.class, remap = false)
-public class DepotBlockMixin implements PlaneDestination {
+public class DepotBlockMixin implements CourierDestination {
 
     @Override
     public void cmpc$onReachedDestination(Level level, BlockPos pos, CardboardPlane plane) {
