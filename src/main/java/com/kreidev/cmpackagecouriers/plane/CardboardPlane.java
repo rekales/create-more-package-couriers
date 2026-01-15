@@ -43,6 +43,7 @@ public class CardboardPlane {
     ).apply(instance, CardboardPlane::new));
 
     public static final double SPEED = 0.8;
+    public static final int LIFESPAN_TICKS = 400;
 
     @NotNull public UUID id;
     @NotNull public Vec3 deltaMovement;
@@ -54,6 +55,7 @@ public class CardboardPlane {
     @NotNull public ItemStack box;
     public boolean unpack = false;
     public boolean hasTeleported = false;  // NOTE: For notifying the manager, don't forget to reset
+    public boolean forRemoval = false;  // NOTE: For notifying the manager
 
     public CardboardPlane(@NotNull Level currentLevel, @NotNull CourierTarget target, @NotNull ItemStack box) {
         this.id = UUID.randomUUID();
@@ -81,10 +83,14 @@ public class CardboardPlane {
 
         this.pos = this.pos.add(this.deltaMovement);
 
-        this.updateDelta(server.getLevel(this.currentDim));
+        this.updateDelta();
 
         if (this.tickCount > 120 && (!target.getPos().closerThan(pos, 80) || this.currentDim != target.getDim())) {
             this.tpCloserToTarget();
+        }
+
+        if (this.hasReachedTarget() || this.getTickCount() > LIFESPAN_TICKS) {
+            this.onReachedTarget(server);
         }
     }
 
@@ -92,8 +98,7 @@ public class CardboardPlane {
         return target.getPos().closerThan(this.pos, 1.5);
     }
 
-    // NOTE: Potential issue, what happens if the destination is suddenly unloaded and stopped ticking?
-    // Called outside the class
+    // NOTE: Potential issue, what happens if the destination is not loaded?
     public void onReachedTarget(MinecraftServer server) {
         ServerLevel level = server.getLevel(this.target.getDim());
         if (level == null) return;
@@ -138,10 +143,10 @@ public class CardboardPlane {
         );
     }
 
-    private void updateDelta(ServerLevel level) {
+    private void updateDelta() {
         Vec3 vecFrom = this.getDeltaMovement().normalize();
         Vec3 vecTo;
-        if (target.getDim() != level.dimension()) {  // Target not in the same dimension
+        if (this.currentDim != target.getDim()) {  // Target not in the same dimension
             vecTo = this.getDeltaMovement().normalize();
         } else {
             double xzDistance = Math.sqrt(Math.pow(target.getPos().x-this.pos.x, 2) + Math.pow(target.getPos().z-this.pos.z, 2));
@@ -201,17 +206,7 @@ public class CardboardPlane {
         return this.tickCount;
     }
     public @NotNull CourierTarget getTarget() {
-        return target;
-    }
-
-    public ItemStack getPackage() {
-        return this.box;
-    }
-    public void setPackage(ItemStack box) {
-        if (!PackageItem.isPackage(box)) {
-            box = PackageStyles.getDefaultBox();
-        }
-        this.box = box;
+        return this.target;
     }
     public void setUnpack(boolean unpack) {
         this.unpack = unpack;
@@ -221,6 +216,16 @@ public class CardboardPlane {
     }
     public void setTeleported(boolean teleported) {
         this.hasTeleported = teleported;
+    }
+    public boolean isForRemoval() {return this.forRemoval;}
+    public ItemStack getPackage() {
+        return this.box;
+    }
+    public void setPackage(ItemStack box) {
+        if (!PackageItem.isPackage(box)) {
+            box = PackageStyles.getDefaultBox();
+        }
+        this.box = box;
     }
 
     @Override

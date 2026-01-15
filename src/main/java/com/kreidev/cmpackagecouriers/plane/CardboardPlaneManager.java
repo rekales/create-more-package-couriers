@@ -35,43 +35,31 @@ public class CardboardPlaneManager {
             CardboardPlane plane = pair.getFirst();
             CardboardPlaneEntity entity = pair.getSecond();
 
-            plane.tick(event.getServer());
+            plane.tick(server);
+
+            if (plane.isForRemoval()) {
+                if (entity != null) entity.remove(Entity.RemovalReason.DISCARDED);
+                iterator.remove();
+                continue;
+            }
 
             if (plane.hasTeleported()) {
                 if (entity != null) entity.remove(Entity.RemovalReason.DISCARDED);
                 pair.setSecond(null);
                 plane.setTeleported(false);
-                PackageCouriers.LOGGER.debug("plane teleported");
             }
 
-            if (plane.getTickCount() > LIFESPAN_TICKS) {
-                plane.onReachedTarget(server);
-                if (entity != null) entity.remove(Entity.RemovalReason.DISCARDED);
-                iterator.remove();
-                PackageCouriers.LOGGER.debug("timed-out plane");
-                continue;
-            }
-
-            if (plane.hasReachedTarget()) {
-                plane.onReachedTarget(server);
-                if (entity != null) entity.remove(Entity.RemovalReason.DISCARDED);
-                iterator.remove();
-                PackageCouriers.LOGGER.debug("destination reached");
-                continue;
-            }
-
+            // Adding a plane entity for rendering
             ServerLevel level = server.getLevel(plane.getCurrentDim());
             if (Utils.isChunkTicking(level, plane.getPos())) {
                 if (entity == null) {
                     entity = new CardboardPlaneEntity(level, plane);
                     pair.setSecond(entity);
                     level.addFreshEntity(entity);
-                    PackageCouriers.LOGGER.debug("spawned plane entity");
                 }
             } else if (entity != null) {
                 entity.remove(Entity.RemovalReason.DISCARDED);
                 pair.setSecond(null);
-                PackageCouriers.LOGGER.debug("removed plane entity");
             }
         }
     }
