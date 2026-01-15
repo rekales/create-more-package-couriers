@@ -39,6 +39,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import ru.zznty.create_factory_abstractions.api.generic.crafting.OrderProvider;
 import ru.zznty.create_factory_abstractions.api.generic.crafting.RecipeRequestHelper;
@@ -57,14 +58,12 @@ import java.util.*;
 // Shamelessly copied from Create: Mobile Packages
 public class PortableStockTickerScreen extends AbstractSimiContainerScreen<PortableStockTickerMenu> implements OrderProvider, CategoriesProvider {
 
-    private static final AllGuiTextures NUMBERS = AllGuiTextures.NUMBERS;
     private static final AllGuiTextures HEADER = AllGuiTextures.STOCK_KEEPER_REQUEST_HEADER;
     private static final AllGuiTextures BODY = AllGuiTextures.STOCK_KEEPER_REQUEST_BODY;
     private static final AllGuiTextures FOOTER = AllGuiTextures.STOCK_KEEPER_REQUEST_FOOTER;
 
     public LerpedFloat itemScroll;
 
-    final int rows = 9;
     final int cols = 9;
     final int rowHeight = 20;
     final int colWidth = 20;
@@ -89,7 +88,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     public List<CraftableGenericStack> recipesToOrder;
     private boolean scrollHandleActive;
     private GenericInventorySummary forcedEntries;
-    private Set<Integer> hiddenCategories;
+    private final Set<Integer> hiddenCategories;
 
     public boolean refreshSearchNextTick;
     public boolean moveToTopNextTick;
@@ -113,7 +112,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     protected void containerTick() {
         super.containerTick();
         addressBox.tick();
-        ClientScreenStorage.tick(menu.portableStockTicker.getFrequency());
+        ClientScreenStorage.tick();
 
         if (forcedEntries != null && !forcedEntries.isEmpty()) {
             GenericInventorySummary summary = GenericInventorySummary.empty();
@@ -233,11 +232,11 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         boolean initial = addressBox == null;
         String previouslyUsedAddress = initial ? menu.portableStockTicker.previouslyUsedAddress : addressBox.getValue();
         addressBox =
-                new AddressEditBox(this, new NoShadowFontWrapper(font), x + 27, y + windowHeight - 36, 92, 10, true, this.playerInventory.player.getName().getString());
+                new AddressEditBox(this, new NoShadowFontWrapper(font), x + 27, y + windowHeight - 36, 92, 10, true, "@" + this.playerInventory.player.getName().getString());
         addressBox.setTextColor(0x714A40);
         addressBox.setValue(previouslyUsedAddress);
         addRenderableWidget(addressBox);
-        ClientScreenStorage.manualUpdate(menu.portableStockTicker.getFrequency());
+        ClientScreenStorage.manualUpdate();
 
         if (initial) {
             playUiSound(SoundEvents.WOOD_HIT, 0.5f, 1.5f);
@@ -276,9 +275,9 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
         for (int categoryIndex = 0; categoryIndex < displayedItems.size(); categoryIndex++) {
             GenericSearch.CategoryEntry entry = categories.isEmpty() ?
-                                                new GenericSearch.CategoryEntry(0, "", new MutableInt(),
-                                                                                new MutableBoolean()) :
-                                                categories.get(categoryIndex);
+                    new GenericSearch.CategoryEntry(0, "", new MutableInt(),
+                            new MutableBoolean()) :
+                    categories.get(categoryIndex);
             if (entry.hidden().isTrue())
                 continue;
 
@@ -302,8 +301,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     }
 
     @Override
-    protected void renderBg(GuiGraphics pGuiGraphics, float partialTicks, int mouseX, int mouseY) {
-        if (this != minecraft.screen)
+    protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float partialTicks, int mouseX, int mouseY) {
+        if (minecraft != null && this != minecraft.screen)
             return; // stencil buffer does not cooperate with ponders gui fade out
 
         PoseStack ms = pGuiGraphics.pose();
@@ -327,9 +326,9 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (addressBox.getValue()
                 .isBlank() && !addressBox.isFocused()) {
             pGuiGraphics.drawString(Minecraft.getInstance().font,
-                                    CreateLang.translate("gui.stock_keeper.package_adress")
-                                            .style(ChatFormatting.ITALIC)
-                                            .component(), addressBox.getX(), addressBox.getY(), 0xff_CDBCA8, false);
+                    CreateLang.translate("gui.stock_keeper.package_adress")
+                            .style(ChatFormatting.ITALIC)
+                            .component(), addressBox.getX(), addressBox.getY(), 0xff_CDBCA8, false);
         }
 
         // Render PortableStockTicker Item
@@ -360,19 +359,19 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
         if (itemsToOrder.size() > 9) {
             pGuiGraphics.drawString(font, Component.literal("[+" + (itemsToOrder.size() - 9) + "]"),
-                                    x + windowWidth - 40,
-                                    orderY + 21, 0xF8F8EC);
+                    x + windowWidth - 40,
+                    orderY + 21, 0xF8F8EC);
         }
 
         boolean justSent = itemsToOrder.isEmpty() && successTicks > 0;
         if (isConfirmHovered(mouseX, mouseY) && !justSent)
             AllGuiTextures.STOCK_KEEPER_REQUEST_SEND_HOVER.render(pGuiGraphics, x + windowWidth - 81,
-                                                                  y + windowHeight - 41);
+                    y + windowHeight - 41);
 
         MutableComponent headerTitle = Component.translatable(
                 "item.cmpackagecouriers.portable_stock_ticker.screen_title");
         pGuiGraphics.drawString(font, headerTitle, x + windowWidth / 2 - font.width(headerTitle) / 2, y + 4, 0x714A40,
-                                false);
+                false);
         MutableComponent component =
                 CreateLang.translate("gui.stock_keeper.send")
                         .component();
@@ -383,14 +382,14 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
             ms.translate(alpha * alpha * 50, 0, 0);
             if (successTicks < 10)
                 pGuiGraphics.drawString(font, component, x + windowWidth - 42 - font.width(component) / 2,
-                                        y + windowHeight - 35, new Color(0x252525).setAlpha(1 - alpha * alpha)
-                                                .getRGB(),
-                                        false);
+                        y + windowHeight - 35, new Color(0x252525).setAlpha(1 - alpha * alpha)
+                                .getRGB(),
+                        false);
             ms.popPose();
 
         } else {
             pGuiGraphics.drawString(font, component, x + windowWidth - 42 - font.width(component) / 2,
-                                    y + windowHeight - 35, 0x252525, false);
+                    y + windowHeight - 35, 0x252525, false);
         }
 
         // Request just sent
@@ -405,9 +404,9 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                 int w = font.width(msg) + 14;
                 AllGuiTextures.STOCK_KEEPER_REQUEST_BANNER_L.render(pGuiGraphics, msgX - 8, msgY - 4);
                 UIRenderHelper.drawStretched(pGuiGraphics, msgX, msgY - 4, w, 16, 0,
-                                             AllGuiTextures.STOCK_KEEPER_REQUEST_BANNER_M);
+                        AllGuiTextures.STOCK_KEEPER_REQUEST_BANNER_M);
                 AllGuiTextures.STOCK_KEEPER_REQUEST_BANNER_R.render(pGuiGraphics, msgX + font.width(msg) + 10,
-                                                                    msgY - 4);
+                        msgY - 4);
                 pGuiGraphics.drawString(font, msg, msgX + 5, msgY, c3, false);
             }
         }
@@ -417,8 +416,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         int itemWindowY = y + 17;
         int itemWindowY2 = y + windowHeight - 80;
 
-        // UIRenderHelper.swapAndBlitColor(minecraft.getMainRenderTarget(), UIRenderHelper.framebuffer);
-		pGuiGraphics.enableScissor(itemWindowX - 5, itemWindowY, itemWindowX2 + 10, itemWindowY2);
+        pGuiGraphics.enableScissor(itemWindowX - 5, itemWindowY, itemWindowX2 + 10, itemWindowY2);
 
         ms.pushPose();
         ms.translate(0, -currentScroll * rowHeight, 0);
@@ -439,8 +437,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (searchBox.getValue()
                 .isBlank() && !searchBox.isFocused())
             pGuiGraphics.drawString(font, searchBox.getMessage(),
-                                    x + windowWidth / 2 - font.width(searchBox.getMessage()) / 2, searchBox.getY(),
-                                    0xff4A2D31, false);
+                    x + windowWidth / 2 - font.width(searchBox.getMessage()) / 2, searchBox.getY(),
+                    0xff4A2D31, false);
 
         // Something isnt right
         boolean allEmpty = displayedItems.isEmpty();
@@ -453,14 +451,14 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                     FormattedCharSequence sequence = split.get(i);
                     int lineWidth = font.width(sequence);
                     pGuiGraphics.drawString(font, sequence, x + windowWidth / 2 - lineWidth / 2 + 1,
-                                            itemsY + 20 + 1 + i * (font.lineHeight + 1),
-                                            new Color(0x4A2D31).setAlpha(alpha)
-                                                    .getRGB(),
-                                            false);
+                            itemsY + 20 + 1 + i * (font.lineHeight + 1),
+                            new Color(0x4A2D31).setAlpha(alpha)
+                                    .getRGB(),
+                            false);
                     pGuiGraphics.drawString(font, sequence, x + windowWidth / 2 - lineWidth / 2,
-                                            itemsY + 20 + i * (font.lineHeight + 1), new Color(0xF8F8EC).setAlpha(alpha)
-                                                    .getRGB(),
-                                            false);
+                            itemsY + 20 + i * (font.lineHeight + 1), new Color(0xF8F8EC).setAlpha(alpha)
+                                    .getRGB(),
+                            false);
                 }
             }
         }
@@ -475,13 +473,13 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
             if (!categories.isEmpty()) {
                 (categoryEntry.hidden().isTrue() ? AllGuiTextures.STOCK_KEEPER_CATEGORY_HIDDEN
-                                                 : AllGuiTextures.STOCK_KEEPER_CATEGORY_SHOWN).render(pGuiGraphics,
-                                                                                                      itemsX,
-                                                                                                      itemsY + categoryY + 6);
+                        : AllGuiTextures.STOCK_KEEPER_CATEGORY_SHOWN).render(pGuiGraphics,
+                        itemsX,
+                        itemsY + categoryY + 6);
                 pGuiGraphics.drawString(font, categoryEntry.name(), itemsX + 10, itemsY + categoryY + 8, 0x4A2D31,
-                                        false);
+                        false);
                 pGuiGraphics.drawString(font, categoryEntry.name(), itemsX + 9, itemsY + categoryY + 7, 0xF8F8EC,
-                                        false);
+                        false);
                 if (categoryEntry.hidden().isTrue())
                     continue;
             }
@@ -519,7 +517,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
             ms.translate(0, (currentScroll * rowHeight) / totalH * (windowH - 2), 0);
             AllGuiTextures pad = AllGuiTextures.STOCK_KEEPER_REQUEST_SCROLL_PAD;
             pGuiGraphics.blit(pad.location, barX, barY, pad.getWidth(), barSize, pad.getStartX(), pad.getStartY(),
-                              pad.getWidth(), pad.getHeight(), 256, 256);
+                    pad.getWidth(), pad.getHeight(), 256, 256);
             AllGuiTextures.STOCK_KEEPER_REQUEST_SCROLL_TOP.render(pGuiGraphics, barX, barY);
             if (barSize > 16)
                 AllGuiTextures.STOCK_KEEPER_REQUEST_SCROLL_MID.render(pGuiGraphics, barX, barY + barSize / 2 - 4);
@@ -553,8 +551,6 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
             ms.popPose();
         }
-
-        // UIRenderHelper.swapAndBlitColor(UIRenderHelper.framebuffer, minecraft.getMainRenderTarget());
     }
 
     private int getMaxScroll() {
@@ -619,7 +615,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     }
 
     @Override
-    protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    protected void renderForeground(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderForeground(graphics, mouseX, mouseY, partialTicks);
         Couple<Integer> hoveredSlot = getHoveredSlot(mouseX, mouseY);
 
@@ -629,14 +625,14 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
             boolean recipeHovered = hoveredSlot.getFirst() == -2;
             boolean orderHovered = hoveredSlot.getFirst() == -1;
             BigGenericStack entry = recipeHovered ? recipesToOrder.get(slot)
-                                                  : orderHovered ? itemsToOrder.get(slot)
-                                                                 : displayedItems.get(hoveredSlot.getFirst())
-                                                            .get(slot);
+                    : orderHovered ? itemsToOrder.get(slot)
+                    : displayedItems.get(hoveredSlot.getFirst())
+                    .get(slot);
 
             ArrayList<Component> lines =
                     new ArrayList<>(GenericContentExtender.registrationOf(entry.get().key())
-                                            .clientProvider().guiHandler()
-                                            .tooltipBuilder(entry.get().key(), entry.get().amount()));
+                            .clientProvider().guiHandler()
+                            .tooltipBuilder(entry.get().key(), entry.get().amount()));
             if (recipeHovered && !lines.isEmpty())
                 lines.set(0, CreateLang.translateDirect("gui.stock_keeper.craft", lines.getFirst()
                         .copy()));
@@ -647,13 +643,13 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (addressBox.getValue()
                 .isBlank() && !addressBox.isFocused() && addressBox.isHovered()) {
             graphics.renderComponentTooltip(font, List.of(CreateLang.translate("gui.factory_panel.restocker_address")
-                                                                  .color(ScrollInput.HEADER_RGB)
-                                                                  .component(),
-                                                          CreateLang.translate("gui.schedule.lmb_edit")
-                                                                  .style(ChatFormatting.DARK_GRAY)
-                                                                  .style(ChatFormatting.ITALIC)
-                                                                  .component()),
-                                            mouseX, mouseY);
+                                    .color(ScrollInput.HEADER_RGB)
+                                    .component(),
+                            CreateLang.translate("gui.schedule.lmb_edit")
+                                    .style(ChatFormatting.DARK_GRAY)
+                                    .style(ChatFormatting.ITALIC)
+                                    .component()),
+                    mouseX, mouseY);
         }
     }
 
@@ -730,9 +726,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (getMaxScroll() > 0 && lmb && pMouseX > barX && pMouseX <= barX + 8 && pMouseY > getGuiTop() + 15
                 && pMouseY < getGuiTop() + windowHeight - 82) {
             scrollHandleActive = true;
-            if (minecraft.isWindowActive())
-                GLFW.glfwSetInputMode(minecraft.getWindow()
-                                              .getWindow(), 208897, GLFW.GLFW_CURSOR_HIDDEN);
+            if (minecraft != null && minecraft.isWindowActive()) GLFW.glfwSetInputMode(minecraft.getWindow()
+                    .getWindow(), 208897, GLFW.GLFW_CURSOR_HIDDEN);
             return true;
         }
 
@@ -783,13 +778,13 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         boolean orderClicked = hoveredSlot.getFirst() == -1;
         boolean recipeClicked = hoveredSlot.getFirst() == -2;
         BigGenericStack entry = recipeClicked ? recipesToOrder.get(hoveredSlot.getSecond())
-                                              : orderClicked ? itemsToOrder.get(hoveredSlot.getSecond())
-                                                             : displayedItems.get(hoveredSlot.getFirst())
-                                                        .get(hoveredSlot.getSecond());
+                : orderClicked ? itemsToOrder.get(hoveredSlot.getSecond())
+                : displayedItems.get(hoveredSlot.getFirst())
+                .get(hoveredSlot.getSecond());
 
         int transfer = hasShiftDown() ? GenericContentExtender.registrationOf(entry.get().key())
                 .clientProvider().guiHandler().stackSize(entry.get().key())
-                                      : hasControlDown() ? 10 : 1;
+                : hasControlDown() ? 10 : 1;
 
         if (recipeClicked && entry instanceof CraftableGenericStack cbis) {
             if (rmb && cbis.get().amount() == 0) {
@@ -837,9 +832,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
         if (pButton == GLFW.GLFW_MOUSE_BUTTON_LEFT && scrollHandleActive) {
             scrollHandleActive = false;
-            if (minecraft.isWindowActive())
-                GLFW.glfwSetInputMode(minecraft.getWindow()
-                                              .getWindow(), 208897, GLFW.GLFW_CURSOR_NORMAL);
+            if (minecraft != null && minecraft.isWindowActive()) GLFW.glfwSetInputMode(minecraft.getWindow()
+                    .getWindow(), 208897, GLFW.GLFW_CURSOR_NORMAL);
         }
         return super.mouseReleased(pMouseX, pMouseY, pButton);
     }
@@ -863,9 +857,9 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
             boolean orderClicked = hoveredSlot.getFirst() == -1;
             boolean recipeClicked = hoveredSlot.getFirst() == -2;
             BigGenericStack entry = recipeClicked ? recipesToOrder.get(hoveredSlot.getSecond())
-                                                  : orderClicked ? itemsToOrder.get(hoveredSlot.getSecond())
-                                                                 : displayedItems.get(hoveredSlot.getFirst())
-                                                            .get(hoveredSlot.getSecond());
+                    : orderClicked ? itemsToOrder.get(hoveredSlot.getSecond())
+                    : displayedItems.get(hoveredSlot.getFirst())
+                    .get(hoveredSlot.getSecond());
 
             boolean remove = scrollY < 0;
             int transfer = Mth.ceil(Math.abs(scrollY)) * (hasControlDown() ? 10 : 1);
@@ -874,12 +868,14 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
             if (existingOrder == null) {
                 if (itemsToOrder.size() >= cols || remove)
                     return true;
-                itemsToOrder.add(existingOrder = BigGenericStack.of(entry.get().withAmount(0)));
+                if (entry != null) {
+                    itemsToOrder.add(existingOrder = BigGenericStack.of(entry.get().withAmount(0)));
+                }
                 playUiSound(SoundEvents.WOOL_STEP, 0.75f, 1.2f);
                 playUiSound(SoundEvents.BAMBOO_WOOD_STEP, 0.75f, 0.8f);
             }
 
-            int current = existingOrder.get().amount();
+            int current = existingOrder != null ? existingOrder.get().amount() : 0;
 
             if (remove) {
                 existingOrder.setAmount(current - transfer);
@@ -898,9 +894,11 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                     summary.add(stack.get());
                 }
             }
-            existingOrder.setAmount(current + Math.min(transfer, summary.getCountOf(entry.get().key()) - current));
+            if (existingOrder != null) {
+                existingOrder.setAmount(current + Math.min(transfer, summary.getCountOf(entry.get().key()) - current));
+            }
 
-            if (existingOrder.get().amount() != current && current != 0)
+            if (existingOrder != null && existingOrder.get().amount() != current && current != 0)
                 playUiSound(AllSoundEvents.SCROLL_VALUE.getMainEvent(), 0.25f, 1.2f);
 
             return true;
@@ -914,6 +912,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (pButton != GLFW.GLFW_MOUSE_BUTTON_LEFT || !scrollHandleActive)
             return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
 
+        if (minecraft == null) { return false; }
         Window window = minecraft.getWindow();
         double scaleX = window.getGuiScaledWidth() / (double) window.getScreenWidth();
         double scaleY = window.getGuiScaledHeight() / (double) window.getScreenHeight();
@@ -974,8 +973,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         String s = searchBox.getValue();
         if (!searchBox.keyPressed(pKeyCode, pScanCode, pModifiers))
             return searchBox.isFocused() && searchBox.isVisible() && pKeyCode != 256 || super.keyPressed(pKeyCode,
-                                                                                                         pScanCode,
-                                                                                                         pModifiers);
+                    pScanCode,
+                    pModifiers);
         if (!Objects.equals(s, searchBox.getValue())) {
             refreshSearchNextTick = true;
             moveToTopNextTick = true;
@@ -1032,7 +1031,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         recipesToOrder = new ArrayList<>();
         //blockEntity.ticksSinceLastUpdate = 10;
         successTicks = 1;
-        ClientScreenStorage.manualUpdate(menu.portableStockTicker.getFrequency());
+        ClientScreenStorage.manualUpdate();
 
     }
 
@@ -1040,9 +1039,6 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (currentItemSource == null)
             return CreateLang.translate("gui.stock_keeper.checking_stocks")
                     .component();
-        /*if (blockEntity.activeLinks == 0)
-            return CreateLang.translate("gui.stock_keeper.no_packagers_linked")
-                    .component();*/
         if (currentItemSource.isEmpty())
             return CreateLang.translate("gui.stock_keeper.inventories_empty")
                     .component();

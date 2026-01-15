@@ -20,8 +20,8 @@ public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneE
 
     @Override
     public void render(CardboardPlaneEntity entity, float yaw, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
-        // NOTE: Better tilt when curving, seems to be delayed/ahead by 1 tick
         // NOTE: Should use relative delta yaw for delta yaw instead of absolute delta yaw
+        // NOTE: Present Krei does not know what the fuck past Krei was talking about.
         // TODO: Fade out at far distances
 
         if (entity.tickCount < 4) {  // Skip first few ticks cuz it's jittery

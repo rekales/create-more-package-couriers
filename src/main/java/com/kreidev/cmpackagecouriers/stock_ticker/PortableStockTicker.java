@@ -1,5 +1,7 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
+import com.kreidev.cmpackagecouriers.compat.Mods;
+import com.kreidev.cmpackagecouriers.compat.curios.Curios;
 import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import ru.zznty.create_factory_abstractions.generic.support.GenericOrder;
 
 import java.util.*;
@@ -42,6 +45,15 @@ public class PortableStockTicker extends StockCheckingItem {
         if (playerInventory.player.getMainHandItem().getItem() instanceof PortableStockTicker) {
             return pst;
         }
+
+        // Check Curios if installed
+        if (Mods.CURIOS.isLoaded()) {
+            pst = Curios.findPortableStockTickerCurios(playerInventory.player);
+            if (pst.getItem() instanceof PortableStockTicker) {
+                return pst;
+            }
+        }
+
         // take first PST in inventory
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack portableStockTicker = playerInventory.getItem(i);
@@ -53,23 +65,23 @@ public class PortableStockTicker extends StockCheckingItem {
         return null;
     }
 
-    public boolean broadcastPackageRequest(LogisticallyLinkedBehaviour.RequestType type, GenericOrder order,
+    public boolean broadcastPackageRequest(ItemStack stack, LogisticallyLinkedBehaviour.RequestType type, GenericOrder order,
                                            IdentifiedInventory ignoredHandler,
                                            String address, Player player) {
-        boolean result = super.broadcastPackageRequest(type, order, ignoredHandler, address);
+        boolean result = super.broadcastPackageRequest(stack, type, order, ignoredHandler, address);
         previouslyUsedAddress = address;
 
         if (player instanceof ServerPlayer) {
             ItemStack itemStack = PortableStockTicker.find(player.getInventory());
-                if (itemStack != null && itemStack.getItem() instanceof PortableStockTicker) {
-                    saveAddressToStack(itemStack, address);
-                }
+            if (itemStack != null && itemStack.getItem() instanceof PortableStockTicker) {
+                saveAddressToStack(itemStack, address);
+            }
         }
         return result;
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext pContext) {
+    public @NotNull InteractionResult useOn(UseOnContext pContext) {
         ItemStack stack = pContext.getItemInHand();
         BlockPos pos = pContext.getClickedPos();
         Level level = pContext.getLevel();
@@ -80,10 +92,12 @@ public class PortableStockTicker extends StockCheckingItem {
 
         if (!level.isClientSide() && player.isShiftKeyDown()) {
             if (level.getBlockEntity(pos) instanceof StockTickerBlockEntity stbe) {
+                // Copy categories from StockTickerBlockEntity
                 CompoundTag tag = new CompoundTag();
                 stbe.saveAdditional(tag, level.registryAccess());
                 categories = NBTHelper.readItemList(tag.getList("Categories", Tag.TAG_COMPOUND), level.registryAccess());
             } else if (level.getBlockEntity(pos) instanceof PackagerLinkBlockEntity) {
+                // Clear categories from an old link
                 categories = new ArrayList<>();
             }
             saveCategoriesToStack(stack, categories);
@@ -94,12 +108,12 @@ public class PortableStockTicker extends StockCheckingItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, Player pPlayer, @NotNull InteractionHand pUsedHand) {
         ItemStack stack = pPlayer.getItemInHand(pUsedHand);
         previouslyUsedAddress = loadAddressFromStack(stack);
         categories = loadCategoriesFromStack(stack);
         hiddenCategoriesByPlayer = getHiddenCategoriesByPlayerFromStack(stack);
-        if (!pLevel.isClientSide) {
+        if (!pLevel.isClientSide && !pPlayer.isShiftKeyDown()) {
             if (!isTuned(stack)) {
                 pPlayer.displayClientMessage(
                         Component.translatable("item.cmpackagecouriers.portable_stock_ticker.not_linked"), true);

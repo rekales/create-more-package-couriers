@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers.plane;
 
+import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.JarPlaneRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -85,8 +86,7 @@ public class CardboardPlaneItemRenderer extends CustomRenderedItemModelRenderer 
                 .renderInto(ms, buffer.getBuffer(RenderType.cutout()));
 
         ms.scale(1/3f, 1/3f, 1/3f);
-        if (ModList.get().isLoaded("create_factory_logistics")
-                && FactoryLogisticsCompat.isJar(box)) {
+        if (Mods.CRATE_FACTORY_LOGISTICS.isLoaded() && FactoryLogisticsCompat.isJar(box)) {
             JarPlaneRenderer.renderJar(box, ms, buffer, light);
         } else {
             PartialModel model = AllPartialModels.PACKAGES.get(BuiltInRegistries.ITEM.getKey(box.getItem()));

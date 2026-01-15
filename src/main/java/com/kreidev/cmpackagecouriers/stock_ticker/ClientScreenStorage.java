@@ -13,18 +13,18 @@ public class ClientScreenStorage {
 
     private static int ticks = 0;
 
-    public static void tick(UUID networkId) {
-        if (ticks++ > 120) {
-            update(networkId);
+    public static void tick() {
+        if (ticks++ > 20) {
+            update();
             ticks = 0;
         }
     }
 
-    private static void update(UUID networkId) {
-        CatnipServices.NETWORK.sendToServer(new RequestStockUpdate(networkId));
+    private static void update() {
+        CatnipServices.NETWORK.sendToServer(RequestStockUpdate.INSTANCE);
     }
 
-    public static void manualUpdate(UUID networkId) {
-        update(networkId);
+    public static void manualUpdate() {
+        update();
     }
 }

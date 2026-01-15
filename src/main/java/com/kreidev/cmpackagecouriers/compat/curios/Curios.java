@@ -1,13 +1,21 @@
 package com.kreidev.cmpackagecouriers.compat.curios;
 
+import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterReg;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
+import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
+import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Curios integration that only loads when Curios is present.
@@ -54,5 +62,26 @@ public class Curios {
     private static void onClientSetup(final FMLClientSetupEvent event) {
         // Register Curios renderers during client setup
         CuriosRenderers.register();
+    }
+
+    private static Optional<Map<String, ICurioStacksHandler>> resolveCuriosMap(LivingEntity entity) {
+        return CuriosApi.getCuriosInventory(entity)
+                .map(ICuriosItemHandler::getCurios);
+    }
+
+    public static ItemStack findPortableStockTickerCurios(LivingEntity entity) {
+        return resolveCuriosMap(entity).map(curiosMap -> {
+            for (ICurioStacksHandler stacksHandler : curiosMap.values()) {
+                // Search all the curio slots for PST existing
+                int slots = stacksHandler.getSlots();
+                for (int slot = 0; slot < slots; slot++) {
+                    ItemStack stack = stacksHandler.getStacks().getStackInSlot(slot);
+                    if (PortableStockTickerReg.PORTABLE_STOCK_TICKER.isIn(stack)) {
+                        return stack;
+                    }
+                }
+            }
+            return ItemStack.EMPTY;
+        }).orElse(ItemStack.EMPTY);
     }
 }
