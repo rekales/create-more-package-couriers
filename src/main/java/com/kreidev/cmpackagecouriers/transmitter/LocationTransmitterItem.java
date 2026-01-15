@@ -2,6 +2,7 @@ package com.kreidev.cmpackagecouriers.transmitter;
 
 import com.kreidev.cmpackagecouriers.CourierTarget;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -12,12 +13,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LocationTransmitterItem extends Item implements ICurioItem {
 
     public LocationTransmitterItem(Properties properties) {
@@ -25,13 +28,13 @@ public class LocationTransmitterItem extends Item implements ICurioItem {
     }
 
     @Override
-    public boolean isFoil(@NotNull ItemStack stack) {
+    public boolean isFoil(ItemStack stack) {
         return isEnabled(stack);
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext tooltipContext,
-                                @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext tooltipContext,
+                                List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, tooltipContext, tooltipComponents, tooltipFlag);
 
         Component statusText;
@@ -51,7 +54,7 @@ public class LocationTransmitterItem extends Item implements ICurioItem {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         if (level.isClientSide()) return InteractionResultHolder.success(stack);

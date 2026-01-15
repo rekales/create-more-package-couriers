@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+@SuppressWarnings("FieldMayBeFinal")
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 @EventBusSubscriber(modid= PackageCouriers.MOD_ID)
@@ -93,14 +94,8 @@ public class CourierTarget {
     public Vec3 getPos() {
         return this.pos;
     }
-    public void setPos(Vec3 pos) {
-        this.pos = pos;
-    }
     public ResourceKey<Level> getDim() {
         return this.dim;
-    }
-    public void setDim(ResourceKey<Level> dim) {
-        this.dim = dim;
     }
     public String getAddress() {
         return this.address;

@@ -160,7 +160,6 @@ public class PonderScenes implements PonderPlugin {
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
             plane.shootFromRotation(-30F, 90, 0.0F, 0.8F, 1.0F);
-            plane.setTarget(util.grid().at(12,1,12), w);
             return plane;
         });
         scene.idle(20);
@@ -248,7 +247,6 @@ public class PonderScenes implements PonderPlugin {
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
             plane.shootFromRotation(-30F, 90, 0.0F, 0.6F, 1.0F);
-            plane.setTarget(util.grid().at(12,1,12), w);
             return plane;
         });
         scene.world().hideIndependentSection(mainSection, Direction.EAST);
@@ -304,7 +302,6 @@ public class PonderScenes implements PonderPlugin {
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
             plane.shootFromRotation(25F, 90, 0.0F, 0.4F, 0.0F);
-            plane.setTarget(util.grid().at(2,2,2), w);
             return plane;
         });
         scene.idle(19);
@@ -377,7 +374,6 @@ public class PonderScenes implements PonderPlugin {
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
             plane.shootFromRotation(-30F, 90, 0.0F, 0.6F, 1.0F);
-            plane.setTarget(util.grid().at(12,1,12), w);
             return plane;
         });
         scene.world().hideIndependentSection(mainSection, Direction.EAST);
@@ -407,7 +403,6 @@ public class PonderScenes implements PonderPlugin {
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
             plane.shootFromRotation(25F, 90, 0.0F, 0.4F, 0.0F);
-            plane.setTarget(util.grid().at(2,2,2), w);
             return plane;
         });
         scene.idle(19);
@@ -499,7 +494,6 @@ public class PonderScenes implements PonderPlugin {
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
             plane.shootFromRotation(-30F, 90, 0.0F, 0.6F, 1.0F);
-            plane.setTarget(util.grid().at(12,1,12), w);
             return plane;
         });
         scene.world().hideIndependentSection(mainSection, Direction.EAST);
@@ -520,7 +514,6 @@ public class PonderScenes implements PonderPlugin {
             plane.setPackage(packageItem);
             plane.setSpeed(0.4);
             plane.shootFromRotation(25F, 90, 0.0F, 0.4F, 0.0F);
-            plane.setTarget(util.grid().at(2,2,2), w);
             return plane;
         });
         scene.idle(19);

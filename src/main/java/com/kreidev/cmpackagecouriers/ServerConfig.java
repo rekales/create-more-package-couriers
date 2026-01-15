@@ -3,6 +3,7 @@ package com.kreidev.cmpackagecouriers;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
+@SuppressWarnings("unused")
 public class ServerConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

@@ -9,9 +9,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @OnlyIn(Dist.CLIENT)
+@ParametersAreNonnullByDefault
 public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneEntity> {
 
     public CardboardPlaneEntityRenderer(EntityRendererProvider.Context context) {
@@ -45,7 +47,7 @@ public class CardboardPlaneEntityRenderer extends EntityRenderer<CardboardPlaneE
 
     @SuppressWarnings({"NullableProblems", "DataFlowIssue"})
     @Override
-    public ResourceLocation getTextureLocation(@NotNull CardboardPlaneEntity entity) {
+    public ResourceLocation getTextureLocation(CardboardPlaneEntity entity) {
         return null;
     }
 

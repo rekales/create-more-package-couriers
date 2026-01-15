@@ -1,7 +1,6 @@
 package com.kreidev.cmpackagecouriers.plane;
 
 import com.simibubi.create.content.logistics.box.PackageItem;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -106,10 +105,6 @@ public class CardboardPlaneEntity extends Entity {
     }
 
     public void shootFromRotation(float t1, float t2, float t3, float t4, float t5) {
-
-    }
-
-    public void setTarget(BlockPos pos, Level level) {
 
     }
 

@@ -9,6 +9,7 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -26,11 +27,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
-
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
 // Use CardboardPlaneManager for adding and removing planes
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class CardboardPlane {
 
     public static final MapCodec<CardboardPlane> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -45,19 +47,19 @@ public class CardboardPlane {
     public static final double SPEED = 0.8;
     public static final int LIFESPAN_TICKS = 400;
 
-    @NotNull public UUID id;
-    @NotNull public Vec3 deltaMovement;
-    @NotNull public Vec3 pos;
-    @NotNull public ResourceKey<Level> currentDim;
+    public UUID id;
+    public Vec3 deltaMovement;
+    public Vec3 pos;
+    public ResourceKey<Level> currentDim;
     public int tickCount = 0;
 
-    @NotNull public final CourierTarget target;
-    @NotNull public ItemStack box;
+    public final CourierTarget target;
+    public ItemStack box;
     public boolean unpack = false;
     public boolean hasTeleported = false;  // NOTE: For notifying the manager, don't forget to reset
     public boolean forRemoval = false;  // NOTE: For notifying the manager
 
-    public CardboardPlane(@NotNull Level currentLevel, @NotNull CourierTarget target, @NotNull ItemStack box) {
+    public CardboardPlane(Level currentLevel, CourierTarget target, ItemStack box) {
         this.id = UUID.randomUUID();
         this.currentDim = currentLevel.dimension();
         this.target = target;
@@ -67,8 +69,8 @@ public class CardboardPlane {
     }
 
     // For serialization purposes
-    public CardboardPlane(@NotNull UUID id, @NotNull Vec3 deltaMovement, @NotNull Vec3 pos, @NotNull ResourceKey<Level> currentDim,
-                          @NotNull CourierTarget target, @NotNull ItemStack box) {
+    public CardboardPlane(UUID id, Vec3 deltaMovement, Vec3 pos, ResourceKey<Level> currentDim,
+                          CourierTarget target, ItemStack box) {
         this.id = id;
         this.deltaMovement = deltaMovement;
         this.pos = pos;
@@ -165,8 +167,8 @@ public class CardboardPlane {
     }
 
     public void tpCloserToTarget() {
-        PackageCouriers.LOGGER.debug(this.pos.subtract(this.target.getPos())+"");
-        PackageCouriers.LOGGER.debug(this.pos.subtract(this.target.getPos()).length()+"");
+        PackageCouriers.LOGGER.debug("{}", this.pos.subtract(this.target.getPos()));
+        PackageCouriers.LOGGER.debug("{}", this.pos.subtract(this.target.getPos()).length());
 
         Vec3 dirVec = this.pos.subtract(this.target.getPos()).normalize();
 
@@ -184,28 +186,28 @@ public class CardboardPlane {
     }
 
 
-    public @NotNull UUID getId() {
+    public UUID getId() {
         return this.id;
     }
-    public @NotNull Vec3 getDeltaMovement() {
+    public Vec3 getDeltaMovement() {
         return this.deltaMovement;
     }
-    public void setDeltaMovement(@NotNull Vec3 deltaMovement) {
+    public void setDeltaMovement(Vec3 deltaMovement) {
         this.deltaMovement = deltaMovement;
     }
-    @NotNull public Vec3 getPos() {
+    public Vec3 getPos() {
         return this.pos;
     }
-    public void setPos(@NotNull Vec3 pos) {
+    public void setPos(Vec3 pos) {
         this.pos = pos;
     }
-    public @NotNull ResourceKey<Level> getCurrentDim() {
+    public ResourceKey<Level> getCurrentDim() {
         return this.currentDim;
     }
     public int getTickCount() {
         return this.tickCount;
     }
-    public @NotNull CourierTarget getTarget() {
+    public CourierTarget getTarget() {
         return this.target;
     }
     public void setUnpack(boolean unpack) {
