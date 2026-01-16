@@ -93,6 +93,7 @@ public class CardboardPlane {
 
         if (this.hasReachedTarget() || this.getTickCount() > LIFESPAN_TICKS) {
             this.onReachedTarget(server);
+            this.forRemoval = true;
         }
     }
 

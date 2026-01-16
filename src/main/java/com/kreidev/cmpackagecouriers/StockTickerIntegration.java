@@ -23,9 +23,9 @@ public class StockTickerIntegration {
     private static void rewriteAddressIfNeeded(Player player, ItemStack heldItem) {
         if (heldItem.getItem() instanceof ShoppingListItem) {
             String currentAddress = ShoppingListItem.getAddress(heldItem);
-            if (currentAddress.toLowerCase().contains("@player")) {
+            if (currentAddress.toLowerCase().contains("<>")) {
                 String playerIdentifier = player.getDisplayName().getString();
-                String newAddress = currentAddress.replaceAll("(?i)@player", "@" + playerIdentifier);
+                String newAddress = currentAddress.replaceAll("<>", "<" + playerIdentifier + ">");
                 ShoppingListItem.saveList(heldItem, ShoppingListItem.getList(heldItem), newAddress);
             }
         }

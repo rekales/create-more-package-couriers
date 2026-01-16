@@ -83,10 +83,11 @@ public class CardboardPlaneManager {
 
         String address = PackageItem.getAddress(box);
 
-        // Special "@Address" interaction
-        int atIndex = address.indexOf('@');
-        if (atIndex != -1) {
-            address = address.substring(atIndex + 1);
+        // Special "<Address>" interaction
+        int start = address.indexOf('<');
+        int end = address.indexOf('>');
+        if (start != -1 && end != -1 && end > start) {
+            address = address.substring(start + 1, end);
         }
 
         // TODO: remove checks and just launch after implementing destination link.
@@ -94,8 +95,7 @@ public class CardboardPlaneManager {
         if (target == null) return false;
         Level targetLevel = server.getLevel(target.getDim());
         if (targetLevel == null) return false;
-        BlockPos targetBlockPos = new BlockPos((int)target.getPos().x, (int)target.getPos().y, (int)target.getPos().z);
-
+        BlockPos targetBlockPos = BlockPos.containing(target.getPos());
         if ((target.getType() == CourierTarget.Type.ENTITY && ServerConfig.planePlayerTargets)
                 || (target.getType() == CourierTarget.Type.BLOCK
                 && ServerConfig.planeLocationTargets
@@ -106,7 +106,6 @@ public class CardboardPlaneManager {
             plane.setRot(pitch, yaw);
             plane.setUnpack(unpack);
             INSTANCE.pairedPlanes.add(Pair.of(plane, null));
-            PackageCouriers.LOGGER.debug("added plane");
             return true;
         }
 
