@@ -3,6 +3,7 @@ package com.kreidev.cmpackagecouriers.plane;
 import com.kreidev.cmpackagecouriers.*;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import net.createmod.catnip.data.Pair;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -88,9 +89,18 @@ public class CardboardPlaneManager {
             address = address.substring(atIndex + 1);
         }
 
+        // TODO: remove checks and just launch after implementing destination link.
         CourierTarget target = CourierTarget.getActiveTarget(address);
-        if (target.getType() == CourierTarget.Type.BLOCK && ServerConfig.planeLocationTargets
-                || target.getType() == CourierTarget.Type.ENTITY && ServerConfig.planePlayerTargets) {
+        if (target == null) return false;
+        Level targetLevel = server.getLevel(target.getDim());
+        if (targetLevel == null) return false;
+        BlockPos targetBlockPos = new BlockPos((int)target.getPos().x, (int)target.getPos().y, (int)target.getPos().z);
+
+        if ((target.getType() == CourierTarget.Type.ENTITY && ServerConfig.planePlayerTargets)
+                || (target.getType() == CourierTarget.Type.BLOCK
+                && ServerConfig.planeLocationTargets
+                && targetLevel.getBlockState(targetBlockPos).getBlock() instanceof CourierDestination dest
+                && dest.cmpc$hasSpace(targetLevel, targetBlockPos))) {
             CardboardPlane plane = new CardboardPlane(currentLevel, target, box);
             plane.setPos(pos);
             plane.setRot(pitch, yaw);
@@ -99,6 +109,17 @@ public class CardboardPlaneManager {
             PackageCouriers.LOGGER.debug("added plane");
             return true;
         }
+
+//        if (target.getType() == CourierTarget.Type.BLOCK && ServerConfig.planeLocationTargets
+//                || target.getType() == CourierTarget.Type.ENTITY && ServerConfig.planePlayerTargets) {
+//            CardboardPlane plane = new CardboardPlane(currentLevel, target, box);
+//            plane.setPos(pos);
+//            plane.setRot(pitch, yaw);
+//            plane.setUnpack(unpack);
+//            INSTANCE.pairedPlanes.add(Pair.of(plane, null));
+//            PackageCouriers.LOGGER.debug("added plane");
+//            return true;
+//        }
         return false;
     }
 }

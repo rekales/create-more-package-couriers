@@ -3,7 +3,7 @@
   "item.cmpackagecouriers.cardboard_plane": "Cardboard Plane",
   "entity.cmpackagecouriers.cardboard_plane": "Cardboard Plane",
 
-  "tooltip.cmpackagecouriers.cardboard_plane.preopened": "[Unpacks upon arrival to player]",
+  "tooltip.cmpackagecouriers.cardboard_plane.preopened": "[Unpacks upon arrival to the player]",
 
   "cmpackagecouriers.ponder.sending_planes.header": "Sending Planes",
   "cmpackagecouriers.ponder.sending_planes.text_1": "Package planes can be created from packages",
@@ -24,9 +24,19 @@
   "cmpackagecouriers.ponder.receiving_planes.text_10": "Outpost",
   "cmpackagecouriers.ponder.receiving_planes.text_11": "If there are no available targets, the plane will be ejected as an item as usual",
 
-  "cmpackagecouriers.ponder.auto_opening_planes.header": "Auto-Unpacking Planes",
-  "cmpackagecouriers.ponder.auto_opening_planes.text_1": "Sawing planes auto-unpacks them upon arrival.",
-  "cmpackagecouriers.ponder.auto_opening_planes.text_2": "Also works with player targets",
+  "cmpackagecouriers.ponder.special_crafting_interactions.header": "Special Crafting Interactions",
+  "cmpackagecouriers.ponder.special_crafting_interactions.text_1": "You can use a saw to cut off a plane's wings",
+  "cmpackagecouriers.ponder.special_crafting_interactions.text_2": "You can use shears in a deployer to pre-open a plane",
+  "cmpackagecouriers.ponder.special_crafting_interactions.text_3": "pre-opened packages will get unpacked upon arrival",
+
+  "cmpackagecouriers.ponder.address_interactions.header": "Additional Address Interactions",
+  "cmpackagecouriers.ponder.address_interactions.text_1": "Names inside \"<>\" will override the target address of the plane when it launches",
+  "cmpackagecouriers.ponder.address_interactions.text_2": "→ <Outpost> Farm",
+  "cmpackagecouriers.ponder.address_interactions.text_3": "Going to \"Outpost\"",
+  "cmpackagecouriers.ponder.address_interactions.text_4": "This allows for a bit more flexibility when doing complex routing",
+  "cmpackagecouriers.ponder.address_interactions.text_5": "Table cloth addresses with \"<>\" would have those filled with the buyer's name",
+  "cmpackagecouriers.ponder.address_interactions.text_6": "→ Sold <>",
+  "cmpackagecouriers.ponder.address_interactions.text_7": "→ Sold <John_Create>",
 
   "cmpackagecouriers.message.inbound": "Package Inbound",
   "cmpackagecouriers.message.no_address": "No Valid Targets",

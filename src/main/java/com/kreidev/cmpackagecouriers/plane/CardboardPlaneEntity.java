@@ -43,7 +43,7 @@ public class CardboardPlaneEntity extends Entity {
         this.setYRot((float)(Mth.atan2(vec3.x, vec3.z) * 180.0F / (float)Math.PI));
     }
 
-    // For ponder use
+    // For use in ponder
     public CardboardPlaneEntity(Level level) {
         super(CardboardPlaneReg.CARDBOARD_PLANE_ENTITY.get(), level);
     }
@@ -100,15 +100,14 @@ public class CardboardPlaneEntity extends Entity {
             this.getEntityData().set(DATA_ITEM, stack);
     }
 
-    public void setSpeed(double speed) {
-
+    // For use in ponder
+    // NOTE: not sure why it needs to be negative
+    public void setSpeedAndRot(double speed, float xRot, float yRot) {
+        this.setRot(-yRot, -xRot);
+        this.xRotO = -xRot;
+        this.yRotO = -yRot;
+        this.setDeltaMovement(CardboardPlane.getDeltaMovementFromRotation(xRot, yRot).normalize().scale(speed));
     }
-
-    public void shootFromRotation(float t1, float t2, float t3, float t4, float t5) {
-
-    }
-
-    // TODO: update ponder entity methods
 
     protected static float lerpRotation(float currentRotation, float targetRotation) {
         while (targetRotation - currentRotation < -180.0F) {

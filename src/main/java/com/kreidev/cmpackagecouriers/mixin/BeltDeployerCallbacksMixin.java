@@ -2,6 +2,7 @@ package com.kreidev.cmpackagecouriers.mixin;
 
 import com.kreidev.cmpackagecouriers.plane.CardboardPlaneItem;
 import com.kreidev.cmpackagecouriers.plane.CardboardPlaneReg;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.kinetics.deployer.BeltDeployerCallbacks;
@@ -22,11 +23,10 @@ public class BeltDeployerCallbacksMixin {
 
     @Inject(
             method = "activate",
-            at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/belt/transport/TransportedItemStack;clearFanProcessingData()V"),
-            locals = LocalCapture.CAPTURE_FAILSOFT
+            at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/belt/transport/TransportedItemStack;clearFanProcessingData()V")
     )
     private static void beforeClearFanProcessingData(TransportedItemStack transported, TransportedItemStackHandlerBehaviour handler, DeployerBlockEntity blockEntity,
-                                                     Recipe<?> recipe, CallbackInfo ci, List<TransportedItemStack> collect) {
+                                                     Recipe<?> recipe, CallbackInfo ci, @Local(name = "collect") List<TransportedItemStack> collect) {
         if (collect != null
                 && !collect.isEmpty()
                 && PackageItem.isPackage(transported.stack)
