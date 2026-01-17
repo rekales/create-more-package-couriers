@@ -157,11 +157,14 @@ public class CourierTarget {
 
     public static @Nullable CourierTarget getActiveTarget(String address) {
         // Linear search is good enough
+        CourierTarget ret = null;
         for (CourierTarget target : activeTargets.keySet()) {
             if (PackageItem.matchAddress(address, target.getAddress())) {
-                return target;
+                if (ret == null || target.getType() == Type.ENTITY) {  // Prioritize entity targets
+                    ret = target;
+                }
             }
         }
-        return null;
+        return ret;
     }
 }
