@@ -2,7 +2,7 @@ plugins {
     id("idea")
     id("java")
     id("java-library")
-    id("net.neoforged.moddev") version("2.0.78")
+    id("net.neoforged.moddev.legacyforge") version("2.0.107")
 }
 
 version = project.properties["mod_version"]!!
@@ -25,10 +25,13 @@ repositories {
 
 dependencies {
     implementation("com.simibubi.create:create-${property("minecraft_version")}:${property("create_version")}:slim") { isTransitive = false }
-    implementation("net.createmod.ponder:Ponder-NeoForge-${property("minecraft_version")}:${property("ponder_version")}")
-    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${property("minecraft_version")}:${property("flywheel_version")}")
-    runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${property("minecraft_version")}:${property("flywheel_version")}")
+    implementation("net.createmod.ponder:Ponder-Forge-${property("minecraft_version")}:${property("ponder_version")}")
+    compileOnly("dev.engine-room.flywheel:flywheel-forge-api-${property("minecraft_version")}:${property("flywheel_version")}")
+    runtimeOnly("dev.engine-room.flywheel:flywheel-forge-${property("minecraft_version")}:${property("flywheel_version")}")
     implementation("com.tterrag.registrate:Registrate:${property("registrate_version")}")
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1")!!)
+    implementation("io.github.llamalad7:mixinextras-forge:0.4.1")
+    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 
     implementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.8")!!)
 
@@ -49,11 +52,11 @@ dependencies {
     compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-neoforge")
 
     // Dev QOL
-    runtimeOnly("curse.maven:jei-238222:7270455")
+    modRuntimeOnly("curse.maven:jei-238222:7270446")
 }
 
-neoForge {
-    version = property("neo_version").toString()
+legacyForge {
+    version = property("forge_version").toString()
 
     accessTransformers.from("src/main/resources/META-INF/accesstransformer.cfg")
 
@@ -70,13 +73,13 @@ neoForge {
 
         create("client") {
             client()
-            systemProperty("neoforge.enabledGameTestNamespaces", property("mod_id")!!.toString())
+            systemProperty("forge.enabledGameTestNamespaces", property("mod_id")!!.toString())
         }
 
         create("server") {
             server()
             programArgument("--nogui")
-            systemProperty("neoforge.enabledGameTestNamespaces", property("mod_id")!!.toString())
+            systemProperty("forge.enabledGameTestNamespaces", property("mod_id")!!.toString())
         }
     }
 
@@ -87,15 +90,21 @@ neoForge {
     }
 }
 
+mixin {
+    config("${property("mod_id")}.mixins.json")
+    add(sourceSets.main.get(), "${property("mod_id")}.refmap.json")
+}
+
 tasks.processResources {
     val props = project.providers.gradlePropertiesPrefixedBy("").get()
     inputs.properties(props)
-    filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
+    filesMatching("META-INF/mods.toml") { expand(props) }
 }
 
 tasks {
     jar {
-        archiveBaseName.set("${rootProject.property("mod_id")}-neoforge")
+        archiveBaseName.set("${rootProject.property("mod_id")}-forge")
+        manifest.attributes("MixinConfigs" to "${rootProject.property("mod_id")}.mixins.json")
     }
 }
 
