@@ -10,7 +10,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -30,7 +30,7 @@ public class CardboardPlaneSavedData extends SavedData {
         this.pairedPlanes = new ArrayList<>();
     }
 
-    public CardboardPlaneSavedData(CompoundTag tag, HolderLookup.Provider provider) {
+    public CardboardPlaneSavedData(CompoundTag tag) {
         if (tag.contains("CardboardPlanes")) {
             DataResult<List<CardboardPlane>> result = CODEC.parse(NbtOps.INSTANCE, tag.get("CardboardPlanes"));
             List<CardboardPlane> planeList = new ArrayList<>(
@@ -47,7 +47,7 @@ public class CardboardPlaneSavedData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider provider) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
         List<CardboardPlane> planeList = this.pairedPlanes.stream()
                 .map(Pair::getFirst)
                 .toList();
@@ -62,7 +62,7 @@ public class CardboardPlaneSavedData extends SavedData {
         ServerLevel level = event.getServer().getLevel(Level.OVERWORLD);
         if(level != null && !level.isClientSide()) {
             CardboardPlaneManager.INSTANCE = level.getDataStorage().computeIfAbsent(
-                    new SavedData.Factory<>(CardboardPlaneSavedData::new, CardboardPlaneSavedData::new, null), "cardboard_planes"
+                    CardboardPlaneSavedData::new, CardboardPlaneSavedData::new, "cardboard_planes"
             );
         }
     }

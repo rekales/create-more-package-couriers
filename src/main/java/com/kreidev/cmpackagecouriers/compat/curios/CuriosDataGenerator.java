@@ -2,7 +2,7 @@ package com.kreidev.cmpackagecouriers.compat.curios;
 
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import top.theillusivec4.curios.api.CuriosDataProvider;
 
 import java.util.concurrent.CompletableFuture;

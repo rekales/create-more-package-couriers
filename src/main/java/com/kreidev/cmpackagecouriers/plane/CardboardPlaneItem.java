@@ -7,7 +7,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -17,13 +18,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Consumer;
@@ -41,7 +42,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
         if (entityLiving instanceof Player player
-                && this.getUseDuration(stack, entityLiving) - timeLeft >= 10
+                && this.getUseDuration(stack) - timeLeft >= 10
                 && !level.isClientSide()) {
 
             Vec3 pos = player.getEyePosition().subtract(0, 0.1, 0);
@@ -73,7 +74,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack) {
         return 72000;
     }
 
@@ -106,38 +107,46 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
     }
 
     public static void setPackage(ItemStack plane, ItemStack box) {
-        if (box.getItem() instanceof PackageItem) {
-            ItemContainerContents container = ItemContainerContents.fromItems(NonNullList.of(ItemStack.EMPTY, box.copy()));
-            plane.set(CardboardPlaneReg.PLANE_PACKAGE, container);
+        if (plane.getItem() instanceof CardboardPlaneItem && box.getItem() instanceof PackageItem) {
+            CompoundTag nbtStack = new CompoundTag();
+            box.save(nbtStack);
+            plane.getOrCreateTag().put("PlanePackage", nbtStack);
         }
     }
 
     public static ItemStack getPackage(ItemStack plane) {
-        ItemContainerContents container = plane.get(CardboardPlaneReg.PLANE_PACKAGE);
-        if (container == null)
-            return ItemStack.EMPTY;
-        return container.getStackInSlot(0);
+        if (plane.getItem() instanceof CardboardPlaneItem) {
+            CompoundTag nbt = plane.getOrCreateTag();
+            if (nbt.contains("PlanePackage", Tag.TAG_COMPOUND)) {
+                CompoundTag storedItemTag = nbt.getCompound("PlanePackage");
+                return ItemStack.of(storedItemTag);
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     public static boolean isPreOpened(ItemStack plane) {
-        return plane.getOrDefault(CardboardPlaneReg.PRE_OPENED, false);
+        if (plane.getItem() instanceof CardboardPlaneItem) {
+            CompoundTag nbt = plane.getOrCreateTag();
+            if (nbt.contains("PreOpened", Tag.TAG_COMPOUND)) {
+                return nbt.getBoolean("PreOpened");
+            }
+        }
+        return false;
     }
 
     public static void setPreOpened(ItemStack plane, boolean preopened) {
-        if (plane.getItem() instanceof CardboardPlaneItem
-                && plane.get(CardboardPlaneReg.PLANE_PACKAGE) instanceof ItemContainerContents container
-                && PackageItem.isPackage(container.getStackInSlot(0))) {
-            plane.set(CardboardPlaneReg.PRE_OPENED, preopened);
+        if (plane.getItem() instanceof CardboardPlaneItem) {
+            plane.getOrCreateTag().putBoolean("PreOpened", preopened);
         }
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         ItemStack box = getPackage(stack);
-        if (stack.getOrDefault(CardboardPlaneReg.PRE_OPENED, false))
-            tooltipComponents.add(Component.translatable("tooltip.cmpackagecouriers.cardboard_plane.preopened")
-                    .withStyle(ChatFormatting.AQUA));
-        box.getItem().appendHoverText(box, context, tooltipComponents, tooltipFlag);
+        if (isPreOpened(stack)) {
+            tooltipComponents.add(Component.translatable("tooltip.cmpackagecouriers.cardboard_plane.preopened").withStyle(ChatFormatting.AQUA));
+        }
+        box.getItem().appendHoverText(box, level, tooltipComponents, tooltipFlag);
     }
 
     @SuppressWarnings("removal")

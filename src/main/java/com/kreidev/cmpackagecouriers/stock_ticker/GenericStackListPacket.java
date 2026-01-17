@@ -1,24 +1,18 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
-import com.kreidev.cmpackagecouriers.compat.factory_abstractions.FactoryAbstractionsCompat;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.net.base.ClientboundPacketPayload;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.simibubi.create.foundation.networking.SimplePacketBase;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.network.NetworkEvent;
 import ru.zznty.create_factory_abstractions.api.generic.stack.GenericStack;
+import ru.zznty.create_factory_abstractions.generic.stack.GenericStackSerializer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // Shamelessly copied from Create: Mobile Packages
-public class GenericStackListPacket implements ClientboundPacketPayload {
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, GenericStackListPacket> STREAM_CODEC = StreamCodec.composite(
-            CatnipStreamCodecBuilders.list(FactoryAbstractionsCompat.GENERIC_STACK_STREAM_CODEC), packet -> packet.stacks,
-            GenericStackListPacket::new
-    );
+public class GenericStackListPacket extends SimplePacketBase {
 
     private final List<GenericStack> stacks;
 
@@ -28,13 +22,32 @@ public class GenericStackListPacket implements ClientboundPacketPayload {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void handle(LocalPlayer player) {
-        ClientScreenStorage.stacks = stacks;
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeInt(stacks.size());
+        for (GenericStack stack : stacks) {
+            GenericStackSerializer.write(stack, buffer);
+        }
+    }
+
+    public static GenericStackListPacket read(FriendlyByteBuf buffer) {
+        int size = buffer.readInt();
+        List<GenericStack> list = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            list.add(GenericStackSerializer.read(buffer));
+        }
+        return new GenericStackListPacket(list);
     }
 
     @Override
-    public PacketTypeProvider getTypeProvider() {
-        return PortableStockTickerReg.PortableStockTickerPackets.BIG_ITEM_STACK_LIST;
+    public boolean handle(NetworkEvent.Context context) {
+        context.enqueueWork(this::handleClient);
+        context.setPacketHandled(true);
+        return true;
     }
+
+    @OnlyIn(Dist.CLIENT)
+    public void handleClient() {
+        ClientScreenStorage.stacks = stacks;
+    }
+
 }

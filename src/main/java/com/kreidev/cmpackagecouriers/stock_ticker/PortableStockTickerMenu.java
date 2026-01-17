@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
-import static com.kreidev.cmpackagecouriers.stock_ticker.LogisticallyLinkedItem.isTuned;
+import static com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBlockItem.isTuned;
 
 // Shamelessly copied from Create: Mobile Packages
 public class PortableStockTickerMenu extends AbstractContainerMenu {
@@ -17,12 +17,12 @@ public class PortableStockTickerMenu extends AbstractContainerMenu {
     public PortableStockTickerMenu(int id, Inventory playerInventory) {
         super(PortableStockTickerReg.PORTABLE_STOCK_TICKER_MENU.get(), id);
         ItemStack stack = PortableStockTicker.find(playerInventory);
-        if (stack != null && stack.getItem() instanceof PortableStockTicker pst) {
-            if (!isTuned(stack)) {
+        if (stack != null && stack.getItem() instanceof PortableStockTicker pst)
+            if (isTuned(stack)) {
+                this.portableStockTicker = pst;
+            } else {
                 playerInventory.player.displayClientMessage(Component.translatable("item.cmpackagecouriers.portable_stock_ticker.not_linked"), true);
             }
-            this.portableStockTicker = pst;
-        }
         this.player = playerInventory.player;
     }
 

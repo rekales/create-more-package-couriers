@@ -1,18 +1,12 @@
 package com.kreidev.cmpackagecouriers.plane;
 
-import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.EntityEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.component.ItemContainerContents;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-
-import java.util.function.Supplier;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import static com.kreidev.cmpackagecouriers.PackageCouriers.*;
 
@@ -23,7 +17,6 @@ public class CardboardPlaneReg {
             .entity("cardboard_plane", CardboardPlaneEntity::createEmpty, MobCategory.MISC)
             .properties(p -> p
                     .sized(0.5f, 0.5f)
-                    .eyeHeight(0.25f)
                     .clientTrackingRange(80)
                     .noSave()
                     .updateInterval(1))
@@ -40,18 +33,9 @@ public class CardboardPlaneReg {
             .model((ctx, prov) -> {}) // Skip model generation - uses custom renderer
             .register();
 
-    public static final Supplier<DataComponentType<ItemContainerContents>> PLANE_PACKAGE = DATA_COMPONENTS
-            .registerComponentType("plane_package", builder -> builder
-                    .persistent(ItemContainerContents.CODEC)
-                    .networkSynchronized(ItemContainerContents.STREAM_CODEC));
-    public static final Supplier<DataComponentType<Boolean>> PRE_OPENED = DATA_COMPONENTS
-            .registerComponentType("plane_preopened", builder -> builder
-                    .persistent(Codec.BOOL)
-                    .networkSynchronized(ByteBufCodecs.BOOL));
-
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(CardboardPlaneReg::clientInit);
-        NeoForge.EVENT_BUS.addListener(CardboardPlaneSavedData::onServerStarting);
+        MinecraftForge.EVENT_BUS.addListener(CardboardPlaneSavedData::onServerStarting);
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {

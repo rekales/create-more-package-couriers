@@ -1,45 +1,53 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.server.level.ServerPlayer;
+import com.simibubi.create.foundation.networking.SimplePacketBase;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 // Shamelessly copied from Create: Mobile Packages
-public class HiddenCategoriesPacket implements ServerboundPacketPayload {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, HiddenCategoriesPacket> STREAM_CODEC = StreamCodec.composite(
-            CatnipStreamCodecBuilders.list(ByteBufCodecs.INT), packet -> packet.indices,
-            HiddenCategoriesPacket::new
-    );
+public class HiddenCategoriesPacket extends SimplePacketBase {
+
     private final List<Integer> indices;
 
     public HiddenCategoriesPacket(List<Integer> indices) {
         this.indices = indices;
     }
 
+    public HiddenCategoriesPacket(FriendlyByteBuf buffer) {
+        this.indices = IntStream.of(buffer.readVarIntArray()).boxed().toList();
+    }
+
     @Override
-    public void handle(ServerPlayer player) {
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeVarIntArray(indices.stream()
+                .mapToInt(Integer::intValue)
+                .toArray());
+    }
+
+    @Override
+    public boolean handle(NetworkEvent.Context context) {
+        context.enqueueWork(() -> {
+            Player player = context.getSender();
+            if (player != null) {
                 ItemStack stack = PortableStockTicker.find(player.getInventory());
                 if (stack == null) return;
                 if (stack.getItem() instanceof PortableStockTicker pst) {
                     Map<UUID, List<Integer>> hiddenCategories = new HashMap<>();
                     hiddenCategories.put(player.getUUID(), indices);
                     pst.hiddenCategoriesByPlayer = hiddenCategories;
-                pst.saveHiddenCategoriesByPlayerToStack(stack, hiddenCategories);
+                    pst.saveHiddenCategoriesByPlayerToStack(stack, hiddenCategories);
+                }
             }
-    }
-
-    @Override
-    public PacketTypeProvider getTypeProvider() {
-        return PortableStockTickerReg.PortableStockTickerPackets.HIDDEN_CATEGORIES;
+        });
+        return true;
     }
 }

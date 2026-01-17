@@ -22,7 +22,6 @@ import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.gui.UIRenderHelper;
 import net.createmod.catnip.gui.element.GuiGameElement;
-import net.createmod.catnip.platform.CatnipServices;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -75,7 +74,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     int windowHeight;
 
     public EditBox searchBox;
-    public AddressEditBox addressBox;
+    EditBox addressBox;
 
     int emptyTicks = 0;
     int successTicks = 0;
@@ -369,7 +368,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                     y + windowHeight - 41);
 
         MutableComponent headerTitle = Component.translatable(
-                "item.cmpackagecouriers.portable_stock_ticker.screen_title");
+                "item.create_mobile_packages.portable_stock_ticker.screen_title");
         pGuiGraphics.drawString(font, headerTitle, x + windowWidth / 2 - font.width(headerTitle) / 2, y + 4, 0x714A40,
                 false);
         MutableComponent component =
@@ -565,7 +564,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                 continue;
             totalRows += (int) Math.ceil(list.size() / (float) cols);
         }
-        return (int) Math.max(0, (totalRows * rowHeight - visibleHeight + 50) / rowHeight);
+        return Math.max(0, (totalRows * rowHeight - visibleHeight + 50) / rowHeight);
     }
 
     private void renderItemEntry(GuiGraphics graphics, float scale, BigGenericStack entry, boolean isStackHovered,
@@ -634,7 +633,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                             .clientProvider().guiHandler()
                             .tooltipBuilder(entry.get().key(), entry.get().amount()));
             if (recipeHovered && !lines.isEmpty())
-                lines.set(0, CreateLang.translateDirect("gui.stock_keeper.craft", lines.getFirst()
+                lines.set(0, CreateLang.translateDirect("gui.stock_keeper.craft", lines.get(0)
                         .copy()));
             graphics.renderComponentTooltip(font, lines, mouseX, mouseY);
         }
@@ -839,8 +838,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (addressBox.mouseScrolled(mouseX, mouseY, scrollX, scrollY))
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (addressBox.mouseScrolled(mouseX, mouseY, delta))
             return true;
 
         Couple<Integer> hoveredSlot = getHoveredSlot((int) mouseX, (int) mouseY);
@@ -848,7 +847,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
         if (noHover || hoveredSlot.getFirst() >= 0 && !hasShiftDown() && getMaxScroll() != 0) {
             int maxScroll = getMaxScroll();
-            int direction = (int) (Math.ceil(Math.abs(scrollY)) * -Math.signum(scrollY));
+            int direction = (int) (Math.ceil(Math.abs(delta)) * -Math.signum(delta));
             float newTarget = Mth.clamp(Math.round(itemScroll.getChaseTarget() + direction), 0, maxScroll);
             itemScroll.chase(newTarget, 0.5, LerpedFloat.Chaser.EXP);
             return true;
@@ -861,8 +860,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                     : displayedItems.get(hoveredSlot.getFirst())
                     .get(hoveredSlot.getSecond());
 
-            boolean remove = scrollY < 0;
-            int transfer = Mth.ceil(Math.abs(scrollY)) * (hasControlDown() ? 10 : 1);
+            boolean remove = delta < 0;
+            int transfer = Mth.ceil(Math.abs(delta)) * (hasControlDown() ? 10 : 1);
 
             BigGenericStack existingOrder = orderClicked ? entry : orderForStack(entry.get());
             if (existingOrder == null) {
@@ -1022,9 +1021,9 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
             order = new PackageOrderWithCrafts(order.orderedStacks(), craftList);
         }
 
-        CatnipServices.NETWORK.sendToServer(
-                new SendPackage(GenericOrder.of(order),
-                        addressBox.getValue()));
+        PortableStockTickerPackets.getChannel()
+                .sendToServer(new SendPackage(GenericOrder.of(order),
+                        addressBox.getValue(), false));
         menu.portableStockTicker.previouslyUsedAddress = addressBox.getValue();
 
         itemsToOrder = new ArrayList<>();
@@ -1053,8 +1052,9 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
     @Override
     public void removed() {
-        CatnipServices.NETWORK.sendToServer(new HiddenCategoriesPacket(new ArrayList<>(hiddenCategories)));
-        CatnipServices.NETWORK.sendToServer(new SendPackage(GenericOrder.empty(), addressBox.getValue()));
+        PortableStockTickerPackets.getChannel().sendToServer(new HiddenCategoriesPacket(new ArrayList<>(hiddenCategories)));
+        PortableStockTickerPackets.getChannel().sendToServer(
+                new SendPackage(GenericOrder.empty(), addressBox.getValue(), true));
         super.removed();
     }
 

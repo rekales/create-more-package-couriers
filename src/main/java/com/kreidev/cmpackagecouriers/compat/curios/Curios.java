@@ -4,10 +4,11 @@ import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
@@ -25,28 +26,28 @@ public class Curios {
 
     public static void init(IEventBus modEventBus) {
         modEventBus.addListener(Curios::onClientSetup);
-        modEventBus.addListener(Curios::registerCapabilities);
+//        modEventBus.addListener(Curios::registerCapabilities);
         modEventBus.addListener(Curios::gatherData);
     }
 
-    public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
-        event.registerItem(
-            top.theillusivec4.curios.api.CuriosCapability.ITEM,
-            (stack, context) -> new ICurio() {
-
-                @Override
-                public ItemStack getStack() {
-                    return stack;
-                }
-
-                @Override
-                public void curioTick(SlotContext slotContext) {
-                    // The transmitter doesn't need to tick, but this method can be used for any periodic logic
-                    // For example, you could add visual effects or update transmission status here
-                }
-            },
-            LocationTransmitterReg.LOCATION_TRANSMITTER.get());
-    }
+//    public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
+//        event.registerItem(
+//            top.theillusivec4.curios.api.CuriosCapability.ITEM,
+//            (stack, context) -> new ICurio() {
+//
+//                @Override
+//                public ItemStack getStack() {
+//                    return stack;
+//                }
+//
+//                @Override
+//                public void curioTick(SlotContext slotContext) {
+//                    // The transmitter doesn't need to tick, but this method can be used for any periodic logic
+//                    // For example, you could add visual effects or update transmission status here
+//                }
+//            },
+//            LocationTransmitterReg.LOCATION_TRANSMITTER.get());
+//    }
 
     public static void gatherData(GatherDataEvent event) {
         event.getGenerator().addProvider(

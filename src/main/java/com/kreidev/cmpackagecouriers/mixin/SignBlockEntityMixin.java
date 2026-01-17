@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static net.minecraft.world.level.block.WallSignBlock.FACING;
 
-@Mixin(value = SignBlockEntity.class, remap = false)
+@Mixin(value = SignBlockEntity.class)
 public abstract class SignBlockEntityMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))

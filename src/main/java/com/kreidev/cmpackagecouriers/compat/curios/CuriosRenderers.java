@@ -1,8 +1,8 @@
 package com.kreidev.cmpackagecouriers.compat.curios;
 
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterReg;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 /**

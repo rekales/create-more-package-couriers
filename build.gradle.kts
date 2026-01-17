@@ -33,26 +33,26 @@ dependencies {
     implementation("io.github.llamalad7:mixinextras-forge:0.4.1")
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 
-    implementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.8")!!)
+    implementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.7")!!)
 
-    compileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.8")
-    runtimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.8")
+    compileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.7")
+    runtimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.7")
 
     compileOnly("curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828")
 
-    compileOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}:api")
-    runtimeOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}")
+    compileOnly("top.theillusivec4.curios:curios-forge:${property("curios_version")}:api")
+    runtimeOnly("top.theillusivec4.curios:curios-forge:${property("curios_version")}")
 
     compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-core-api:${property("cc_tweaked_version")}")
     compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge-api:${property("cc_tweaked_version")}")
     runtimeOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge:${property("cc_tweaked_version")}")
 
-    implementation("mezz.jei:jei-${property("minecraft_version")}-neoforge:${property("jei_version")}")
+    implementation("mezz.jei:jei-${property("minecraft_version")}-forge:${property("jei_version")}")
 
-    compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-neoforge")
+    compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-forge")
 
     // Dev QOL
-    modRuntimeOnly("curse.maven:jei-238222:7270446")
+//    runtimeOnly("curse.maven:jei-238222:7270446")
 }
 
 legacyForge {

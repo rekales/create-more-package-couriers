@@ -1,36 +1,40 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
-import net.createmod.catnip.net.base.ServerboundPacketPayload;
-import net.createmod.catnip.platform.CatnipServices;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import com.simibubi.create.foundation.networking.SimplePacketBase;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.PacketDistributor;
 
 
 import static com.kreidev.cmpackagecouriers.stock_ticker.StockCheckingItem.getAccurateSummary;
 
 // Shamelessly copied from Create: Mobile Packages
-public class RequestStockUpdate implements ServerboundPacketPayload {
-    public static final RequestStockUpdate INSTANCE = new RequestStockUpdate();
-    public static final StreamCodec<RegistryFriendlyByteBuf, RequestStockUpdate> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+public class RequestStockUpdate extends SimplePacketBase {
 
     public RequestStockUpdate() {
     }
 
-    @Override
-    public void handle(ServerPlayer player) {
-        if (player != null) {
-            ItemStack stack = PortableStockTicker.find(player.getInventory());
-            if (stack == null || stack.isEmpty()) return;
-
-            GenericStackListPacket responsePacket = new GenericStackListPacket(getAccurateSummary(stack).get());
-            CatnipServices.NETWORK.sendToClient(player, responsePacket);
-        }
+    public RequestStockUpdate(FriendlyByteBuf buffer) {
     }
 
     @Override
-    public PacketTypeProvider getTypeProvider() {
-        return PortableStockTickerReg.PortableStockTickerPackets.REQUEST_STOCK_UPDATE;
+    public void write(FriendlyByteBuf buffer) {
+    }
+
+    @Override
+    public boolean handle(NetworkEvent.Context context) {
+        context.enqueueWork(() -> {
+            ServerPlayer player = context.getSender();
+            if (player != null) {
+                ItemStack stack = PortableStockTicker.find(player.getInventory());
+                if (stack == null || stack.isEmpty()) return;
+                GenericStackListPacket responsePacket = new GenericStackListPacket(
+                        getAccurateSummary(stack).get());
+                PortableStockTickerPackets.getChannel().send(PacketDistributor.PLAYER.with(() -> player), responsePacket);
+            }
+        });
+        return true;
     }
 }

@@ -26,7 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
@@ -139,7 +139,7 @@ public class CardboardPlane {
         level.playSound(
                 null,
                 this.pos.x(), this.pos.y(), this.pos.z(),
-                SoundEvents.WIND_CHARGE_BURST.value(),
+                SoundEvents.ITEM_PICKUP,  // TODO: figure out a more apt sound
                 SoundSource.NEUTRAL,
                 1.0F,
                 0.75F

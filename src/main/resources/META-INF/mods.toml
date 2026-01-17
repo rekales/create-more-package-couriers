@@ -31,10 +31,3 @@ mandatory=true
 versionRange="${create_version_range}"
 ordering="NONE"
 side="BOTH"
-
-[[dependencies.${mod_id}]]
-modId="supplementaries"
-type="optional"
-versionRange="${supplementaries_version_range}"
-ordering="NONE"
-side="BOTH"

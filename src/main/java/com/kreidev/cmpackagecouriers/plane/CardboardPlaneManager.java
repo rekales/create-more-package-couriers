@@ -10,14 +10,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.Iterator;
 
 @SuppressWarnings({"UnusedReturnValue", "ConstantValue", "DataFlowIssue", "unused"})
-@EventBusSubscriber(modid= PackageCouriers.MOD_ID)
+@Mod.EventBusSubscriber(modid= PackageCouriers.MOD_ID)
 public class CardboardPlaneManager {
 
     public static final int LIFESPAN_TICKS = 400;
@@ -25,7 +26,7 @@ public class CardboardPlaneManager {
     public static CardboardPlaneSavedData INSTANCE;
 
     @SubscribeEvent
-    public static void serverTick(ServerTickEvent.Post event) {
+    public static void serverTick(TickEvent.ServerTickEvent event) {
         if (INSTANCE == null) return;
         if (!INSTANCE.pairedPlanes.isEmpty()) INSTANCE.setDirty();
 

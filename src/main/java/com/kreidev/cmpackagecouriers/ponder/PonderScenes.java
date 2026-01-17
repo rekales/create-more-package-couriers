@@ -56,7 +56,7 @@ public class PonderScenes implements PonderPlugin {
 
     @Override
     public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
-        PonderSceneRegistrationHelper<ItemProviderEntry<?,?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
+        PonderSceneRegistrationHelper<ItemProviderEntry<?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
         HELPER.forComponents(CardboardPlaneReg.CARDBOARD_PLANE_PARTS_ITEM)
                 .addStoryBoard("planes", PonderScenes::sendingPlanes)
                 .addStoryBoard("planes", PonderScenes::receivingPlanes)
@@ -124,7 +124,7 @@ public class PonderScenes implements PonderPlugin {
         scene.world().modifyBlockEntityNBT(
                 util.select().position(util.grid().at(3,3,2)),
                 DeployerBlockEntity.class,
-                nbt -> nbt.put("HeldItem", planePartsItem.saveOptional(scene.world().getHolderLookupProvider())));
+                nbt -> nbt.put("HeldItem", planePartsItem.serializeNBT()));
         scene.idle(10);
         ElementLink<BeltItemElement> beltItem = scene.world().createItemOnBelt(beltEndPos, Direction.EAST, packageItem);
         scene.idle(50);
@@ -184,7 +184,7 @@ public class PonderScenes implements PonderPlugin {
         scene.world().modifyBlockEntityNBT(
                 util.select().position(util.grid().at(3,3,2)),
                 DeployerBlockEntity.class,
-                nbt -> nbt.put("HeldItem", planePartsItem.saveOptional(scene.world().getHolderLookupProvider())));
+                nbt -> nbt.put("HeldItem", planePartsItem.serializeNBT()));
         scene.idle(10);
 
         scene.overlay().showText(80)
@@ -423,7 +423,7 @@ public class PonderScenes implements PonderPlugin {
         scene.world().modifyBlockEntityNBT(
                 util.select().position(deployerPos),
                 DeployerBlockEntity.class,
-                nbt -> nbt.put("HeldItem", shearsItem.saveOptional(scene.world().getHolderLookupProvider())));
+                nbt -> nbt.put("HeldItem", shearsItem.serializeNBT()));
         ElementLink<WorldSectionElement> mainSection = scene.world()
                 .showIndependentSection(util.select().cuboid(util.grid().at(0,0,0), new Vec3i(5,3,4)), Direction.UP);
         scene.idle(20);

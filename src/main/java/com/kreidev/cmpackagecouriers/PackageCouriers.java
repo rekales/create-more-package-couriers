@@ -3,7 +3,6 @@ package com.kreidev.cmpackagecouriers;
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
 import com.kreidev.cmpackagecouriers.compat.curios.Curios;
-import com.kreidev.cmpackagecouriers.compat.supplementaries.SupplementariesCompat;
 import com.kreidev.cmpackagecouriers.plane.*;
 import com.kreidev.cmpackagecouriers.ponder.PonderScenes;
 import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
@@ -18,13 +17,13 @@ import net.createmod.catnip.lang.FontHelper;
 import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
 @SuppressWarnings("unused")
@@ -43,24 +42,21 @@ public class PackageCouriers {
                 .andThen(TooltipModifier.mapNull(KineticStats.create(item))));
     }
 
-    public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister
-            .createDataComponents(Registries.DATA_COMPONENT_TYPE, MOD_ID);
+    public PackageCouriers(FMLJavaModLoadingContext modLoadingContext) {
+        IEventBus modEventBus = modLoadingContext.getModEventBus();
 
-    public PackageCouriers(IEventBus modEventBus, ModContainer modContainer, Dist dist) {
         if (!Mods.CREATE_MOBILE_PACKAGES.isLoaded())
             PortableStockTickerReg.register();
         LocationTransmitterReg.register(modEventBus);
         CardboardPlaneReg.register(modEventBus);
 
         REGISTRATE.registerEventListeners(modEventBus);
-        DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
 
         Mods.CURIOS.executeIfInstalled(() -> () -> Curios.init(modEventBus));
-        Mods.SUPPLEMENTARIES.executeIfInstalled(() -> SupplementariesCompat::init);
         Mods.CRATE_FACTORY_LOGISTICS.executeIfInstalled(() -> FactoryLogisticsCompat::init);
 
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+        modLoadingContext.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);
 

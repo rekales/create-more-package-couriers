@@ -13,9 +13,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ import java.util.*;
 @SuppressWarnings("FieldMayBeFinal")
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-@EventBusSubscriber(modid= PackageCouriers.MOD_ID)
+@Mod.EventBusSubscriber(modid=PackageCouriers.MOD_ID)
 public class CourierTarget {
     public enum Type implements StringRepresentable {
         BLOCK, ENTITY;
@@ -138,7 +138,7 @@ public class CourierTarget {
     public static Map<CourierTarget, Integer> activeTargets = new HashMap<>();
 
     @SubscribeEvent
-    public static void serverTick(ServerTickEvent.Post event) {
+    public static void serverTick(TickEvent.ServerTickEvent event) {
         Iterator<Map.Entry<CourierTarget, Integer>> iterator = activeTargets.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<CourierTarget, Integer> entry = iterator.next();

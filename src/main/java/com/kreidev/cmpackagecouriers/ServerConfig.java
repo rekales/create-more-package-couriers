@@ -1,26 +1,26 @@
 package com.kreidev.cmpackagecouriers;
 
-import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 @SuppressWarnings("unused")
 public class ServerConfig {
-    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    private static final ModConfigSpec.BooleanValue PLANE_LOCATION_TARGETS = BUILDER
+    private static final ForgeConfigSpec.BooleanValue PLANE_LOCATION_TARGETS = BUILDER
             .comment("enables targeting depots with cardboard planes")
             .define("enablePlaneLocationLogistics", true);
 
-    private static final ModConfigSpec.BooleanValue PLANE_PLAYER_TARGETS = BUILDER
+    private static final ForgeConfigSpec.BooleanValue PLANE_PLAYER_TARGETS = BUILDER
             .comment("enables targeting players with cardboard planes")
             .define("enablePlanePlayerLogistics", true);
 
-    private static final ModConfigSpec.BooleanValue SHOP_ADDRESS_REPLACEMENT = BUILDER
+    private static final ForgeConfigSpec.BooleanValue SHOP_ADDRESS_REPLACEMENT = BUILDER
         .comment("enables integration with Create's Shop system that rewrites @player addresses to the ordering player's nick)")
         .define("enableShopAddressReplacement", true);
 
 
-    static final ModConfigSpec SPEC = BUILDER.build();
+    static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static boolean planeLocationTargets;
     public static boolean planePlayerTargets;

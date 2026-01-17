@@ -8,16 +8,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import static com.kreidev.cmpackagecouriers.PackageCouriers.MOD_ID;
 
 // copied from DadudeGaming/Create.Mobile.packages.Unofficial under MIT License
-@EventBusSubscriber(modid = MOD_ID)
+@Mod.EventBusSubscriber(modid = MOD_ID)
 public class StockTickerIntegration {
 
     private static void rewriteAddressIfNeeded(Player player, ItemStack heldItem) {
@@ -50,7 +49,7 @@ public class StockTickerIntegration {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onRightClickBlock(RightClickBlock event) {
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel().isClientSide()) return;
         if (!ServerConfig.shopAddressReplacement) return;
 

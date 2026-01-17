@@ -1,8 +1,11 @@
 package com.kreidev.cmpackagecouriers.transmitter;
 
 import com.kreidev.cmpackagecouriers.CourierTarget;
+import com.kreidev.cmpackagecouriers.plane.CardboardPlaneItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -16,6 +19,7 @@ import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
@@ -33,9 +37,8 @@ public class LocationTransmitterItem extends Item implements ICurioItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext tooltipContext,
-                                List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, tooltipContext, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
 
         Component statusText;
         if (isEnabled(stack)) {
@@ -102,12 +105,18 @@ public class LocationTransmitterItem extends Item implements ICurioItem {
     }
 
     public static boolean isEnabled(ItemStack stack) {
-        return stack.getOrDefault(LocationTransmitterReg.TRANSMITTER_ENABLED, false);
+        if (stack.getItem() instanceof LocationTransmitterItem) {
+            CompoundTag nbt = stack.getOrCreateTag();
+            if (nbt.contains("Enabled", Tag.TAG_COMPOUND)) {
+                return nbt.getBoolean("Enabled");
+            }
+        }
+        return false;
     }
 
     public static void setEnabled(ItemStack stack, boolean enabled) {
         if (stack.getItem() instanceof LocationTransmitterItem) {
-            stack.set(LocationTransmitterReg.TRANSMITTER_ENABLED, enabled);
+            stack.getOrCreateTag().putBoolean("Enabled", enabled);
         }
     }
 }

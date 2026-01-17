@@ -8,6 +8,7 @@ import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBeha
 import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlockEntity;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerBlockEntity;
 import net.createmod.catnip.nbt.NBTHelper;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -17,16 +18,19 @@ import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkHooks;
 import ru.zznty.create_factory_abstractions.generic.support.GenericOrder;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
-
-import static com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg.*;
+import java.util.stream.IntStream;
 
 // Shamelessly copied from Create: Mobile Packages
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class PortableStockTicker extends StockCheckingItem {
 
     public Map<UUID, List<Integer>> hiddenCategoriesByPlayer;
@@ -65,9 +69,13 @@ public class PortableStockTicker extends StockCheckingItem {
         return null;
     }
 
+    @Override
+    public Rarity getRarity(ItemStack pStack) {
+        return Rarity.UNCOMMON;
+    }
+
     public boolean broadcastPackageRequest(ItemStack stack, LogisticallyLinkedBehaviour.RequestType type, GenericOrder order,
-                                           IdentifiedInventory ignoredHandler,
-                                           String address, Player player) {
+                                           IdentifiedInventory ignoredHandler, String address, Player player) {
         boolean result = super.broadcastPackageRequest(stack, type, order, ignoredHandler, address);
         previouslyUsedAddress = address;
 
@@ -81,7 +89,7 @@ public class PortableStockTicker extends StockCheckingItem {
     }
 
     @Override
-    public @NotNull InteractionResult useOn(UseOnContext pContext) {
+    public InteractionResult useOn(UseOnContext pContext) {
         ItemStack stack = pContext.getItemInHand();
         BlockPos pos = pContext.getClickedPos();
         Level level = pContext.getLevel();
@@ -94,8 +102,8 @@ public class PortableStockTicker extends StockCheckingItem {
             if (level.getBlockEntity(pos) instanceof StockTickerBlockEntity stbe) {
                 // Copy categories from StockTickerBlockEntity
                 CompoundTag tag = new CompoundTag();
-                stbe.saveAdditional(tag, level.registryAccess());
-                categories = NBTHelper.readItemList(tag.getList("Categories", Tag.TAG_COMPOUND), level.registryAccess());
+//                stbe.saveAdditional(tag);  // TODO: figure this out
+                categories = NBTHelper.readItemList(tag.getList("Categories", Tag.TAG_COMPOUND));
             } else if (level.getBlockEntity(pos) instanceof PackagerLinkBlockEntity) {
                 // Clear categories from an old link
                 categories = new ArrayList<>();
@@ -108,7 +116,7 @@ public class PortableStockTicker extends StockCheckingItem {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, Player pPlayer, @NotNull InteractionHand pUsedHand) {
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
         ItemStack stack = pPlayer.getItemInHand(pUsedHand);
         previouslyUsedAddress = loadAddressFromStack(stack);
         categories = loadCategoriesFromStack(stack);
@@ -119,47 +127,73 @@ public class PortableStockTicker extends StockCheckingItem {
                         Component.translatable("item.cmpackagecouriers.portable_stock_ticker.not_linked"), true);
                 return InteractionResultHolder.success(pPlayer.getItemInHand(pUsedHand));
             }
-            MenuProvider provider = new SimpleMenuProvider(
-                    (id, inv, p) -> new PortableStockTickerMenu(id, inv),
-                    Component.translatable("item.cmpackagecouriers.portable_stock_ticker")
-            );
-            pPlayer.openMenu(provider);
+            if (pPlayer instanceof ServerPlayer serverPlayer) {
+                MenuProvider provider = new SimpleMenuProvider((id, inv, p) -> new PortableStockTickerMenu(id, inv),
+                        Component.translatable("item.cmpackagecouriers.portable_stock_ticker"));
+                NetworkHooks.openScreen(serverPlayer, provider, buf -> {
+                });
+            }
             return InteractionResultHolder.success(pPlayer.getItemInHand(pUsedHand));
         }
         return InteractionResultHolder.success(pPlayer.getItemInHand(pUsedHand));
     }
 
+    private static final String ADDRESS_TAG = "PreviousAddress";
+
     public void saveAddressToStack(ItemStack stack, String address) {
         if (address != null && !address.isEmpty()) {
-            stack.set(ADDRESS_TAG, address);
+            stack.getOrCreateTag().putString(ADDRESS_TAG, address);
         }
     }
 
     public String loadAddressFromStack(ItemStack stack) {
-        return stack.getOrDefault(ADDRESS_TAG, null);
+        if (stack.getTag() != null && stack.hasTag() && stack.getTag().contains(ADDRESS_TAG)) {
+            return stack.getTag().getString(ADDRESS_TAG);
+        }
+        return null;
     }
 
     public void saveCategoriesToStack(ItemStack stack, List<ItemStack> categories) {
         if (categories != null) {
-            stack.set(CATEGORIES, categories);
+            stack.getOrCreateTag().put("Categories", NBTHelper.writeItemList(categories));
         }
     }
 
     public List<ItemStack> loadCategoriesFromStack(ItemStack stack) {
-        List<ItemStack> readCategories = new ArrayList<>(stack.getOrDefault(CATEGORIES, List.of()));
-        readCategories.removeIf(itemStack -> !itemStack.isEmpty() && !(itemStack.getItem() instanceof FilterItem));
-        return readCategories;
+        if (stack.getTag() != null && stack.hasTag() && stack.getTag().contains("Categories")) {
+            List<ItemStack> readCategories = NBTHelper.readItemList(
+                    stack.getTag().getList("Categories", Tag.TAG_COMPOUND));
+            readCategories.removeIf(itemStack -> !itemStack.isEmpty() && !(itemStack.getItem() instanceof FilterItem));
+            return readCategories;
+        }
+        return new ArrayList<>();
     }
 
     public void saveHiddenCategoriesByPlayerToStack(ItemStack stack,
                                                     Map<UUID, List<Integer>> hiddenCategoriesByPlayer) {
         if (hiddenCategoriesByPlayer != null) {
-            stack.set(HIDDEN_CATEGORIES, hiddenCategoriesByPlayer);
+            CompoundTag tag = new CompoundTag();
+            tag.put("HiddenCategories", NBTHelper.writeCompoundList(hiddenCategoriesByPlayer.entrySet(), e -> {
+                CompoundTag c = new CompoundTag();
+                c.putUUID("Id", e.getKey());
+                c.putIntArray("Indices", e.getValue());
+                return c;
+            }));
+            stack.getOrCreateTag().put("HiddenCategories", tag);
         }
     }
 
     public Map<UUID, List<Integer>> getHiddenCategoriesByPlayerFromStack(ItemStack stack) {
-        return stack.getOrDefault(HIDDEN_CATEGORIES, new HashMap<>());
+        Map<UUID, List<Integer>> hiddenCategoriesByPlayer = new HashMap<>();
+        if (stack.getTag() != null && stack.hasTag() && stack.getTag().contains("HiddenCategories")) {
+            CompoundTag tag = stack.getTag().getCompound("HiddenCategories");
+            NBTHelper.iterateCompoundList(tag.getList("HiddenCategories", Tag.TAG_COMPOUND),
+                    c -> hiddenCategoriesByPlayer.put(c.getUUID("Id"),
+                            IntStream.of(c.getIntArray("Indices"))
+                                    .boxed()
+                                    .toList()));
+        }
+        return hiddenCategoriesByPlayer;
     }
 }
 

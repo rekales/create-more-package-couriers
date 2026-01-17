@@ -1,11 +1,9 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
-import net.createmod.catnip.platform.CatnipServices;
 import ru.zznty.create_factory_abstractions.api.generic.stack.GenericStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 // Shamelessly copied from Create: Mobile Packages
 public class ClientScreenStorage {
@@ -21,7 +19,7 @@ public class ClientScreenStorage {
     }
 
     private static void update() {
-        CatnipServices.NETWORK.sendToServer(RequestStockUpdate.INSTANCE);
+        PortableStockTickerPackets.getChannel().sendToServer(new RequestStockUpdate());
     }
 
     public static void manualUpdate() {
