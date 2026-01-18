@@ -139,6 +139,7 @@ public class CourierTarget {
 
     @SubscribeEvent
     public static void serverTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         Iterator<Map.Entry<CourierTarget, Integer>> iterator = activeTargets.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<CourierTarget, Integer> entry = iterator.next();

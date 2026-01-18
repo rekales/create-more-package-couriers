@@ -6,7 +6,6 @@
     }
   ],
   "result": {
-    "id": "cmpackagecouriers:portable_stock_ticker",
-    "count": 1
+    "item": "cmpackagecouriers:portable_stock_ticker"
   }
 }

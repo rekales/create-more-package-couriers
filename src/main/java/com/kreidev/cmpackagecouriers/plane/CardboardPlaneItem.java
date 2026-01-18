@@ -93,9 +93,6 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         if (level.isClientSide())
             return false;
 
-        PackageCouriers.LOGGER.debug(yaw+" yaw");
-        PackageCouriers.LOGGER.debug(pitch+" pitch");
-
         ItemStack packageItem = getPackage(stack);
         return CardboardPlaneManager.addPlane(level, pos, yaw, pitch, packageItem, isPreOpened(stack));
     }
@@ -128,7 +125,7 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
     public static boolean isPreOpened(ItemStack plane) {
         if (plane.getItem() instanceof CardboardPlaneItem) {
             CompoundTag nbt = plane.getOrCreateTag();
-            if (nbt.contains("PreOpened", Tag.TAG_COMPOUND)) {
+            if (nbt.contains("PreOpened")) {
                 return nbt.getBoolean("PreOpened");
             }
         }
@@ -149,7 +146,6 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         box.getItem().appendHoverText(box, level, tooltipComponents, tooltipFlag);
     }
 
-    @SuppressWarnings("removal")
     @Override
     @OnlyIn(Dist.CLIENT)
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {

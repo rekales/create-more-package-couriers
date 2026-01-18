@@ -27,6 +27,7 @@ public class CardboardPlaneManager {
 
     @SubscribeEvent
     public static void serverTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.START) return;
         if (INSTANCE == null) return;
         if (!INSTANCE.pairedPlanes.isEmpty()) INSTANCE.setDirty();
 

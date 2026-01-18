@@ -24,7 +24,6 @@
     "LBE"
   ],
   "result": {
-    "count": 1,
-    "id": "cmpackagecouriers:location_transmitter"
+    "item": "cmpackagecouriers:location_transmitter"
   }
 }

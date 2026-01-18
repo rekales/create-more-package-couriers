@@ -1,11 +1,9 @@
 package com.kreidev.cmpackagecouriers.transmitter;
 
 import com.kreidev.cmpackagecouriers.CourierTarget;
-import com.kreidev.cmpackagecouriers.plane.CardboardPlaneItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -107,7 +105,7 @@ public class LocationTransmitterItem extends Item implements ICurioItem {
     public static boolean isEnabled(ItemStack stack) {
         if (stack.getItem() instanceof LocationTransmitterItem) {
             CompoundTag nbt = stack.getOrCreateTag();
-            if (nbt.contains("Enabled", Tag.TAG_COMPOUND)) {
+            if (nbt.contains("Enabled")) {
                 return nbt.getBoolean("Enabled");
             }
         }

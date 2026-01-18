@@ -8,8 +8,7 @@
   "processing_time": 10,
   "results": [
     {
-      "count": 1,
-      "id": "create:cardboard_package_12x12"
+      "item": "create:cardboard_package_12x12"
     }
   ]
 }
