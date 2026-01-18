@@ -62,4 +62,5 @@ public class CardboardPlaneReg {
                 CARDBOARD_PLANE_ENTITY.get(),
                 CardboardPlaneEntityRenderer::new
         );
-    }}
+    }
+}

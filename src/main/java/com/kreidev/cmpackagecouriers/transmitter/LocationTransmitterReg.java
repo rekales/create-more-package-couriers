@@ -1,10 +1,14 @@
 package com.kreidev.cmpackagecouriers.transmitter;
 
+import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 import java.util.function.Supplier;
 
@@ -24,6 +28,14 @@ public class LocationTransmitterReg {
                     .networkSynchronized(ByteBufCodecs.BOOL));
 
     public static void register(IEventBus modEventBus) {
+        modEventBus.addListener(LocationTransmitterReg::clientInit);
+    }
 
+    public static void clientInit(final FMLClientSetupEvent event) {
+        ItemProperties.register(
+                LocationTransmitterReg.LOCATION_TRANSMITTER.get(),
+                ResourceLocation.fromNamespaceAndPath(PackageCouriers.MOD_ID, "enabled"),
+                (stack, level, entity, seed) -> LocationTransmitterItem.isEnabled(stack) ? 1.0f : 0.0f
+        );
     }
 }
