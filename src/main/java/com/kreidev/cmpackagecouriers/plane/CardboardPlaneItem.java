@@ -92,9 +92,6 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
         if (level.isClientSide())
             return false;
 
-        PackageCouriers.LOGGER.debug(yaw+" yaw");
-        PackageCouriers.LOGGER.debug(pitch+" pitch");
-
         ItemStack packageItem = getPackage(stack);
         return CardboardPlaneManager.addPlane(level, pos, yaw, pitch, packageItem, isPreOpened(stack));
     }

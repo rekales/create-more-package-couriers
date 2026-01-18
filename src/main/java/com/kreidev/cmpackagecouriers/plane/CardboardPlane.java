@@ -106,7 +106,7 @@ public class CardboardPlane {
         ServerLevel level = server.getLevel(this.target.getDim());
         if (level == null) return;
 
-        if (target.getEntity() instanceof Player player) {
+        if (target.getEntity() != null && level.getEntity(target.getEntity().getUUID()) instanceof Player player) {
             if (unpack) {
                 ItemStackHandler stacks = PackageItem.getContents(this.getPackage());
                 for (int slot = 0; slot < stacks.getSlots(); slot++) {
@@ -155,7 +155,7 @@ public class CardboardPlane {
             double xzDistance = Math.sqrt(Math.pow(target.getPos().x-this.pos.x, 2) + Math.pow(target.getPos().z-this.pos.z, 2));
             Vec3 adjustedTargetPos = new Vec3(
                     target.getPos().x,
-                    target.getPos().y + (xzDistance > 2 ? xzDistance/4 : 0),
+                    target.getPos().y + (xzDistance > 4 ? (xzDistance-4)/3 : 0),
                     target.getPos().z
             );
             vecTo = adjustedTargetPos.subtract(this.pos).normalize();

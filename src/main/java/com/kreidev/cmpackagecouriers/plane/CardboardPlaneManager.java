@@ -25,7 +25,7 @@ public class CardboardPlaneManager {
     public static CardboardPlaneSavedData INSTANCE;
 
     @SubscribeEvent
-    public static void serverTick(ServerTickEvent.Post event) {
+    public static void serverTick(ServerTickEvent.Pre event) {
         if (INSTANCE == null) return;
         if (!INSTANCE.pairedPlanes.isEmpty()) INSTANCE.setDirty();
 
