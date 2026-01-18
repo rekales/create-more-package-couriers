@@ -231,7 +231,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         boolean initial = addressBox == null;
         String previouslyUsedAddress = initial ? menu.portableStockTicker.previouslyUsedAddress : addressBox.getValue();
         addressBox =
-                new AddressEditBox(this, new NoShadowFontWrapper(font), x + 27, y + windowHeight - 36, 92, 10, true, "@" + this.playerInventory.player.getName().getString());
+                new AddressEditBox(this, new NoShadowFontWrapper(font), x + 27, y + windowHeight - 36, 92, 10, true, this.playerInventory.player.getName().getString());
         addressBox.setTextColor(0x714A40);
         addressBox.setValue(previouslyUsedAddress);
         addRenderableWidget(addressBox);
@@ -368,7 +368,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                     y + windowHeight - 41);
 
         MutableComponent headerTitle = Component.translatable(
-                "item.create_mobile_packages.portable_stock_ticker.screen_title");
+                "item.cmpackagecouriers.portable_stock_ticker.screen_title");
         pGuiGraphics.drawString(font, headerTitle, x + windowWidth / 2 - font.width(headerTitle) / 2, y + 4, 0x714A40,
                 false);
         MutableComponent component =
@@ -567,6 +567,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         return Math.max(0, (totalRows * rowHeight - visibleHeight + 50) / rowHeight);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void renderItemEntry(GuiGraphics graphics, float scale, BigGenericStack entry, boolean isStackHovered,
                                  boolean isRenderingOrders) {
 

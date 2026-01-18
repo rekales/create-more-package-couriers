@@ -30,7 +30,7 @@ public class OpenPortableStockTicker extends SimplePacketBase {
 
             NetworkHooks.openScreen(player, new SimpleMenuProvider(
                     (id, inv, ply) -> new PortableStockTickerMenu(id, inv),
-                    Component.translatable("item.create_mobile_packages.portable_stock_ticker")
+                    Component.translatable("item.cmpackagecouriers.portable_stock_ticker")
             ), buf -> {});
         });
         return true;

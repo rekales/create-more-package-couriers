@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
-import static com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBlockItem.isTuned;
+import static com.kreidev.cmpackagecouriers.stock_ticker.LogisticallyLinkedItem.isTuned;
 
 // Shamelessly copied from Create: Mobile Packages
 public class PortableStockTickerMenu extends AbstractContainerMenu {

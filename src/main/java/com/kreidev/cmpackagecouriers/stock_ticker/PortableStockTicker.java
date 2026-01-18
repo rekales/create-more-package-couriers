@@ -24,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkHooks;
 import ru.zznty.create_factory_abstractions.generic.support.GenericOrder;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -43,7 +44,7 @@ public class PortableStockTicker extends StockCheckingItem {
         hiddenCategoriesByPlayer = new HashMap<>();
     }
 
-    public static ItemStack find(Inventory playerInventory) {
+    public static @Nullable ItemStack find(Inventory playerInventory) {
         // Check the main hand first
         ItemStack pst = playerInventory.player.getMainHandItem();
         if (playerInventory.player.getMainHandItem().getItem() instanceof PortableStockTicker) {
@@ -102,7 +103,7 @@ public class PortableStockTicker extends StockCheckingItem {
             if (level.getBlockEntity(pos) instanceof StockTickerBlockEntity stbe) {
                 // Copy categories from StockTickerBlockEntity
                 CompoundTag tag = new CompoundTag();
-//                stbe.saveAdditional(tag);  // TODO: figure this out
+                stbe.saveAdditional(tag);
                 categories = NBTHelper.readItemList(tag.getList("Categories", Tag.TAG_COMPOUND));
             } else if (level.getBlockEntity(pos) instanceof PackagerLinkBlockEntity) {
                 // Clear categories from an old link
