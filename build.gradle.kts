@@ -24,35 +24,35 @@ repositories {
 }
 
 dependencies {
-    implementation("com.simibubi.create:create-${property("minecraft_version")}:${property("create_version")}:slim") { isTransitive = false }
-    implementation("net.createmod.ponder:Ponder-Forge-${property("minecraft_version")}:${property("ponder_version")}")
-    compileOnly("dev.engine-room.flywheel:flywheel-forge-api-${property("minecraft_version")}:${property("flywheel_version")}")
-    runtimeOnly("dev.engine-room.flywheel:flywheel-forge-${property("minecraft_version")}:${property("flywheel_version")}")
-    implementation("com.tterrag.registrate:Registrate:${property("registrate_version")}")
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1")!!)
-    implementation("io.github.llamalad7:mixinextras-forge:0.4.1")
+    modImplementation("com.simibubi.create:create-${property("minecraft_version")}:${property("create_version")}:slim") { isTransitive = false }
+    modImplementation("net.createmod.ponder:Ponder-Forge-${property("minecraft_version")}:${property("ponder_version")}")
+    modCompileOnly("dev.engine-room.flywheel:flywheel-forge-api-${property("minecraft_version")}:${property("flywheel_version")}")
+    modRuntimeOnly("dev.engine-room.flywheel:flywheel-forge-${property("minecraft_version")}:${property("flywheel_version")}")
+    modImplementation("com.tterrag.registrate:Registrate:${property("registrate_version")}")
+    modCompileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1")!!)
+    modImplementation("io.github.llamalad7:mixinextras-forge:0.4.1")
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 
-    implementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.7")!!)
+    modImplementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.7")!!)
 
-    compileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.7")
-    runtimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.7")
+    modCompileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.7")
+    modRuntimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.7")
 
-    compileOnly("curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828")
+    modCompileOnly("curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828")
 
-    compileOnly("top.theillusivec4.curios:curios-forge:${property("curios_version")}:api")
-    runtimeOnly("top.theillusivec4.curios:curios-forge:${property("curios_version")}")
+    modCompileOnly("top.theillusivec4.curios:curios-forge:${property("curios_version")}:api")
+    modRuntimeOnly("top.theillusivec4.curios:curios-forge:${property("curios_version")}")
 
-    compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-core-api:${property("cc_tweaked_version")}")
-    compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge-api:${property("cc_tweaked_version")}")
-    runtimeOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge:${property("cc_tweaked_version")}")
+    modCompileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-core-api:${property("cc_tweaked_version")}")
+    modCompileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge-api:${property("cc_tweaked_version")}")
+    modRuntimeOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge:${property("cc_tweaked_version")}")
 
-    implementation("mezz.jei:jei-${property("minecraft_version")}-forge:${property("jei_version")}")
+    modImplementation("mezz.jei:jei-${property("minecraft_version")}-forge:${property("jei_version")}")
 
-    compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-forge")
+    modCompileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-forge")
 
     // Dev QOL
-//    runtimeOnly("curse.maven:jei-238222:7270446")
+    modRuntimeOnly("curse.maven:create-power-loader-936020:6549987")
 }
 
 legacyForge {
