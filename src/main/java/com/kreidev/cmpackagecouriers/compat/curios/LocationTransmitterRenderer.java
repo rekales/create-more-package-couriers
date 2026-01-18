@@ -20,18 +20,11 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 public class LocationTransmitterRenderer implements ICurioRenderer {
 
     @Override
-    public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack,
-                                                                          SlotContext slotContext,
-                                                                          PoseStack matrixStack,
-                                                                          RenderLayerParent<T, M> renderLayerParent,
-                                                                          MultiBufferSource renderTypeBuffer,
-                                                                          int light,
-                                                                          float limbSwing,
-                                                                          float limbSwingAmount,
-                                                                          float partialTicks,
-                                                                          float ageInTicks,
-                                                                          float netHeadYaw,
-                                                                          float headPitch) {
+    public <T extends LivingEntity, M extends EntityModel<T>> void render(
+            ItemStack stack, SlotContext slotContext, PoseStack matrixStack, RenderLayerParent<T, M> renderLayerParent,
+            MultiBufferSource renderTypeBuffer, int light, float limbSwing, float limbSwingAmount, float partialTicks,
+            float ageInTicks, float netHeadYaw, float headPitch)
+    {
         if (!(stack.getItem() instanceof LocationTransmitterItem)) {
             return;
         }
