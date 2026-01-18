@@ -49,7 +49,7 @@ dependencies {
     compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-neoforge")
 
     // Dev QOL
-    runtimeOnly("curse.maven:jei-238222:7270455")
+    runtimeOnly("curse.maven:create-power-loader-936020:6549980")
 }
 
 neoForge {
