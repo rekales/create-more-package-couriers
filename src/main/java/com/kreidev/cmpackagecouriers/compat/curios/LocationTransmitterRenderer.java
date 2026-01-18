@@ -20,18 +20,10 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 public class LocationTransmitterRenderer implements ICurioRenderer {
 
     @Override
-    public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack,
-                                                                          SlotContext slotContext,
-                                                                          PoseStack matrixStack,
-                                                                          RenderLayerParent<T, M> renderLayerParent,
-                                                                          MultiBufferSource renderTypeBuffer,
-                                                                          int light,
-                                                                          float limbSwing,
-                                                                          float limbSwingAmount,
-                                                                          float partialTicks,
-                                                                          float ageInTicks,
-                                                                          float netHeadYaw,
-                                                                          float headPitch) {
+    public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack, SlotContext slotContext, PoseStack matrixStack,
+                                                                          RenderLayerParent<T, M> renderLayerParent, MultiBufferSource renderTypeBuffer,
+                                                                          int light, float limbSwing, float limbSwingAmount, float partialTicks,
+                                                                          float ageInTicks, float netHeadYaw, float headPitch) {
         if (!(stack.getItem() instanceof LocationTransmitterItem)) {
             return;
         }
@@ -56,16 +48,9 @@ public class LocationTransmitterRenderer implements ICurioRenderer {
         matrixStack.mulPose(Axis.ZP.rotationDegrees(180f)); // Flip upright
 
         // Render the item
-        Minecraft.getInstance().getItemRenderer().renderStatic(
-                stack,
-                ItemDisplayContext.FIXED,
-                light,
-                0xF000F0, // overlay
-                matrixStack,
-                renderTypeBuffer,
-                entity.level(),
-                (int) entity.position().x + (int) entity.position().y + (int) entity.position().z
-        );
+        Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED, light,
+                0xF000F0, matrixStack, renderTypeBuffer, entity.level(),
+                (int) entity.position().x + (int) entity.position().y + (int) entity.position().z);
 
         matrixStack.popPose();
     }
