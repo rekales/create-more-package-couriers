@@ -30,11 +30,6 @@ public class LocationTransmitterItem extends Item implements ICurioItem {
     }
 
     @Override
-    public boolean isFoil(ItemStack stack) {
-        return isEnabled(stack);
-    }
-
-    @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
 
