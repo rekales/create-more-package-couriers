@@ -1,27 +1,16 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "key": {
-    "T": {
+  "ingredients": [
+    {
       "item": "create:transmitter"
     },
-    "C": {
+    {
       "item": "minecraft:compass"
     },
-    "B": {
-      "item": "create:copper_casing"
-    },
-    "L": {
-      "item": "minecraft:lever"
-    },
-    "E": {
-      "item": "create:electron_tube"
+    {
+      "item": "create:andesite_casing"
     }
-  },
-  "pattern": [
-    " T ",
-    " C ",
-    "LBE"
   ],
   "result": {
     "count": 1,
