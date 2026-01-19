@@ -2,7 +2,7 @@ package com.kreidev.cmpackagecouriers;
 
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
-import com.kreidev.cmpackagecouriers.compat.curios.Curios;
+import com.kreidev.cmpackagecouriers.compat.curios.CuriosCompat;
 import com.kreidev.cmpackagecouriers.compat.supplementaries.SupplementariesCompat;
 import com.kreidev.cmpackagecouriers.plane.*;
 import com.kreidev.cmpackagecouriers.ponder.PonderScenes;
@@ -56,7 +56,7 @@ public class PackageCouriers {
         DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(PackageCouriers::clientInit);
 
-        Mods.CURIOS.executeIfInstalled(() -> () -> Curios.init(modEventBus));
+        Mods.CURIOS.executeIfInstalled(() -> () -> CuriosCompat.init(modEventBus));
         Mods.SUPPLEMENTARIES.executeIfInstalled(() -> SupplementariesCompat::init);
         Mods.CRATE_FACTORY_LOGISTICS.executeIfInstalled(() -> FactoryLogisticsCompat::init);
 

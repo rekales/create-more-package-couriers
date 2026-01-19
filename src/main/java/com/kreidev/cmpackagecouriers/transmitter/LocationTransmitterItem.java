@@ -13,15 +13,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import top.theillusivec4.curios.api.SlotContext;
-import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class LocationTransmitterItem extends Item implements ICurioItem {
+public class LocationTransmitterItem extends Item {
 
     public LocationTransmitterItem(Properties properties) {
         super(properties.stacksTo(1));
@@ -86,15 +84,6 @@ public class LocationTransmitterItem extends Item implements ICurioItem {
         }
     }
 
-    @Override
-    public void curioTick(SlotContext slotContext, ItemStack stack) {
-        ICurioItem.super.curioTick(slotContext, stack);
-        Entity entity = slotContext.entity();
-        if (!entity.level().isClientSide()) return;
-        if (isEnabled(stack)) {
-            CourierTarget.addOrUpdateTarget(new CourierTarget(entity.getName().getString(), entity));
-        }
-    }
 
     public static boolean isEnabled(ItemStack stack) {
         return stack.getOrDefault(LocationTransmitterReg.TRANSMITTER_ENABLED, false);
