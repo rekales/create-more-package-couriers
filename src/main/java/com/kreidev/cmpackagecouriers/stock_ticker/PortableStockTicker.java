@@ -1,7 +1,7 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
 import com.kreidev.cmpackagecouriers.compat.Mods;
-import com.kreidev.cmpackagecouriers.compat.curios.Curios;
+import com.kreidev.cmpackagecouriers.compat.curios.CuriosCompat;
 import com.simibubi.create.content.logistics.filter.FilterItem;
 import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
@@ -53,7 +53,7 @@ public class PortableStockTicker extends StockCheckingItem {
 
         // Check Curios if installed
         if (Mods.CURIOS.isLoaded()) {
-            pst = Curios.findPortableStockTickerCurios(playerInventory.player);
+            pst = CuriosCompat.findPortableStockTickerCurios(playerInventory.player);
             if (pst.getItem() instanceof PortableStockTicker) {
                 return pst;
             }
