@@ -79,7 +79,7 @@ public class LocationTransmitterItem extends Item {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (!level.isClientSide()) return;
+        if (level.isClientSide()) return;
         if (isEnabled(stack)) {
             CourierTarget.addOrUpdateTarget(new CourierTarget(entity.getName().getString(), entity));
         }
