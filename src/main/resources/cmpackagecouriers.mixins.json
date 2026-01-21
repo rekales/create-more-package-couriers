@@ -3,6 +3,7 @@
   "priority": 1000,
   "package": "com.kreidev.cmpackagecouriers.mixin",
   "compatibilityLevel": "JAVA_17",
+  "refmap": "cmpackagecouriers.refmap.json",
   "mixins": [
     "BeltBlockMixin",
     "BeltDeployerCallbacksMixin",

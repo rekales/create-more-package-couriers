@@ -19,7 +19,7 @@ import static net.minecraft.world.level.block.WallSignBlock.FACING;
 @Mixin(value = SignBlockEntity.class)
 public abstract class SignBlockEntityMixin {
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("HEAD"), require = 1)
     private static void tick(Level level, BlockPos pos, BlockState state, SignBlockEntity sign, CallbackInfo ci) {
         if (level.isClientSide()
                 || !(state.getBlock() instanceof WallSignBlock)
