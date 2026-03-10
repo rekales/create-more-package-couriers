@@ -26,7 +26,7 @@ public class CardboardPlaneEntity extends Entity {
     public float newDeltaYaw = 0;
     public float oldDeltaYaw = 0;
 
-    public CardboardPlaneEntity(EntityType<? extends Entity> entityType, Level level) {
+    public CardboardPlaneEntity(EntityType<? extends CardboardPlaneEntity> entityType, Level level) {
         super(entityType, level);
     }
 
@@ -71,6 +71,8 @@ public class CardboardPlaneEntity extends Entity {
                 );
             }
         } else {
+            if (plane == null) return;
+
             this.setDeltaMovement(plane.getDeltaMovement());
 
             if (!plane.getPackage().equals(this.getPackage())) {
