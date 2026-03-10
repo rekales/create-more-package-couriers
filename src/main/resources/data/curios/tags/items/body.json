@@ -2,7 +2,7 @@
   "replace": false,
   "values": [
     {
-      "id": "cmpackagecouriers:location_transmitter",
+      "id": "cmpackagecouriers:portable_stock_ticker",
       "required": false
     }
   ]
