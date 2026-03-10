@@ -18,6 +18,11 @@ public class PackageCouriersApi {
 
     private static final Map<Item, UnpackEffect> ITEM_UNPACK_EFFECTS = new HashMap<>();
 
+    /**
+     * @param item item which the effects will be added on
+     * @param function a function that does something and manipulates the resulting item stack
+     * see also cmpackagepipebombs for an example
+     */
     public static void registerUnpackEffects(Item item, UnpackEffect function) {
         ITEM_UNPACK_EFFECTS.put(item, function);
     }
@@ -31,6 +36,6 @@ public class PackageCouriersApi {
         if (function != null) {
             return function.apply(level, stack, planePos, target);
         }
-        return ItemStack.EMPTY;
+        return stack;
     }
 }
