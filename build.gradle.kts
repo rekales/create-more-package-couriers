@@ -51,7 +51,7 @@ dependencies {
 
     modCompileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-forge")
 
-//    runtimeOnly("maven.modrinth:create-mobile-packages:1.21.1-0.6.1-neoforge")
+//    modRuntimeOnly("maven.modrinth:create-mobile-packages:1.20.1-0.6.1-forge")
 
 
     // Dev QOL
