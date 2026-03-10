@@ -11,6 +11,10 @@ public class ServerConfig {
             .comment("enables targeting depots with cardboard planes")
             .define("enablePlaneLocationLogistics", true);
 
+    private static final ForgeConfigSpec.BooleanValue PLANE_CROSS_DIM_TRANSPORT = BUILDER
+            .comment("allows/disables planes for transporting items to another dimension")
+            .define("planeCrossDimTransport", true);
+
     private static final ForgeConfigSpec.BooleanValue PLANE_PLAYER_TARGETS = BUILDER
             .comment("enables targeting players with cardboard planes")
             .define("enablePlanePlayerLogistics", true);
@@ -25,11 +29,13 @@ public class ServerConfig {
     public static boolean planeLocationTargets;
     public static boolean planePlayerTargets;
     public static boolean shopAddressReplacement;
+    public static boolean planeCrossDimTransport;
 
     private static void updateConfigs() {
         planeLocationTargets = PLANE_LOCATION_TARGETS.get();
         planePlayerTargets = PLANE_PLAYER_TARGETS.get();
         shopAddressReplacement = SHOP_ADDRESS_REPLACEMENT.get();
+        planeCrossDimTransport = PLANE_CROSS_DIM_TRANSPORT.get();
     }
 
     static void onLoad(final ModConfigEvent.Loading event) {
