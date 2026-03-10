@@ -1,6 +1,9 @@
 {
   "replace": false,
   "values": [
-    "cmpackagecouriers:portable_stock_ticker"
+    {
+      "id": "cmpackagecouriers:location_transmitter",
+      "required": false
+    }
   ]
 }

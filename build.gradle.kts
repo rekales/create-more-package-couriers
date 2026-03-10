@@ -48,6 +48,9 @@ dependencies {
 
     compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-neoforge")
 
+//    runtimeOnly("maven.modrinth:create-mobile-packages:1.21.1-0.6.1-neoforge")
+
+
     // Dev QOL
     runtimeOnly("curse.maven:create-power-loader-936020:6549980")
 }
