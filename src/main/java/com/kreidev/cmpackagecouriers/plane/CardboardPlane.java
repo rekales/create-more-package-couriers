@@ -3,6 +3,7 @@ package com.kreidev.cmpackagecouriers.plane;
 import com.kreidev.cmpackagecouriers.CourierTarget;
 import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.CourierDestination;
+import com.kreidev.cmpackagecouriers.PackageCouriersApi;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllItems;
@@ -111,7 +112,9 @@ public class CardboardPlane {
                 ItemStackHandler stacks = PackageItem.getContents(this.getPackage());
                 for (int slot = 0; slot < stacks.getSlots(); slot++) {
                     ItemStack stack = stacks.getStackInSlot(slot);
-                    if (stack.getItem() instanceof UnpackEffects) ((UnpackEffects) stack.getItem()).unpack(level, stack);
+                    if (PackageCouriersApi.hasUnpackEffects(stack.getItem())) {
+                        PackageCouriersApi.handleUnpackEffects(level, stack);
+                    }
                     player.getInventory().placeItemBackInInventory(stack);
                 }
             } else {
