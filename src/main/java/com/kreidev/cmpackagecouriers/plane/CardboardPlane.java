@@ -113,7 +113,8 @@ public class CardboardPlane {
                 for (int slot = 0; slot < stacks.getSlots(); slot++) {
                     ItemStack stack = stacks.getStackInSlot(slot);
                     if (PackageCouriersApi.hasUnpackEffects(stack.getItem())) {
-                        PackageCouriersApi.handleUnpackEffects(level, stack, this.pos, this.target);
+                        stack = PackageCouriersApi.handleUnpackEffects(level, stack, this.pos, this.target);
+                        if (stack.isEmpty()) continue;
                     }
                     player.getInventory().placeItemBackInInventory(stack);
                 }

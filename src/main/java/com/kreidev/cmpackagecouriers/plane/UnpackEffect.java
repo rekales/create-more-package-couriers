@@ -8,5 +8,5 @@ import net.minecraft.world.phys.Vec3;
 @FunctionalInterface
 public interface UnpackEffect {
 
-    void accept(Level level, ItemStack stack, Vec3 planePos, CourierTarget target);
+    ItemStack apply(Level level, ItemStack stack, Vec3 planePos, CourierTarget target);
 }
