@@ -15,21 +15,26 @@ public class ServerConfig {
             .comment("enables targeting players with cardboard planes")
             .define("enablePlanePlayerLogistics", true);
 
-    private static final ModConfigSpec.BooleanValue SHOP_ADDRESS_REPLACEMENT = BUILDER
-        .comment("enables integration with Create's Shop system that rewrites @player addresses to the ordering player's nick)")
-        .define("enableShopAddressReplacement", true);
+    private static final ModConfigSpec.BooleanValue PLANE_CROSS_DIM_TRANSPORT = BUILDER
+            .comment("allows/disables planes for transporting items to another dimension")
+            .define("planeCrossDimTransport", true);
 
+    private static final ModConfigSpec.BooleanValue SHOP_ADDRESS_REPLACEMENT = BUILDER
+        .comment("enables integration with Create's Shop system that rewrites [player] addresses to the ordering player's nick)")
+        .define("enableShopAddressReplacement", true);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static boolean planeLocationTargets;
     public static boolean planePlayerTargets;
     public static boolean shopAddressReplacement;
+    public static boolean planeCrossDimTransport;
 
     private static void updateConfigs() {
         planeLocationTargets = PLANE_LOCATION_TARGETS.get();
         planePlayerTargets = PLANE_PLAYER_TARGETS.get();
         shopAddressReplacement = SHOP_ADDRESS_REPLACEMENT.get();
+        planeCrossDimTransport = PLANE_CROSS_DIM_TRANSPORT.get();
     }
 
     static void onLoad(final ModConfigEvent.Loading event) {

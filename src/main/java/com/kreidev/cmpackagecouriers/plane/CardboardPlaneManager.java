@@ -93,6 +93,8 @@ public class CardboardPlaneManager {
         // TODO: remove checks and just launch after implementing destination link.
         CourierTarget target = CourierTarget.getActiveTarget(address);
         if (target == null) return false;
+        if (!ServerConfig.planeCrossDimTransport && currentLevel.dimension() != target.getDim()) return false;
+        // TODO: ponder info if disabled cross dim transport
         Level targetLevel = server.getLevel(target.getDim());
         if (targetLevel == null) return false;
         BlockPos targetBlockPos = BlockPos.containing(target.getPos());
