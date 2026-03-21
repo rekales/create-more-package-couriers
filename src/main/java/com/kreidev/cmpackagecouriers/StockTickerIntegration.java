@@ -24,7 +24,7 @@ public class StockTickerIntegration {
         if (heldItem.getItem() instanceof ShoppingListItem) {
             String currentAddress = ShoppingListItem.getAddress(heldItem);
             if (currentAddress.toLowerCase().contains("<>")) {
-                String playerIdentifier = player.getDisplayName().getString();
+                String playerIdentifier = player.getScoreboardName();
                 String newAddress = currentAddress.replaceAll("<>", "<" + playerIdentifier + ">");
                 ShoppingListItem.saveList(heldItem, ShoppingListItem.getList(heldItem), newAddress);
             }
