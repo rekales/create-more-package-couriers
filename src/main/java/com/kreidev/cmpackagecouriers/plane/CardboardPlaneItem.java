@@ -74,6 +74,11 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
     }
 
     @Override
+    public boolean canFitInsideContainerItems() {
+        return false;
+    }
+
+    @Override
     public int getUseDuration(ItemStack stack) {
         return 72000;
     }
