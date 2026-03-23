@@ -23,9 +23,15 @@ public class StockTickerIntegration {
     private static void rewriteAddressIfNeeded(Player player, ItemStack heldItem) {
         if (heldItem.getItem() instanceof ShoppingListItem) {
             String currentAddress = ShoppingListItem.getAddress(heldItem);
-            if (currentAddress.toLowerCase().contains("<>")) {
+            if (ServerConfig.angleBracketAddressReplacement && currentAddress.toLowerCase().contains("<>")) {
                 String playerIdentifier = player.getScoreboardName();
                 String newAddress = currentAddress.replaceAll("<>", "<" + playerIdentifier + ">");
+                ShoppingListItem.saveList(heldItem, ShoppingListItem.getList(heldItem), newAddress);
+            }
+
+            if (ServerConfig.atSignAddressReplacement && currentAddress.toLowerCase().contains("@player")) {
+                String playerIdentifier = player.getScoreboardName();
+                String newAddress = currentAddress.replaceAll("(?i)@player", "@" + playerIdentifier);
                 ShoppingListItem.saveList(heldItem, ShoppingListItem.getList(heldItem), newAddress);
             }
         }
@@ -34,7 +40,7 @@ public class StockTickerIntegration {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onRightClickEntity(PlayerInteractEvent.EntityInteractSpecific event) {
         if (event.getLevel().isClientSide()) return;
-        if (!ServerConfig.shopAddressReplacement) return;
+        if (!ServerConfig.angleBracketAddressReplacement && !ServerConfig.atSignAddressReplacement) return;
 
         Entity target = event.getTarget();
         Player player = event.getEntity();
@@ -52,7 +58,7 @@ public class StockTickerIntegration {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onRightClickBlock(RightClickBlock event) {
         if (event.getLevel().isClientSide()) return;
-        if (!ServerConfig.shopAddressReplacement) return;
+        if (!ServerConfig.angleBracketAddressReplacement && !ServerConfig.atSignAddressReplacement) return;
 
         Player player = event.getEntity();
         InteractionHand hand = event.getHand();
