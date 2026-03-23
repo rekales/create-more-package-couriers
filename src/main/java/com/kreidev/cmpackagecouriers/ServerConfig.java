@@ -21,7 +21,7 @@ public class ServerConfig {
 
     private static final ForgeConfigSpec.BooleanValue ANGLE_BRACKET_SHOP_ADDRESS_REPLACEMENT = BUILDER
             .comment("enables integration with Create's Shop system that rewrites \"<>\" address to the ordering player's nick)")
-            .define("enableShopAddressReplacement", true);  // TODO: rename to angle bracket replacement in next major version
+            .define("enableShopAddressReplacement", true);  // TODO: rename to angleBracketShopAddressReplacement in next major version
 
     private static final ForgeConfigSpec.BooleanValue AT_SIGN_SHOP_ADDRESS_REPLACEMENT = BUILDER
             .comment("enables integration with Create's Shop system that rewrites \"@player\" addresses to the ordering player's nick)")
