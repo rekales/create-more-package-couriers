@@ -1,7 +1,11 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
+import com.kreidev.cmpackagecouriers.PackageCouriersKeys;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.MenuEntry;
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.common.MinecraftForge;
 
 import static com.kreidev.cmpackagecouriers.PackageCouriers.*;
 
@@ -22,6 +26,15 @@ public class PortableStockTickerReg {
 
     public static void register() {
         PortableStockTickerPackets.register();
+        MinecraftForge.EVENT_BUS.addListener(PortableStockTickerReg::onKeyInput);
+    }
+
+    public static void onKeyInput(InputEvent.Key event) {
+        if (Minecraft.getInstance().screen != null)
+            return;
+        if (PackageCouriersKeys.OPEN_PORTABLE_STOCK_TICKER.isPressed()) {
+            PortableStockTickerPackets.getChannel().sendToServer(new OpenPortableStockTicker());
+        }
     }
 
 }

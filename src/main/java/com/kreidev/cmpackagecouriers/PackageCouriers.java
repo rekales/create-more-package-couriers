@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 @Mod(PackageCouriers.MOD_ID)
 public class PackageCouriers {
     public static final String MOD_ID = "cmpackagecouriers";
+    public static final String MOD_NAME = "Create More: Package Couriers";
     @SuppressWarnings("unused")
     public static final Logger LOGGER = LogUtils.getLogger();
 
@@ -56,6 +57,8 @@ public class PackageCouriers {
         modLoadingContext.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);
+
+        modEventBus.addListener(PackageCouriersKeys::registerKeys);
 
         // Event Handler Class: CourierTarget
         // Event Handler Class: CardboardPlaneManager
