@@ -156,16 +156,23 @@ public class CourierTarget {
         activeTargets.put(target, 0);
     }
 
-    public static @Nullable CourierTarget getActiveTarget(String address) {
+    public static @Nullable CourierTarget getActiveTarget(String address, boolean entityOnly) {
         // Linear search is good enough
         CourierTarget ret = null;
         for (CourierTarget target : activeTargets.keySet()) {
             if (PackageItem.matchAddress(address, target.getAddress())) {
-                if (ret == null || target.getType() == Type.ENTITY) {  // Prioritize entity targets
+                if (target.getType() == Type.ENTITY) {  // Prioritize entity targets
+                    return target;
+                } else if (!entityOnly) {
                     ret = target;
                 }
             }
         }
         return ret;
+    }
+
+    @SuppressWarnings("unused")
+    public static @Nullable CourierTarget getActiveTarget(String address) {
+        return getActiveTarget(address, false);
     }
 }

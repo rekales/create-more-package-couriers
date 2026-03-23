@@ -92,8 +92,16 @@ public class CardboardPlaneManager {
             address = address.substring(start + 1, end);
         }
 
+        // Special "@Address" interaction
+        boolean playerOnly = false;
+        int atIndex = address.indexOf('@');
+        if (atIndex != -1) {
+            address = address.substring(atIndex + 1);
+            playerOnly = true;  // TODO: ponder info about explicit @address player targets
+        }
+
         // TODO: remove checks and just launch after implementing destination link.
-        CourierTarget target = CourierTarget.getActiveTarget(address);
+        CourierTarget target = CourierTarget.getActiveTarget(address, playerOnly);
         if (target == null) return false;
         if (!ServerConfig.planeCrossDimTransport && currentLevel.dimension() != target.getDim()) return false;
         // TODO: ponder info if disabled cross dim transport
