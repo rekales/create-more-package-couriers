@@ -41,6 +41,8 @@
   "cmpackagecouriers.message.inbound": "Package Inbound",
   "cmpackagecouriers.message.no_address": "No Valid Targets",
 
+  "cmpackagecouriers.keyinfo.open_portable_stock_ticker": "Open Portable Stock Ticker",
+
   "item.cmpackagecouriers.portable_stock_ticker": "Portable Stock Ticker",
   "item.cmpackagecouriers.portable_stock_ticker.screen_title": "Portable Stock Ticker",
   "item.cmpackagecouriers.portable_stock_ticker.not_linked": "Not linked to Network",
