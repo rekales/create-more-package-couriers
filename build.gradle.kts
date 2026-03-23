@@ -71,12 +71,19 @@ neoForge {
             logLevel.set(org.slf4j.event.Level.DEBUG)
         }
 
-        create("client") {
+        create("Client") {
             client()
             systemProperty("neoforge.enabledGameTestNamespaces", property("mod_id")!!.toString())
         }
 
-        create("server") {
+        create("AltClient") {
+            client()
+            programArguments.addAll("--username", "John_Create")
+            programArguments.addAll("--uuid", "dd71de23-cda9-4509-92e8-bc1e088dd093")
+            systemProperty("neoforge.enabledGameTestNamespaces", property("mod_id")!!.toString())
+        }
+
+        create("Server") {
             server()
             programArgument("--nogui")
             systemProperty("neoforge.enabledGameTestNamespaces", property("mod_id")!!.toString())
