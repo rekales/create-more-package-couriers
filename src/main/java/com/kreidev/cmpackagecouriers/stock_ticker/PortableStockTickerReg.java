@@ -1,14 +1,11 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
-import com.kreidev.cmpackagecouriers.PackageCouriersKeys;
 import com.mojang.serialization.Codec;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.MenuEntry;
 import net.createmod.catnip.net.base.BasePacketPayload;
 import net.createmod.catnip.net.base.CatnipPacketRegistry;
-import net.createmod.catnip.platform.CatnipServices;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,8 +13,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.List;
 import java.util.Locale;
@@ -108,15 +103,6 @@ public class PortableStockTickerReg {
 
     public static void register() {
         PortableStockTickerPackets.register();
-        NeoForge.EVENT_BUS.addListener(PortableStockTickerReg::onKeyInput);
-    }
-
-    public static void onKeyInput(InputEvent.Key event) {
-        if (Minecraft.getInstance().screen != null)
-            return;
-        if (PackageCouriersKeys.OPEN_PORTABLE_STOCK_TICKER.isPressed()) {
-            CatnipServices.NETWORK.sendToServer(OpenPortableStockTicker.INSTANCE);
-        }
     }
 
 }

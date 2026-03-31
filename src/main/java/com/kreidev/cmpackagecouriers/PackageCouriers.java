@@ -24,6 +24,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
@@ -65,7 +66,11 @@ public class PackageCouriers {
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);
 
-        modEventBus.addListener(PackageCouriersKeys::registerKeys);
+        if (dist.isClient() && !Mods.CREATE_MOBILE_PACKAGES.isLoaded()) {
+            modEventBus.addListener(PackageCouriersKeys::registerKeys);
+            NeoForge.EVENT_BUS.addListener(PackageCouriersKeys::onKeyInput);
+        }
+
 
         // Event Handler Class: CourierTarget
         // Event Handler Class: CardboardPlaneManager
