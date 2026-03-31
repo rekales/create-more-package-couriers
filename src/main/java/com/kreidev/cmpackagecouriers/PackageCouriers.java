@@ -16,11 +16,15 @@ import com.simibubi.create.foundation.item.TooltipModifier;
 import net.createmod.catnip.lang.FontHelper;
 import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 @SuppressWarnings("unused")
@@ -58,7 +62,10 @@ public class PackageCouriers {
         modEventBus.addListener(ServerConfig::onLoad);
         modEventBus.addListener(ServerConfig::onReload);
 
-        modEventBus.addListener(PackageCouriersKeys::registerKeys);
+        if (FMLEnvironment.dist == Dist.CLIENT && !Mods.CREATE_MOBILE_PACKAGES.isLoaded()) {
+            modEventBus.addListener(PackageCouriersKeys::registerKeys);
+            MinecraftForge.EVENT_BUS.addListener(PackageCouriersKeys::onKeyInput);
+        }
 
         // Event Handler Class: CourierTarget
         // Event Handler Class: CardboardPlaneManager

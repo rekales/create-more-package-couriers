@@ -1,8 +1,11 @@
 package com.kreidev.cmpackagecouriers;
 
+import com.kreidev.cmpackagecouriers.stock_ticker.OpenPortableStockTicker;
+import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerPackets;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import org.lwjgl.glfw.GLFW;
 
@@ -20,6 +23,14 @@ public enum PackageCouriersKeys {
         this.description = PackageCouriers.MOD_ID + ".keyinfo." + description;
         this.key = defaultKey;
         this.modifiable = !description.isEmpty();
+    }
+
+    public static void onKeyInput(InputEvent.Key event) {
+        if (Minecraft.getInstance().screen != null)
+            return;
+        if (PackageCouriersKeys.OPEN_PORTABLE_STOCK_TICKER.isPressed()) {
+            PortableStockTickerPackets.getChannel().sendToServer(new OpenPortableStockTicker());
+        }
     }
 
     public static void registerKeys(RegisterKeyMappingsEvent event) {
