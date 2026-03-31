@@ -5,6 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
 
@@ -27,6 +28,14 @@ public class OpenPortableStockTicker extends SimplePacketBase {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
             if (player == null) return;
+
+            ItemStack stack = PortableStockTicker.find(player.getInventory());
+            if (stack == null || !(stack.getItem() instanceof PortableStockTicker)) return;
+
+            if (!LogisticallyLinkedItem.isTuned(stack)) {
+                player.displayClientMessage(Component.translatable("item.create_mobile_packages.portable_stock_ticker.not_linked"), true);
+                return;
+            }
 
             NetworkHooks.openScreen(player, new SimpleMenuProvider(
                     (id, inv, ply) -> new PortableStockTickerMenu(id, inv),
