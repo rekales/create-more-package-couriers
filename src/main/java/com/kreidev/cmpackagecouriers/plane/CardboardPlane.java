@@ -1,7 +1,6 @@
 package com.kreidev.cmpackagecouriers.plane;
 
 import com.kreidev.cmpackagecouriers.CourierTarget;
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.CourierDestination;
 import com.kreidev.cmpackagecouriers.PackageCouriersApi;
 import com.mojang.serialization.MapCodec;
@@ -172,9 +171,6 @@ public class CardboardPlane {
     }
 
     public void tpCloserToTarget() {
-        PackageCouriers.LOGGER.debug("{}", this.pos.subtract(this.target.getPos()));
-        PackageCouriers.LOGGER.debug("{}", this.pos.subtract(this.target.getPos()).length());
-
         Vec3 dirVec = this.pos.subtract(this.target.getPos()).normalize();
 
         dirVec = new Vec3(dirVec.x(), 0.5, dirVec.z()).normalize();

@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+// TODO: abstract class and add EntityCourierTarget and BlockCourierTarget extensions
 @SuppressWarnings("FieldMayBeFinal")
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -80,10 +81,13 @@ public class CourierTarget {
         if (this.entity != null) {
             if (this.entity.isRemoved()) {
                 this.entity = null;
-            } else if (this.entity instanceof LivingEntity) {
-                this.pos = this.entity.getEyePosition();
             } else {
-                this.pos = this.entity.position();
+                if (this.entity instanceof LivingEntity) {
+                    this.pos = this.entity.getEyePosition();
+                } else {
+                    this.pos = this.entity.position();
+                }
+                this.dim = this.entity.level().dimension();
             }
         }
     }
