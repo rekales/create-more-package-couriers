@@ -5,6 +5,7 @@ import com.kreidev.cmpackagecouriers.compat.jei.JEICompat;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.compat.jei.CreateJEI;
 import com.simibubi.create.content.logistics.AddressEditBox;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelScreen;
@@ -12,12 +13,15 @@ import com.simibubi.create.content.logistics.filter.FilterItemStack;
 import com.simibubi.create.content.logistics.stockTicker.CraftableBigItemStack;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrder;
 import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
+import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
+import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen.SearchSyncMode;
 import com.simibubi.create.content.trains.station.NoShadowFontWrapper;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
 import com.simibubi.create.foundation.gui.widget.ScrollInput;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
+import mezz.jei.api.runtime.IIngredientFilter;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.gui.UIRenderHelper;
@@ -71,8 +75,12 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     int itemsX;
     int itemsY;
     int orderY;
+    int besideSearchButtonY;
     int windowWidth;
     int windowHeight;
+
+    int jeiSyncX;
+    String previousJEISearchText = "";
 
     public EditBox searchBox;
     public AddressEditBox addressBox;
@@ -86,9 +94,11 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     public List<GenericSearch.CategoryEntry> categories;
     public List<BigGenericStack> itemsToOrder;
     public List<CraftableGenericStack> recipesToOrder;
-    private boolean scrollHandleActive;
     private GenericInventorySummary forcedEntries;
     private final Set<Integer> hiddenCategories;
+
+    private boolean scrollHandleActive;
+    private boolean ignoreTextInput;
 
     public boolean refreshSearchNextTick;
     public boolean moveToTopNextTick;
@@ -146,6 +156,12 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
             currentItemSource = clientStockSnapshot;
             refreshSearchResults(false);
             //revalidateOrders();
+        }
+
+        if (shouldSyncFromJEI()) {
+            refreshSearchNextTick = true;
+            moveToTopNextTick = true;
+            syncJEI(true);
         }
 
         if (refreshSearchNextTick) {
@@ -221,6 +237,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         itemsX = x + (windowWidth - cols * colWidth) / 2 + 1;
         itemsY = y + 33;
         orderY = y + windowHeight - 72;
+        jeiSyncX = x + 25;
+        besideSearchButtonY = y + 18;
 
         MutableComponent searchLabel = CreateLang.translateDirect("gui.stock_keeper.search_items");
         searchBox = new EditBox(new NoShadowFontWrapper(font), x + 71, y + 22, 100, 9, searchLabel);
@@ -228,6 +246,10 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         searchBox.setBordered(false);
         searchBox.setTextColor(0x4A2D31);
         addWidget(searchBox);
+
+        refreshSearchNextTick = true;
+        moveToTopNextTick = true;
+        syncJEI(true);
 
         boolean initial = addressBox == null;
         String previouslyUsedAddress = initial ? menu.portableStockTicker.previouslyUsedAddress : addressBox.getValue();
@@ -241,7 +263,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (initial) {
             playUiSound(SoundEvents.WOOD_HIT, 0.5f, 1.5f);
             playUiSound(SoundEvents.BOOK_PAGE_TURN, 1, 1);
-            syncJEI();
+            syncJEI(false);
         }
     }
 
@@ -326,7 +348,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (addressBox.getValue()
                 .isBlank() && !addressBox.isFocused()) {
             pGuiGraphics.drawString(Minecraft.getInstance().font,
-                    CreateLang.translate("gui.stock_keeper.package_adress")
+                    CreateLang.translate("gui.stock_keeper.package_address")
                             .style(ChatFormatting.ITALIC)
                             .component(), addressBox.getX(), addressBox.getY(), 0xff_CDBCA8, false);
         }
@@ -506,6 +528,12 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         ms.popPose();
         pGuiGraphics.disableScissor();
 
+        // Render Jei Sync Mode
+        if (Mods.JEI.isLoaded()) {
+            AllConfigs.client().syncRecipeViewerSearch.get().buttonTexture
+                    .render(pGuiGraphics, jeiSyncX, besideSearchButtonY);
+        }
+
         // Scroll bar
         int windowH = windowHeight - 92;
         int totalH = getMaxScroll() * rowHeight + windowH;
@@ -617,6 +645,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
     @Override
     protected void renderForeground(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderForeground(graphics, mouseX, mouseY, partialTicks);
+        float currentScroll = itemScroll.getValue(partialTicks);
         Couple<Integer> hoveredSlot = getHoveredSlot(mouseX, mouseY);
 
         // Render tooltip of hovered item
@@ -637,6 +666,26 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                 lines.set(0, CreateLang.translateDirect("gui.stock_keeper.craft", lines.getFirst()
                         .copy()));
             graphics.renderComponentTooltip(font, lines, mouseX, mouseY);
+        }
+
+        if (currentScroll < 1 && mouseY > besideSearchButtonY && mouseY <= besideSearchButtonY + 15) {
+            // Render tooltip of jei sync mode option
+            if (Mods.JEI.isLoaded() && mouseX > jeiSyncX && mouseX <= jeiSyncX + 15) {
+                SearchSyncMode mode = AllConfigs.client().syncRecipeViewerSearch.get();
+                String langKey = "gui.stock_keeper.jei_sync." + mode.getSerializedName();
+                graphics.renderComponentTooltip(font,
+                        List.of(
+                                CreateLang.translate(langKey)
+                                        .component(),
+                                CreateLang.translate(langKey + ".description")
+                                        .style(ChatFormatting.GRAY)
+                                        .component(),
+                                CreateLang.translate("gui.stock_keeper.click_to_cycle")
+                                        .style(ChatFormatting.DARK_GRAY)
+                                        .style(ChatFormatting.ITALIC)
+                                        .component()),
+                        mouseX, mouseY);
+            }
         }
 
         // Render tooltip of address input
@@ -706,7 +755,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
             refreshSearchNextTick = true;
             moveToTopNextTick = true;
             searchBox.setFocused(true);
-            syncJEI();
+            syncJEI(false);
             return true;
         }
 
@@ -732,6 +781,20 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         }
 
         Couple<Integer> hoveredSlot = getHoveredSlot((int) pMouseX, (int) pMouseY);
+
+        if (itemScroll.getChaseTarget() == 0 && lmb && pMouseY > besideSearchButtonY && pMouseY <= besideSearchButtonY + 15) {
+            // Jei Sync Mode
+            if (pMouseX > jeiSyncX && pMouseX <= jeiSyncX + 15) {
+                SearchSyncMode.cycleConfig();
+
+                refreshSearchNextTick = true;
+                moveToTopNextTick = true;
+                syncJEI(false);
+
+                playUiSound(SoundEvents.UI_BUTTON_CLICK.value(), 1, 1);
+                return true;
+            }
+        }
 
         // Confirm
         if (lmb && isConfirmHovered((int) pMouseX, (int) pMouseY)) {
@@ -942,6 +1005,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
     @Override
     public boolean charTyped(char pCodePoint, int pModifiers) {
+        if (ignoreTextInput)
+            return false;
         if (addressBox.isFocused() && addressBox.charTyped(pCodePoint, pModifiers))
             return true;
         String s = searchBox.getValue();
@@ -950,13 +1015,20 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (!Objects.equals(s, searchBox.getValue())) {
             refreshSearchNextTick = true;
             moveToTopNextTick = true;
-            syncJEI();
+            syncJEI(false);
         }
         return true;
     }
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        ignoreTextInput = false;
+        if (!addressBox.isFocused() && !searchBox.isFocused() && minecraft.options.keyChat.matches(pKeyCode, pScanCode)) {
+            ignoreTextInput = true;
+            searchBox.setFocused(true);
+            return true;
+        }
+
         if (pKeyCode == GLFW.GLFW_KEY_ENTER && searchBox.isFocused()) {
             searchBox.setFocused(false);
             return true;
@@ -978,7 +1050,7 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (!Objects.equals(s, searchBox.getValue())) {
             refreshSearchNextTick = true;
             moveToTopNextTick = true;
-            syncJEI();
+            syncJEI(false);
         }
         return true;
     }
@@ -1035,6 +1107,12 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
     }
 
+    @Override
+    public boolean keyReleased(int pKeyCode, int pScanCode, int pModifiers) {
+        ignoreTextInput = false;
+        return super.keyReleased(pKeyCode, pScanCode, pModifiers);
+    }
+
     private Component getTroubleshootingMessage() {
         if (currentItemSource == null)
             return CreateLang.translate("gui.stock_keeper.checking_stocks")
@@ -1046,9 +1124,29 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                 .component();
     }
 
-    private void syncJEI() {
-        if (Mods.JEI.isLoaded() && AllConfigs.client().syncJeiSearch.get())
-            JEICompat.runtime.getIngredientFilter().setFilterText(searchBox.getValue());
+    private boolean shouldSyncFromJEI() {
+        if (Mods.JEI.isLoaded()) {
+            boolean hasFocus = CreateJEI.runtime.getIngredientListOverlay().hasKeyboardFocus();
+            return hasFocus && !previousJEISearchText.equals(CreateJEI.runtime.getIngredientFilter().getFilterText());
+        }
+        return false;
+    }
+
+    private void syncJEI(boolean fromJei) {
+        if (!Mods.JEI.isLoaded())
+            return;
+
+        SearchSyncMode mode = AllConfigs.client().syncRecipeViewerSearch.get();
+        if (mode == SearchSyncMode.NONE)
+            return;
+
+        IIngredientFilter filter = CreateJEI.runtime.getIngredientFilter();
+        if (mode.isBothOr(SearchSyncMode.SYNC_FROM_JEI) && fromJei) {
+            previousJEISearchText = filter.getFilterText();
+            searchBox.setValue(previousJEISearchText);
+        } else if (mode.isBothOr(SearchSyncMode.SYNC_FROM_STOCK_KEEPER) && !fromJei) {
+            filter.setFilterText(searchBox.getValue());
+        }
     }
 
     @Override
