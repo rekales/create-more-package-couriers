@@ -25,15 +25,15 @@ repositories {
 
 dependencies {
     implementation("com.simibubi.create:create-${property("minecraft_version")}:${property("create_version")}:slim") { isTransitive = false }
-    implementation("net.createmod.ponder:Ponder-NeoForge-${property("minecraft_version")}:${property("ponder_version")}")
+    implementation("net.createmod.ponder:ponder-neoforge:${property("ponder_version")}+mc${property("minecraft_version")}")
     compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${property("minecraft_version")}:${property("flywheel_version")}")
     runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${property("minecraft_version")}:${property("flywheel_version")}")
     implementation("com.tterrag.registrate:Registrate:${property("registrate_version")}")
 
-    implementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.8")!!)
+    implementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.9")!!)
 
-    compileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.8")
-    runtimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.8")
+    compileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.9")
+    runtimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.9")
 
     compileOnly("curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828")
 
