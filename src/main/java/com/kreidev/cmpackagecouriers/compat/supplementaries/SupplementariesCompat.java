@@ -1,7 +1,7 @@
 package com.kreidev.cmpackagecouriers.compat.supplementaries;
 
 import com.kreidev.cmpackagecouriers.plane.CardboardPlaneReg;
-import net.mehvahdjukaar.supplementaries.api.neoforge.RegisterFireBehaviorsEvent;
+import net.mehvahdjukaar.supplementaries.api.platform.RegisterFireBehaviorsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 public class SupplementariesCompat {
