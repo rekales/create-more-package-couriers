@@ -3,14 +3,14 @@ package com.kreidev.cmpackagecouriers.compat.supplementaries;
 import com.kreidev.cmpackagecouriers.plane.CardboardPlaneItem;
 import net.mehvahdjukaar.supplementaries.common.block.fire_behaviors.IFireItemBehavior;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class CannonPlaneLaunch implements IFireItemBehavior {
 	@Override
-	public boolean fire(ItemStack stack, ServerLevel level, Vec3 origin, Vec3 direction, float power, int inaccuracy, @Nullable Player player) {
+	public boolean fire(ItemStack stack, ServerLevel level, Vec3 origin, Vec3 direction, float power, int inaccuracy, @Nullable Entity owner) {
 		var item = stack.getItem();
 		if (item instanceof CardboardPlaneItem plane) {
 			var pitch = (float) (Math.asin(-direction.y) * 180.0 / Math.PI);
