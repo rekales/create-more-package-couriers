@@ -48,6 +48,8 @@ dependencies {
 
     compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-neoforge")
 
+    compileOnly("curse.maven:create-fluidlogistic-1475079:8052709")
+
 //    runtimeOnly("maven.modrinth:create-mobile-packages:1.21.1-0.6.1-neoforge")
 
 
