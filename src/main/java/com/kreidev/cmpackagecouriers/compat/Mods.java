@@ -17,7 +17,8 @@ public enum Mods {
     CREATE_MOBILE_PACKAGES,
     CRATE_FACTORY_LOGISTICS,
     CURIOS,
-    SUPPLEMENTARIES;
+    SUPPLEMENTARIES,
+    FLUIDLOGISTICS;
 
     // from com/simibubi/create/compat/Mods.java
 
