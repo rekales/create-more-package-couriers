@@ -31,27 +31,22 @@ dependencies {
     implementation("com.tterrag.registrate:Registrate:${property("registrate_version")}")
 
     implementation(jarJar("ru.zznty:create_factory_abstractions-${property("minecraft_version")}:1.4.9")!!)
-
-    compileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.9")
-    runtimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.9")
-
-    compileOnly("curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828")
-
-    compileOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}:api")
-    runtimeOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}")
-
-    compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-core-api:${property("cc_tweaked_version")}")
-    compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge-api:${property("cc_tweaked_version")}")
-    runtimeOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge:${property("cc_tweaked_version")}")
-
     implementation("mezz.jei:jei-${property("minecraft_version")}-neoforge:${property("jei_version")}")
 
+    compileOnly("curse.maven:create-more-pipe-bombs-in-packages-1304635:6755828")
+    compileOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.9")
+    compileOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}:api")
+    compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-core-api:${property("cc_tweaked_version")}")
+    compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge-api:${property("cc_tweaked_version")}")
+    compileOnly("maven.modrinth:createfluidlogistic:1.0.4-neoforge")
+    runtimeOnly("maven.modrinth:create-mobile-packages:1.21.1-0.7.4-neoforge")
+
+    // Optional Compat Runtime
+//    runtimeOnly("ru.zznty:create_factory_logistics-${property("minecraft_version")}:1.4.9")
+    runtimeOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}")
+    runtimeOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge:${property("cc_tweaked_version")}")
     compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-neoforge")
-
-    compileOnly("curse.maven:create-fluidlogistic-1475079:8052709")
-
-//    runtimeOnly("maven.modrinth:create-mobile-packages:1.21.1-0.6.1-neoforge")
-
+    runtimeOnly("maven.modrinth:createfluidlogistic:1.0.4-neoforge")
 
     // Dev QOL
     runtimeOnly("curse.maven:create-power-loader-936020:6549980")
