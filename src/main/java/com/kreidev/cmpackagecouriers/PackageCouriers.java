@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers;
 
+import com.kreidev.cmpackagecouriers.courier.CourierAllayReg;
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
 import com.kreidev.cmpackagecouriers.compat.curios.CuriosCompat;
@@ -53,6 +54,7 @@ public class PackageCouriers {
             PortableStockTickerReg.register();
         LocationTransmitterReg.register(modEventBus);
         CardboardPlaneReg.register(modEventBus);
+        CourierAllayReg.register(modEventBus);
 
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
@@ -70,7 +72,6 @@ public class PackageCouriers {
             modEventBus.addListener(PackageCouriersKeys::registerKeys);
             NeoForge.EVENT_BUS.addListener(PackageCouriersKeys::onKeyInput);
         }
-
 
         // Event Handler Class: CourierTarget
         // Event Handler Class: CardboardPlaneManager
