@@ -4,6 +4,7 @@
   "package": "com.kreidev.cmpackagecouriers.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "AllayMixin",
     "BeltBlockMixin",
     "BeltDeployerCallbacksMixin",
     "DepotBlockMixin",
