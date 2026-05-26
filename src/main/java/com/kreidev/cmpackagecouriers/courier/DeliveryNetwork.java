@@ -18,10 +18,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-@EventBusSubscriber(modid= PackageCouriers.MOD_ID)
+@EventBusSubscriber(modid=PackageCouriers.MOD_ID)
 public class DeliveryNetwork {
-
-
 
     private static final HashMap<UUID, DeliveryNetwork> NETWORKS = new HashMap<>();
 
@@ -51,8 +49,6 @@ public class DeliveryNetwork {
 
             }
         }
-
-        drawNodeOutlines(level);
     }
 
     public boolean hasNode(BlockPos pos) {
@@ -65,6 +61,10 @@ public class DeliveryNetwork {
 
     public void removeNode(BlockPos pos) {
         this.nodes.remove(pos);
+    }
+
+    public List<BlockPos> getAllNodes() {
+        return this.nodes;
     }
 
     public static boolean isValid(Level level, BlockPos pos) {
@@ -99,20 +99,6 @@ public class DeliveryNetwork {
 
     public static void clearNetworks() {
         NETWORKS.clear();
-    }
-
-
-    public void drawNodeOutlines(ServerLevel level) {
-        for (BlockPos pos : this.nodes) {
-            BlockState state = level.getBlockState(pos);
-            VoxelShape shape = state.getShape(level, pos);
-            if (!shape.isEmpty()) {
-                Outliner.getInstance()
-                        .showAABB(pos, shape.bounds().move(pos))
-                        .colored(0x9ede73)
-                        .lineWidth(0.0625F);
-            }
-        }
     }
 
 

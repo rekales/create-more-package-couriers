@@ -22,6 +22,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.Optional;
@@ -74,6 +76,7 @@ public class CourierAllayReg {
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(CourierAllayReg::clientInit);
         modEventBus.addListener(CourierAllayReg::registerAttributes);
+        modEventBus.addListener(CourierAllayReg::registerPacketHandler);
         NeoForge.EVENT_BUS.addListener(CourierAllayReg::registerCommands);
         MEMORY_MODULE_TYPES.register(modEventBus);
         SENSOR_TYPES.register(modEventBus);
@@ -86,6 +89,15 @@ public class CourierAllayReg {
 
     private static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(COURIER_ALLAY_ENTITY.get(), Allay.createAttributes().build());
+    }
+
+    private static void registerPacketHandler(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1.0");
+        registrar.playToClient(
+                DeliveryNetworkNodesPacket.TYPE,
+                DeliveryNetworkNodesPacket.STREAM_CODEC,
+                DeliveryNetworkNodesPacket::handle
+        );
     }
 
     private static void registerCommands(RegisterCommandsEvent event) {

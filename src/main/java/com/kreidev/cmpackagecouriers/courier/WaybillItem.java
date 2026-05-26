@@ -1,24 +1,34 @@
 package com.kreidev.cmpackagecouriers.courier;
 
-import com.jcraft.jorbis.Block;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
+import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class WaybillItem extends Item {
+
+    private static int clientNodeTimeout = 0;
+    private static List<BlockPos> clientNodes = new ArrayList<>();
 
     public WaybillItem(Properties properties) {
         super(properties);
@@ -46,6 +56,51 @@ public class WaybillItem extends Item {
         }
 
         return super.useOn(context);
+    }
+
+    // Can't use DataComponents, otherwise every single waybill would have redundant data.
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        if (!level.isClientSide) {
+            if (!(isSelected && entity instanceof ServerPlayer player)) return;
+            DeliveryNetwork network = getAssignedNetwork(stack);
+            if (network == null) return;
+            if (level.getGameTime() % 2 == 1) {
+                PacketDistributor.sendToPlayer(player, new DeliveryNetworkNodesPacket(network.getAllNodes()));
+            }
+        } else {
+            boolean timeout = true;
+            if (clientNodeTimeout > 0) {
+                clientNodeTimeout--;
+                timeout = false;
+            } else {
+                if (!clientNodes.isEmpty()) {
+                    clientNodes.clear();
+                }
+            }
+
+            if (isSelected && !timeout) {
+                drawNodeOutlines(level);
+            }
+        }
+    }
+
+    public static void updateClientNodes(List<BlockPos> nodeList) {
+        clientNodeTimeout = 10;
+        clientNodes = nodeList;
+    }
+
+    private static void drawNodeOutlines(Level level) {
+        for (BlockPos pos : clientNodes) {
+            BlockState state = level.getBlockState(pos);
+            VoxelShape shape = state.getShape(level, pos);
+            if (!shape.isEmpty()) {
+                Outliner.getInstance()
+                        .showAABB(pos + "delnet", shape.bounds().move(pos))
+                        .colored(0x9ede73)
+                        .lineWidth(0.0625F);
+            }
+        }
     }
 
     public static @Nullable DeliveryNetwork getAssignedNetwork(ItemStack waybill) {
