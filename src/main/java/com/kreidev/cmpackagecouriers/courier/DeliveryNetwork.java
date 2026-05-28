@@ -1,15 +1,21 @@
 package com.kreidev.cmpackagecouriers.courier;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
-import net.createmod.catnip.outliner.Outliner;
+import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
+import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -24,31 +30,118 @@ public class DeliveryNetwork {
     private static final HashMap<UUID, DeliveryNetwork> NETWORKS = new HashMap<>();
 
     @Nonnull private final UUID id;
-    private final List<BlockPos> nodes;
     private final ResourceKey<Level> dim;
-    private final Queue<Job> availableJobs = new ArrayDeque<>();
+    private final Set<BlockPos> nodes;
+    private final Queue<Job> availableJobs;
+    private final Map<Job, LivingEntity> activeJobs;
 
     public DeliveryNetwork(ServerLevel level) {
         this.id = UUID.randomUUID();
         this.dim = level.dimension();
-        this.nodes = new ArrayList<>();  // Maybe use HashSet or something
+        this.nodes = new HashSet<>();
+        this.availableJobs = new ArrayDeque<>();
+        this.activeJobs = new HashMap<>();
     }
 
     public void tick(ServerLevel level) {
         if (level.getGameTime() % 20 == 1) {
-            List<BlockPos> destinations = new ArrayList<>();
-            List<BlockPos> sources = new ArrayList<>();
+            verifyActiveJobs(level);
+            updateJobs(level);
+        }
+    }
 
-            Iterator<BlockPos> posIterator = this.nodes.iterator();
-            while (posIterator.hasNext()) {
-                BlockPos pos = posIterator.next();
-                if (!isValid(level, pos)) {
-                    posIterator.remove();
-                    continue;
+    private void verifyActiveJobs(ServerLevel level) {
+
+    }
+
+    private void updateJobs(ServerLevel level) {
+        Set<BlockPos> reserved = new HashSet<>();
+        for (Job job : activeJobs.keySet()) {
+            reserved.add(job.from);
+            reserved.add(job.to);
+        }
+
+        Map<BlockPos, String> destinations = new HashMap<>();
+        Map<BlockPos, ItemStack> sources = new HashMap<>();
+
+        Iterator<BlockPos> posIterator = this.nodes.iterator();
+        while (posIterator.hasNext()) {
+            BlockPos pos = posIterator.next();
+            if (!isValid(level, pos)) {
+                posIterator.remove();
+                continue;
+            }
+
+            if (reserved.contains(pos)) continue;
+
+            if (!(level.getBlockEntity(pos) instanceof DepotBlockEntity depot)) continue;
+
+            // TODO: address depot behaviour
+            String address = getDepotAddress(level, pos);
+            if (address != null && !address.isBlank()) {
+                if (depot.getHeldItem().isEmpty()) {
+                    destinations.put(pos, address);
                 }
-
+            } else {
+                ItemStack stack = depot.getHeldItem();
+                if (PackageItem.isPackage(stack)) {
+                    String packageAddress =  PackageItem.getAddress(stack);
+                    if (packageAddress != null && !packageAddress.isBlank()) {
+                        sources.put(pos, stack);
+                    }
+                }
             }
         }
+
+        this.availableJobs.clear();
+        for (Map.Entry<BlockPos, ItemStack> entry : sources.entrySet()) {
+            int priority = -100000;
+            BlockPos targetDest = null;
+            for (Map.Entry<BlockPos, String> destEntry : destinations.entrySet()) {
+                if (PackageItem.matchAddress(entry.getValue(), destEntry.getValue())) {
+                    int currentPriority = getAddressPriority(destEntry.getValue());
+                    if (currentPriority > priority) {
+                        targetDest = destEntry.getKey();
+                        priority = currentPriority;
+                    }
+                }
+            }
+            if (targetDest != null) {
+                this.availableJobs.add(new Job(entry.getKey(), targetDest));
+            }
+        }
+    }
+
+    private static int getAddressPriority(String address) {
+        return (int) -address.chars().filter(c -> c == '*').count();
+    }
+
+    private static @Nullable String getDepotAddress(Level level, BlockPos pos) {
+        for (Direction side : Iterate.directions) {
+            String address = getSign(level, pos, side);
+            if (address == null || address.isBlank())
+                continue;
+            return address;
+        }
+        return null;
+    }
+
+    private static String getSign(Level level, BlockPos pos, Direction side) {
+        BlockEntity blockEntity = level.getBlockEntity(pos.relative(side));
+        if (!(blockEntity instanceof SignBlockEntity sign))
+            return null;
+        for (boolean front : Iterate.trueAndFalse) {
+            SignText text = sign.getText(front);
+            String address = "";
+            for (Component component : text.getMessages(false)) {
+                String string = component.getString();
+                if (!string.isBlank())
+                    address += string.trim() + " ";
+            }
+            if (!address.isBlank())
+                return address.trim();
+        }
+        return null;
     }
 
     public boolean hasNode(BlockPos pos) {
@@ -64,7 +157,7 @@ public class DeliveryNetwork {
     }
 
     public List<BlockPos> getAllNodes() {
-        return this.nodes;
+        return this.nodes.stream().toList();
     }
 
     public static boolean isValid(Level level, BlockPos pos) {
@@ -77,6 +170,11 @@ public class DeliveryNetwork {
     }
 
     public @Nullable DeliveryNetwork.Job getJob(LivingEntity courier) {
+        if (!availableJobs.isEmpty()) {
+            Job job = availableJobs.poll();
+            activeJobs.put(job, courier);
+            return job;
+        }
         return null;
     }
 
