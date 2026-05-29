@@ -3,7 +3,6 @@ package com.kreidev.cmpackagecouriers.courier;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -12,16 +11,19 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class CourierAllayEntity extends Allay {
+public class CourierAllayEntity extends Allay implements CourierMob {
+
+    protected final DeliveryNetwork network;
 
     protected static final ImmutableList<SensorType<? extends Sensor<? super Allay>>> SENSOR_TYPES = ImmutableList.of(
             CourierAllayReg.NEAREST_PACKAGE_SENSOR.get(),
             CourierAllayReg.NEAREST_DEPOT_SENSOR.get(),
-//            SensorType.NEAREST_PLAYERS,
+            CourierAllayReg.NEAREST_DEPOT_SENSOR.get(),
             SensorType.HURT_BY
     );
 
@@ -33,11 +35,13 @@ public class CourierAllayEntity extends Allay {
             MemoryModuleType.HURT_BY,
             MemoryModuleType.IS_PANICKING,
             CourierAllayReg.NEAREST_PACKAGE_ENTITY.get(),
-            CourierAllayReg.TARGET_DEPOT.get()
+            CourierAllayReg.TARGET_DEPOT.get(),
+            CourierAllayReg.DELIVERY_JOB_MEM.get()
     );
 
     public CourierAllayEntity(EntityType<? extends Allay> entityType, Level level) {
         super(entityType, level);
+        this.network = null;
 
         this.getPersistentData().putBoolean("TrainHat", true);
     }
@@ -50,5 +54,15 @@ public class CourierAllayEntity extends Allay {
     @Override
     protected Brain<?> makeBrain(Dynamic<?> dynamic) {
         return CourierAllayAi.makeBrain(this.brainProvider().makeBrain(dynamic));
+    }
+
+    @Override
+    public DeliveryNetwork getDeliveryNetwork() {
+        return this.network;
+    }
+
+    @Override
+    public @Nullable DeliveryNetwork.Job getCurrentJob() {
+        return this.getBrain().getMemory(CourierAllayReg.DELIVERY_JOB_MEM.get()).orElse(null);
     }
 }

@@ -44,11 +44,15 @@ public class CourierAllayReg {
             .register("nearest_package", () -> new MemoryModuleType<>(Optional.empty()));
     public static final Supplier<MemoryModuleType<BlockPos>> TARGET_DEPOT = MEMORY_MODULE_TYPES
             .register("target_depot", () -> new MemoryModuleType<>(Optional.empty()));
+    public static final Supplier<MemoryModuleType<DeliveryNetwork.Job>> DELIVERY_JOB_MEM = MEMORY_MODULE_TYPES
+            .register("delivery_job", () -> new MemoryModuleType<>(Optional.empty()));
 
     public static final Supplier<SensorType<PackageEntitySensor>> NEAREST_PACKAGE_SENSOR = SENSOR_TYPES
             .register("nearest_package", () -> new SensorType<>(PackageEntitySensor::new));
     public static final Supplier<SensorType<NearestDepotSensor>> NEAREST_DEPOT_SENSOR = SENSOR_TYPES
             .register("nearest_depot", () -> new SensorType<>(NearestDepotSensor::new));
+    public static final Supplier<SensorType<DeliveryJobSensor<?>>> DELIVERY_JOB_SENSOR = SENSOR_TYPES
+            .register("delivery_job", () -> new SensorType<>(DeliveryJobSensor::new));
 
     public static final Supplier<DataComponentType<UUID>> DELIVERY_NETWORK_ID = DATA_COMPONENTS
             .registerComponentType("delivery_network_id", builder -> builder

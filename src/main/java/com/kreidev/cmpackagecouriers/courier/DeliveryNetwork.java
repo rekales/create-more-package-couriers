@@ -10,7 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,7 +33,9 @@ public class DeliveryNetwork {
     private final ResourceKey<Level> dim;
     private final Set<BlockPos> nodes;
     private final Queue<Job> availableJobs;
-    private final Map<Job, LivingEntity> activeJobs;
+    private final Map<Job, CourierMob> activeJobs;
+    // TODO: hotspot positions
+    // TODO: default address
 
     public DeliveryNetwork(ServerLevel level) {
         this.id = UUID.randomUUID();
@@ -51,7 +53,9 @@ public class DeliveryNetwork {
     }
 
     private void verifyActiveJobs(ServerLevel level) {
-
+        activeJobs.entrySet().removeIf(entry ->
+                !(entry.getValue() instanceof Entity entity && entity.isAlive())
+                || entry.getValue().getCurrentJob() != entry.getKey());
     }
 
     private void updateJobs(ServerLevel level) {
@@ -169,7 +173,7 @@ public class DeliveryNetwork {
         return id;
     }
 
-    public @Nullable DeliveryNetwork.Job getJob(LivingEntity courier) {
+    public @Nullable DeliveryNetwork.Job getJob(CourierMob courier) {
         if (!availableJobs.isEmpty()) {
             Job job = availableJobs.poll();
             activeJobs.put(job, courier);
