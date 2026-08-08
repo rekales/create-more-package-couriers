@@ -2,6 +2,7 @@ package com.kreidev.cmpackagecouriers.stock_ticker;
 
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.fluidlogistics.CFLBridge;
+import com.kreidev.cmpackagecouriers.compat.fluidlogistics.CFLClientBridge;
 import com.kreidev.cmpackagecouriers.compat.jei.JEICompat;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -637,12 +638,12 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         ms.pushPose();
         ms.translate(0, 0, 200);
         if (customCount != 0 || craftable) {
-            if (Mods.FLUIDLOGISTICS.isLoaded() && CFLBridge.isVirtualFluid(entry)) {
-                ms.pushPose();
-                ms.translate(1, 1, 0);
-                com.yision.fluidlogistics.render.FluidSlotAmountRenderer.renderInStockKeeper(graphics, customCount);
-                ms.popPose();
-            } else {
+            ms.pushPose();
+            ms.translate(1, 1, 0);
+            boolean renderedResourceAmount = CFLClientBridge.tryRenderStockKeeperAmount(
+                    graphics, entry.asStack().stack, customCount);
+            ms.popPose();
+            if (!renderedResourceAmount) {
                 GenericContentExtender.registrationOf(entry.get().key())
                         .clientProvider().guiHandler()
                         .renderDecorations(graphics, entry.get().key(), customCount, 1, 1);
@@ -667,13 +668,16 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                     : displayedItems.get(hoveredSlot.getFirst())
                     .get(slot);
 
-            ArrayList<Component> lines =
-                    new ArrayList<>(GenericContentExtender.registrationOf(entry.get().key())
-                            .clientProvider().guiHandler()
-                            .tooltipBuilder(entry.get().key(), entry.get().amount()));
-            if (recipeHovered && !lines.isEmpty())
-                lines.set(0, CreateLang.translateDirect("gui.stock_keeper.craft", lines.getFirst()
-                        .copy()));
+            ArrayList<Component> lines = new ArrayList<>(CFLClientBridge.tooltipLines(
+                    entry.asStack().stack, entry.get().amount(), recipeHovered, orderHovered));
+            if (lines.isEmpty()) {
+                lines.addAll(GenericContentExtender.registrationOf(entry.get().key())
+                        .clientProvider().guiHandler()
+                        .tooltipBuilder(entry.get().key(), entry.get().amount()));
+                if (recipeHovered && !lines.isEmpty())
+                    lines.set(0, CreateLang.translateDirect("gui.stock_keeper.craft", lines.getFirst()
+                            .copy()));
+            }
             graphics.renderComponentTooltip(font, lines, mouseX, mouseY);
         }
 
@@ -855,8 +859,8 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                 .get(hoveredSlot.getSecond());
 
         int transfer;
-        boolean isCFLFluid = Mods.FLUIDLOGISTICS.isLoaded() && CFLBridge.isVirtualFluid(entry) && !recipeClicked;
-        if (isCFLFluid) {
+        boolean isPackageResource = CFLBridge.isPackageResource(entry) && !recipeClicked;
+        if (isPackageResource) {
             transfer = hasControlDown() ? 1 : hasShiftDown() ? 100 : 1000;
         } else {
             transfer = hasShiftDown() ? GenericContentExtender.registrationOf(entry.get().key())
@@ -884,9 +888,10 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
         int current = existingOrder.get().amount();
 
-        if (isCFLFluid) {
-            int newAmount = CFLBridge.adjustFluidRequestAmount(current, !(rmb || orderClicked), hasShiftDown(),
-                    hasControlDown(), 0, Math.max(0, entry.get().amount()));
+        if (isPackageResource) {
+            int newAmount = CFLBridge.adjustAmount(entry.asStack().stack, current, !(rmb || orderClicked),
+                    hasShiftDown(), hasControlDown(), 0, Math.max(0, entry.get().amount()), 1,
+                    orderClicked ? CFLBridge.StockInteraction.ORDER : CFLBridge.StockInteraction.INVENTORY);
             if (newAmount <= 0) {
                 itemsToOrder.remove(existingOrder);
                 playUiSound(SoundEvents.WOOL_STEP, 0.75f, 1.8f);
@@ -953,10 +958,10 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
                     .get(hoveredSlot.getSecond());
 
             boolean remove = scrollY < 0;
-            boolean isCFLFluidScroll = Mods.FLUIDLOGISTICS.isLoaded() && CFLBridge.isVirtualFluid(entry) && !recipeClicked;
+            boolean isPackageResourceScroll = CFLBridge.isPackageResource(entry) && !recipeClicked;
             int steps = Mth.ceil(Math.abs(scrollY));
             int transfer;
-            if (isCFLFluidScroll) {
+            if (isPackageResourceScroll) {
                 transfer = hasControlDown() ? steps : hasShiftDown() ? steps * 100 : steps * 1000;
             } else {
                 transfer = steps * (hasControlDown() ? 10 : 1);
@@ -975,15 +980,16 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
 
             int current = existingOrder != null ? existingOrder.get().amount() : 0;
 
-            if (isCFLFluidScroll) {
+            if (isPackageResourceScroll) {
                 GenericInventorySummary summary = GenericInventorySummary.empty();
                 for (List<BigGenericStack> stackList : displayedItems) {
                     for (BigGenericStack stack : stackList) {
                         summary.add(stack.get());
                     }
                 }
-                int newAmount = CFLBridge.adjustFluidRequestAmount(current, !remove, hasShiftDown(), hasControlDown(),
-                        0, Math.max(0, summary.getCountOf(entry.get().key())), steps);
+                int newAmount = CFLBridge.adjustAmount(entry.asStack().stack, current, !remove, hasShiftDown(),
+                        hasControlDown(), 0, Math.max(0, summary.getCountOf(entry.get().key())), steps,
+                        orderClicked ? CFLBridge.StockInteraction.ORDER : CFLBridge.StockInteraction.INVENTORY);
                 if (newAmount <= 0) {
                     itemsToOrder.remove(existingOrder);
                     playUiSound(SoundEvents.WOOL_STEP, 0.75f, 1.8f);

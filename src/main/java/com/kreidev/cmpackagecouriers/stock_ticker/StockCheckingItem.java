@@ -1,6 +1,5 @@
 package com.kreidev.cmpackagecouriers.stock_ticker;
 
-import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.fluidlogistics.CFLBridge;
 import com.simibubi.create.content.logistics.packager.IdentifiedInventory;
 import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedBehaviour;
@@ -40,7 +39,7 @@ public class StockCheckingItem extends LogisticallyLinkedItem {
                                            @Nullable IdentifiedInventory ignoredHandler,
                                            String address) {
         UUID Freq = networkFromStack(stack);
-        if (Mods.FLUIDLOGISTICS.isLoaded() && CFLBridge.containsVirtualFluid(order)) {
+        if (CFLBridge.containsPackageResource(order)) {
             return LogisticsManager.broadcastPackageRequest(
                     Freq, type, order.asCrafting(), ignoredHandler, address);
         }

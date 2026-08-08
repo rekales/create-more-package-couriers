@@ -38,7 +38,7 @@ dependencies {
     compileOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}:api")
     compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-core-api:${property("cc_tweaked_version")}")
     compileOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge-api:${property("cc_tweaked_version")}")
-    compileOnly("maven.modrinth:createfluidlogistic:1.0.4-neoforge")
+    compileOnly("maven.modrinth:createfluidlogistic:1.2.6-neoforge")
     runtimeOnly("maven.modrinth:create-mobile-packages:1.21.1-0.7.4-neoforge")
 
     // Optional Compat Runtime
@@ -46,7 +46,6 @@ dependencies {
     runtimeOnly("top.theillusivec4.curios:curios-neoforge:${property("curios_version")}")
     runtimeOnly("cc.tweaked:cc-tweaked-${property("minecraft_version")}-forge:${property("cc_tweaked_version")}")
     compileOnly("maven.modrinth:supplementaries:${property("supplementaries_version")}-neoforge")
-    runtimeOnly("maven.modrinth:createfluidlogistic:1.0.4-neoforge")
 
     // Dev QOL
     runtimeOnly("curse.maven:create-power-loader-936020:6549980")
