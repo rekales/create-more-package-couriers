@@ -48,6 +48,8 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import ru.zznty.create_factory_abstractions.api.generic.crafting.OrderProvider;
 import ru.zznty.create_factory_abstractions.api.generic.crafting.RecipeRequestHelper;
+import ru.zznty.create_factory_abstractions.api.generic.key.GenericKey;
+import ru.zznty.create_factory_abstractions.api.generic.key.GenericKeyProvider;
 import ru.zznty.create_factory_abstractions.api.generic.search.CategoriesProvider;
 import ru.zznty.create_factory_abstractions.api.generic.search.GenericSearch;
 import ru.zznty.create_factory_abstractions.api.generic.stack.GenericStack;
@@ -859,8 +861,9 @@ public class PortableStockTickerScreen extends AbstractSimiContainerScreen<Porta
         if (isCFLFluid) {
             transfer = hasControlDown() ? 1 : hasShiftDown() ? 100 : 1000;
         } else {
-            transfer = hasShiftDown() ? GenericContentExtender.registrationOf(entry.get().key())
-                    .clientProvider().guiHandler().stackSize(entry.get().key())
+            GenericKey key = entry.get().key();
+            GenericKeyProvider<GenericKey> provider = GenericContentExtender.registrationOf(key).provider();
+            transfer = hasShiftDown() ? provider.stackSize(key)
                     : hasControlDown() ? 10 : 1;
         }
 
