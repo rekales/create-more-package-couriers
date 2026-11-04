@@ -49,6 +49,7 @@ public class DeliveryNetwork {
         if (level.getGameTime() % 20 == 1) {
             verifyActiveJobs(level);
             updateJobs(level);
+//            PackageCouriers.LOGGER.debug("jobs" + availableJobs);
         }
     }
 
@@ -112,6 +113,7 @@ public class DeliveryNetwork {
             }
             if (targetDest != null) {
                 this.availableJobs.add(new Job(entry.getKey(), targetDest));
+                destinations.remove(targetDest);
             }
         }
     }

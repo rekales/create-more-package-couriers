@@ -46,11 +46,13 @@ public class WaybillItem extends Item {
                 if (network != null) {
                     if (network.hasNode(pos)) {
                         network.removeNode(pos);
-                        player.sendSystemMessage(Component.literal("removed " + pos));
+                        player.sendSystemMessage(Component.literal("Removed " + pos));
                     } else {
                         network.addNode(pos);
-                        player.sendSystemMessage(Component.literal("added " + pos));
+                        player.sendSystemMessage(Component.literal("Added " + pos));
                     }
+                } else {
+                    player.sendSystemMessage(Component.literal("Network not set"));
                 }
             }
         }
