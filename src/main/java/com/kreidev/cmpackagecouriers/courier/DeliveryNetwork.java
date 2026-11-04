@@ -1,12 +1,16 @@
 package com.kreidev.cmpackagecouriers.courier;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -27,13 +31,19 @@ import java.util.*;
 @EventBusSubscriber(modid=PackageCouriers.MOD_ID)
 public class DeliveryNetwork {
 
+    public static final MapCodec<DeliveryNetwork> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            UUIDUtil.CODEC.fieldOf("ID").forGetter(DeliveryNetwork::getId),
+            ResourceKey.codec(Registries.DIMENSION).fieldOf("Dim").forGetter(DeliveryNetwork::getDimension),
+            BlockPos.CODEC.listOf().<Set<BlockPos>>xmap(HashSet::new, ArrayList::new).fieldOf("Nodes").forGetter(DeliveryNetwork::getNodes)
+            ).apply(instance, DeliveryNetwork::new));
+
     private static final HashMap<UUID, DeliveryNetwork> NETWORKS = new HashMap<>();
 
     @Nonnull private final UUID id;
     private final ResourceKey<Level> dim;
-    private final Set<BlockPos> nodes;
+    private final Set<BlockPos> nodes;  // TODO: Consider using an interface to allow player destinations
     private final Queue<Job> availableJobs;
-    private final Map<Job, CourierMob> activeJobs;
+    private final Map<Job, CourierMob> activeJobs;  // TODO: make the courier remind the delnet because of load/save inconsistencies.
     // TODO: hotspot positions
     // TODO: default address
 
@@ -41,6 +51,15 @@ public class DeliveryNetwork {
         this.id = UUID.randomUUID();
         this.dim = level.dimension();
         this.nodes = new HashSet<>();
+        this.availableJobs = new ArrayDeque<>();
+        this.activeJobs = new HashMap<>();
+    }
+
+    // For codec use
+    private DeliveryNetwork(UUID id, ResourceKey<Level> dim, Set<BlockPos> nodes) {
+        this.id = id;
+        this.dim = dim;
+        this.nodes = nodes;
         this.availableJobs = new ArrayDeque<>();
         this.activeJobs = new HashMap<>();
     }
@@ -172,7 +191,15 @@ public class DeliveryNetwork {
 
     @Nonnull
     public UUID getId() {
-        return id;
+        return this.id;
+    }
+
+    public ResourceKey<Level> getDimension() {
+        return this.dim;
+    }
+
+    private Set<BlockPos> getNodes() {
+        return this.nodes;
     }
 
     public @Nullable DeliveryNetwork.Job getJob(CourierMob courier) {
