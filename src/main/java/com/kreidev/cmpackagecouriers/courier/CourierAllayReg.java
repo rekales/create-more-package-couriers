@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 
 import static com.kreidev.cmpackagecouriers.PackageCouriers.*;
 
+// TODO: rename to courier networks
 public class CourierAllayReg {
 
     private static final DeferredRegister<MemoryModuleType<?>> MEMORY_MODULE_TYPES = DeferredRegister
@@ -82,6 +83,7 @@ public class CourierAllayReg {
         modEventBus.addListener(CourierAllayReg::registerAttributes);
         modEventBus.addListener(CourierAllayReg::registerPacketHandler);
         NeoForge.EVENT_BUS.addListener(CourierAllayReg::registerCommands);
+        NeoForge.EVENT_BUS.addListener(DeliveryNetworkSavedData::onServerStarting);
         MEMORY_MODULE_TYPES.register(modEventBus);
         SENSOR_TYPES.register(modEventBus);
     }
