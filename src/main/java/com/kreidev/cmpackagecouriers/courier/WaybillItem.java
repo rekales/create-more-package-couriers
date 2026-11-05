@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers.courier;
 
+import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -106,12 +107,19 @@ public class WaybillItem extends Item {
     }
 
     public static @Nullable DeliveryNetwork getAssignedNetwork(ItemStack waybill) {
-        if (waybill.getItem() instanceof WaybillItem) {
-            UUID id = waybill.get(DeliveryNetworkReg.DELIVERY_NETWORK_ID.get());
-            if (id == null) return null;
-            return DeliveryNetworkManager.getNetwork(id);
+        if (!(waybill.getItem() instanceof WaybillItem)) return null;
+
+        UUID id = waybill.get(DeliveryNetworkReg.DELIVERY_NETWORK_ID.get());
+        if (id == null) return null;
+
+        DeliveryNetwork delNet = DeliveryNetworkManager.getNetwork(id);
+        if (delNet == null) {
+            PackageCouriers.LOGGER.error("Delivery network not found with UUID of: " + id);
+            waybill.remove(DeliveryNetworkReg.DELIVERY_NETWORK_ID.get());
+            return null;
         }
-        return null;
+
+        return delNet;
     }
 
     public static void setAssignedNetwork(ItemStack waybill, @Nullable DeliveryNetwork network) {
