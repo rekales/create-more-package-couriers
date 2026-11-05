@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 import static com.kreidev.cmpackagecouriers.PackageCouriers.*;
 
 // TODO: rename to courier networks
+@SuppressWarnings("unused")
 public class CourierAllayReg {
 
     private static final DeferredRegister<MemoryModuleType<?>> MEMORY_MODULE_TYPES = DeferredRegister
@@ -83,7 +84,8 @@ public class CourierAllayReg {
         modEventBus.addListener(CourierAllayReg::registerAttributes);
         modEventBus.addListener(CourierAllayReg::registerPacketHandler);
         NeoForge.EVENT_BUS.addListener(CourierAllayReg::registerCommands);
-        NeoForge.EVENT_BUS.addListener(DeliveryNetworkSavedData::onServerStarting);
+        NeoForge.EVENT_BUS.addListener(DeliveryNetworkManager::onServerStarting);
+        NeoForge.EVENT_BUS.addListener(DeliveryNetworkManager::serverTick);
         MEMORY_MODULE_TYPES.register(modEventBus);
         SENSOR_TYPES.register(modEventBus);
     }
@@ -113,7 +115,7 @@ public class CourierAllayReg {
                                 .executes(context -> {
                                     ItemStack stack = context.getSource().getPlayerOrException().getMainHandItem();
                                     if (stack.getItem() instanceof WaybillItem) {
-                                        WaybillItem.setAssignedNetwork(stack, DeliveryNetwork.createNetwork(context.getSource().getLevel()));
+                                        WaybillItem.setAssignedNetwork(stack, DeliveryNetworkManager.createNetwork(context.getSource().getLevel()));
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -124,7 +126,7 @@ public class CourierAllayReg {
                                     if (stack.getItem() instanceof WaybillItem) {
                                         DeliveryNetwork network = WaybillItem.getAssignedNetwork(stack);
                                         if (network != null) {
-                                            DeliveryNetwork.removeNetwork(network.getId());
+                                            DeliveryNetworkManager.removeNetwork(network.getId());
                                             WaybillItem.setAssignedNetwork(stack, null);
                                         }
                                     }

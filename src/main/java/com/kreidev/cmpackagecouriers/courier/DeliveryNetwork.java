@@ -1,6 +1,5 @@
 package com.kreidev.cmpackagecouriers.courier;
 
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.content.logistics.box.PackageItem;
@@ -20,15 +19,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-@EventBusSubscriber(modid=PackageCouriers.MOD_ID)
 public class DeliveryNetwork {
 
     public static final MapCodec<DeliveryNetwork> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -36,8 +31,6 @@ public class DeliveryNetwork {
             ResourceKey.codec(Registries.DIMENSION).fieldOf("Dim").forGetter(DeliveryNetwork::getDimension),
             BlockPos.CODEC.listOf().<Set<BlockPos>>xmap(HashSet::new, ArrayList::new).fieldOf("Nodes").forGetter(DeliveryNetwork::getNodes)
             ).apply(instance, DeliveryNetwork::new));
-
-    private static final HashMap<UUID, DeliveryNetwork> NETWORKS = new HashMap<>();
 
     @Nonnull private final UUID id;
     private final ResourceKey<Level> dim;
@@ -56,7 +49,7 @@ public class DeliveryNetwork {
     }
 
     // For codec use
-    private DeliveryNetwork(UUID id, ResourceKey<Level> dim, Set<BlockPos> nodes) {
+    private DeliveryNetwork(@Nonnull UUID id, ResourceKey<Level> dim, Set<BlockPos> nodes) {
         this.id = id;
         this.dim = dim;
         this.nodes = nodes;
@@ -72,6 +65,7 @@ public class DeliveryNetwork {
         }
     }
 
+    @SuppressWarnings("unused")
     private void verifyActiveJobs(ServerLevel level) {
         activeJobs.entrySet().removeIf(entry ->
                 !(entry.getValue() instanceof Entity entity && entity.isAlive())
@@ -91,7 +85,7 @@ public class DeliveryNetwork {
         Iterator<BlockPos> posIterator = this.nodes.iterator();
         while (posIterator.hasNext()) {
             BlockPos pos = posIterator.next();
-            if (!isValid(level, pos)) {
+            if (!isValidNode(level, pos)) {
                 posIterator.remove();
                 continue;
             }
@@ -185,7 +179,7 @@ public class DeliveryNetwork {
         return this.nodes.stream().toList();
     }
 
-    public static boolean isValid(Level level, BlockPos pos) {
+    public static boolean isValidNode(Level level, BlockPos pos) {
         return level.getBlockState(pos).getBlock() instanceof DepotBlock;
     }
 
@@ -212,33 +206,4 @@ public class DeliveryNetwork {
     }
 
     public record Job(BlockPos from, BlockPos to) { }
-
-
-    public static @Nullable DeliveryNetwork getNetwork(UUID id) {
-        return NETWORKS.get(id);
-    }
-
-    public static DeliveryNetwork createNetwork(ServerLevel level) {
-        DeliveryNetwork network = new DeliveryNetwork(level);
-        NETWORKS.put(network.id, network);
-        return network;
-    }
-
-    public static void removeNetwork(UUID id) {
-        NETWORKS.remove(id);
-    }
-
-    public static void clearNetworks() {
-        NETWORKS.clear();
-    }
-
-
-    @SubscribeEvent
-    public static void serverTick(ServerTickEvent.Pre event) {
-        for (DeliveryNetwork network : NETWORKS.values()) {
-            ServerLevel level = event.getServer().getLevel(network.dim);
-            if (level == null) continue;
-            network.tick(level);
-        }
-    }
 }
