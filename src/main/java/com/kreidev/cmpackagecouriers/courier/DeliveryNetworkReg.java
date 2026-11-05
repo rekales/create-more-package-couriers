@@ -34,7 +34,7 @@ import static com.kreidev.cmpackagecouriers.PackageCouriers.*;
 
 // TODO: rename to courier networks
 @SuppressWarnings("unused")
-public class CourierAllayReg {
+public class DeliveryNetworkReg {
 
     private static final DeferredRegister<MemoryModuleType<?>> MEMORY_MODULE_TYPES = DeferredRegister
             .create(BuiltInRegistries.MEMORY_MODULE_TYPE, PackageCouriers.MOD_ID);
@@ -80,10 +80,10 @@ public class CourierAllayReg {
             .register();
 
     public static void register(IEventBus modEventBus) {
-        modEventBus.addListener(CourierAllayReg::clientInit);
-        modEventBus.addListener(CourierAllayReg::registerAttributes);
-        modEventBus.addListener(CourierAllayReg::registerPacketHandler);
-        NeoForge.EVENT_BUS.addListener(CourierAllayReg::registerCommands);
+        modEventBus.addListener(DeliveryNetworkReg::clientInit);
+        modEventBus.addListener(DeliveryNetworkReg::registerAttributes);
+        modEventBus.addListener(DeliveryNetworkReg::registerPacketHandler);
+        NeoForge.EVENT_BUS.addListener(DeliveryNetworkReg::registerCommands);
         NeoForge.EVENT_BUS.addListener(DeliveryNetworkManager::onServerStarting);
         NeoForge.EVENT_BUS.addListener(DeliveryNetworkManager::serverTick);
         MEMORY_MODULE_TYPES.register(modEventBus);

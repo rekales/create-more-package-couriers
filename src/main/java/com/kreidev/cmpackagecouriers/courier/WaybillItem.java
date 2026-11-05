@@ -107,7 +107,7 @@ public class WaybillItem extends Item {
 
     public static @Nullable DeliveryNetwork getAssignedNetwork(ItemStack waybill) {
         if (waybill.getItem() instanceof WaybillItem) {
-            UUID id = waybill.get(CourierAllayReg.DELIVERY_NETWORK_ID.get());
+            UUID id = waybill.get(DeliveryNetworkReg.DELIVERY_NETWORK_ID.get());
             if (id == null) return null;
             return DeliveryNetworkManager.getNetwork(id);
         }
@@ -117,9 +117,9 @@ public class WaybillItem extends Item {
     public static void setAssignedNetwork(ItemStack waybill, @Nullable DeliveryNetwork network) {
         if (waybill.getItem() instanceof WaybillItem) {
             if (network != null) {
-                waybill.set(CourierAllayReg.DELIVERY_NETWORK_ID.get(), network.getId());
+                waybill.set(DeliveryNetworkReg.DELIVERY_NETWORK_ID.get(), network.getId());
             } else {
-                waybill.remove(CourierAllayReg.DELIVERY_NETWORK_ID.get());
+                waybill.remove(DeliveryNetworkReg.DELIVERY_NETWORK_ID.get());
             }
         }
     }

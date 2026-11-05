@@ -21,9 +21,9 @@ public class CourierAllayEntity extends Allay implements CourierMob {
     protected final DeliveryNetwork network;
 
     protected static final ImmutableList<SensorType<? extends Sensor<? super Allay>>> SENSOR_TYPES = ImmutableList.of(
-            CourierAllayReg.NEAREST_PACKAGE_SENSOR.get(),
-            CourierAllayReg.NEAREST_DEPOT_SENSOR.get(),
-            CourierAllayReg.NEAREST_DEPOT_SENSOR.get(),
+            DeliveryNetworkReg.NEAREST_PACKAGE_SENSOR.get(),
+            DeliveryNetworkReg.NEAREST_DEPOT_SENSOR.get(),
+            DeliveryNetworkReg.NEAREST_DEPOT_SENSOR.get(),
             SensorType.HURT_BY
     );
 
@@ -34,9 +34,9 @@ public class CourierAllayEntity extends Allay implements CourierMob {
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.HURT_BY,
             MemoryModuleType.IS_PANICKING,
-            CourierAllayReg.NEAREST_PACKAGE_ENTITY.get(),
-            CourierAllayReg.TARGET_DEPOT.get(),
-            CourierAllayReg.DELIVERY_JOB_MEM.get()
+            DeliveryNetworkReg.NEAREST_PACKAGE_ENTITY.get(),
+            DeliveryNetworkReg.TARGET_DEPOT.get(),
+            DeliveryNetworkReg.DELIVERY_JOB_MEM.get()
     );
 
     public CourierAllayEntity(EntityType<? extends Allay> entityType, Level level) {
@@ -63,6 +63,6 @@ public class CourierAllayEntity extends Allay implements CourierMob {
 
     @Override
     public @Nullable DeliveryNetwork.Job getCurrentJob() {
-        return this.getBrain().getMemory(CourierAllayReg.DELIVERY_JOB_MEM.get()).orElse(null);
+        return this.getBrain().getMemory(DeliveryNetworkReg.DELIVERY_JOB_MEM.get()).orElse(null);
     }
 }

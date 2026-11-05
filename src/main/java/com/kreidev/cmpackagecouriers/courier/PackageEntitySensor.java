@@ -28,9 +28,9 @@ public class PackageEntitySensor extends Sensor<LivingEntity> {
         list.sort(Comparator.comparingDouble(entity::distanceToSqr));
         Brain<?> brain = entity.getBrain();
         if (!list.isEmpty()) {
-            brain.setMemory(CourierAllayReg.NEAREST_PACKAGE_ENTITY.get(), list.getFirst());
+            brain.setMemory(DeliveryNetworkReg.NEAREST_PACKAGE_ENTITY.get(), list.getFirst());
         } else {
-            brain.setMemory(CourierAllayReg.NEAREST_PACKAGE_ENTITY.get(), Optional.empty());
+            brain.setMemory(DeliveryNetworkReg.NEAREST_PACKAGE_ENTITY.get(), Optional.empty());
         }
     }
 
@@ -44,6 +44,6 @@ public class PackageEntitySensor extends Sensor<LivingEntity> {
 
     @Override
     public Set<MemoryModuleType<?>> requires() {
-        return ImmutableSet.of(CourierAllayReg.NEAREST_PACKAGE_ENTITY.get());
+        return ImmutableSet.of(DeliveryNetworkReg.NEAREST_PACKAGE_ENTITY.get());
     }
 }

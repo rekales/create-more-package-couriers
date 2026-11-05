@@ -1,12 +1,10 @@
 package com.kreidev.cmpackagecouriers.courier;
 
 import com.simibubi.create.content.logistics.box.PackageItem;
-import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -16,7 +14,6 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.InventoryCarrier;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -32,7 +29,7 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier>
 
     public DeliveryJobBehavior() {
         super(Map.of(
-                CourierAllayReg.DELIVERY_JOB_MEM.get(), MemoryStatus.VALUE_PRESENT,
+                DeliveryNetworkReg.DELIVERY_JOB_MEM.get(), MemoryStatus.VALUE_PRESENT,
                 MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED
         ));
     }
@@ -45,13 +42,13 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier>
 
     @Override
     protected boolean canStillUse(ServerLevel level, T entity, long gameTime) {
-        Optional<DeliveryNetwork.Job> job = entity.getBrain().getMemory(CourierAllayReg.DELIVERY_JOB_MEM.get());
+        Optional<DeliveryNetwork.Job> job = entity.getBrain().getMemory(DeliveryNetworkReg.DELIVERY_JOB_MEM.get());
         return job.isPresent();
     }
 
     @Override
     protected void start(ServerLevel level, T entity, long gameTime) {
-        Optional<DeliveryNetwork.Job> job = entity.getBrain().getMemory(CourierAllayReg.DELIVERY_JOB_MEM.get());
+        Optional<DeliveryNetwork.Job> job = entity.getBrain().getMemory(DeliveryNetworkReg.DELIVERY_JOB_MEM.get());
         if (job.isEmpty()) throw new IllegalStateException();
         ItemStack stack = entity.getInventory().getItem(0);
         if (!stack.isEmpty()) {
@@ -65,7 +62,7 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier>
     @Override
     protected void tick(ServerLevel level, T owner, long gameTime) {
         Brain<?> brain = owner.getBrain();
-        DeliveryNetwork.Job job = brain.getMemory(CourierAllayReg.DELIVERY_JOB_MEM.get()).orElseThrow();
+        DeliveryNetwork.Job job = brain.getMemory(DeliveryNetworkReg.DELIVERY_JOB_MEM.get()).orElseThrow();
         Optional<WalkTarget> walkTarget = brain.getMemory(MemoryModuleType.WALK_TARGET);
 
         ItemStack box = owner.getInventory().getItem(0);
@@ -107,6 +104,6 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier>
     }
 
     protected void stopJob(T owner) {
-        owner.getBrain().eraseMemory(CourierAllayReg.DELIVERY_JOB_MEM.get());
+        owner.getBrain().eraseMemory(DeliveryNetworkReg.DELIVERY_JOB_MEM.get());
     }
 }

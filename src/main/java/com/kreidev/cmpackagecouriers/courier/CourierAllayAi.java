@@ -2,7 +2,6 @@ package com.kreidev.cmpackagecouriers.courier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -71,7 +70,7 @@ public class CourierAllayAi {
 
     private static Optional<PositionTracker> getDepotPosition(LivingEntity entity) {
         Brain<?> brain = entity.getBrain();
-        Optional<BlockPos> optional = brain.getMemory(CourierAllayReg.TARGET_DEPOT.get());
+        Optional<BlockPos> optional = brain.getMemory(DeliveryNetworkReg.TARGET_DEPOT.get());
         return optional.map(BlockPosTracker::new);
     }
 

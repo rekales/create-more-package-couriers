@@ -32,11 +32,11 @@ public class NearestDepotSensor extends Sensor<LivingEntity> {
                 .orElse(null);
 
         Brain<?> brain = entity.getBrain();
-        brain.setMemory(CourierAllayReg.TARGET_DEPOT.get(), closest);
+        brain.setMemory(DeliveryNetworkReg.TARGET_DEPOT.get(), closest);
     }
 
     @Override
     public Set<MemoryModuleType<?>> requires() {
-        return ImmutableSet.of(CourierAllayReg.TARGET_DEPOT.get());
+        return ImmutableSet.of(DeliveryNetworkReg.TARGET_DEPOT.get());
     }
 }
