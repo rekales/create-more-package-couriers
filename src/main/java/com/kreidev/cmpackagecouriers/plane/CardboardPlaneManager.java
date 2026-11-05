@@ -16,6 +16,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.Iterator;
 
+// TODO: merge manager and saved data
 @SuppressWarnings({"UnusedReturnValue", "ConstantValue", "DataFlowIssue", "unused"})
 @EventBusSubscriber(modid= PackageCouriers.MOD_ID)
 public class CardboardPlaneManager {

@@ -60,6 +60,7 @@ public class CardboardPlaneSavedData extends SavedData {
 
     public static void onServerStarting(ServerStartingEvent event) {
         ServerLevel level = event.getServer().getLevel(Level.OVERWORLD);
+        // TODO: better names for saved data
         if(level != null && !level.isClientSide()) {
             CardboardPlaneManager.INSTANCE = level.getDataStorage().computeIfAbsent(
                     new SavedData.Factory<>(CardboardPlaneSavedData::new, CardboardPlaneSavedData::new, null), "cardboard_planes"

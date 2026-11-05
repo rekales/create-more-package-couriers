@@ -88,14 +88,16 @@ public class DeliveryNetworkManager extends SavedData {
             ServerLevel level = event.getServer().getLevel(network.getDimension());
             if (level == null) continue;
             network.tick(level);
+            INSTANCE.setDirty();
         }
     }
 
     public static void onServerStarting(ServerStartingEvent event) {
         ServerLevel level = event.getServer().getLevel(Level.OVERWORLD);
-        if(level != null && !level.isClientSide()) {
+        if (level != null && !level.isClientSide()) {
             DeliveryNetworkManager.INSTANCE = level.getDataStorage().computeIfAbsent(
-                    new SavedData.Factory<>(DeliveryNetworkManager::new, DeliveryNetworkManager::new, null), "cardboard_planes"
+                    new SavedData.Factory<>(DeliveryNetworkManager::new, DeliveryNetworkManager::new, null),
+                    "cmpc_delivery_networks"
             );
         }
     }
