@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers.courier;
 
+import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.content.logistics.box.PackageItem;
@@ -8,22 +9,27 @@ import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+// TODO: add method for checking possible destinations from an address
+// for when the current destination is full or package was given by the player
 public class DeliveryNetwork {
 
     public static final MapCodec<DeliveryNetwork> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -32,13 +38,19 @@ public class DeliveryNetwork {
             BlockPos.CODEC.listOf().<Set<BlockPos>>xmap(HashSet::new, ArrayList::new).fieldOf("Nodes").forGetter(DeliveryNetwork::getNodes)
             ).apply(instance, DeliveryNetwork::new));
 
+    private static final int PLAYER_SEARCH_RADIUS = 16;  // TODO: config
+
     @Nonnull private final UUID id;
     private final ResourceKey<Level> dim;
-    private final Set<BlockPos> nodes;  // TODO: Consider using an interface to allow player destinations
+    private final Set<BlockPos> nodes;
+
     private final Queue<Job> availableJobs;
     private final Map<Job, CourierMob> activeJobs;  // TODO: make the courier remind the delnet because of load/save inconsistencies.
-    // TODO: hotspot positions
-    // TODO: default address
+
+    private final Map<SectionPos, Set<BlockPos>> cellSearchMap = new HashMap<>();  // Spatial hash : Nodes covering that hash
+    private final Set<Player> playersNearby = new HashSet<>();
+
+    // NOTE: optimizations - hotspot positions
 
     public DeliveryNetwork(ServerLevel level) {
         this.id = UUID.randomUUID();
@@ -55,13 +67,18 @@ public class DeliveryNetwork {
         this.nodes = nodes;
         this.availableJobs = new ArrayDeque<>();
         this.activeJobs = new HashMap<>();
+        this.refreshCellMap();
     }
 
     public void tick(ServerLevel level) {
         if (level.getGameTime() % 20 == 1) {
             verifyActiveJobs(level);
             updateJobs(level);
+            updateNearbyPlayers(level);
 //            PackageCouriers.LOGGER.debug("jobs" + availableJobs);
+//            PackageCouriers.LOGGER.debug("" + cellSearchMap);
+            PackageCouriers.LOGGER.debug("" + this.playersNearby);
+
         }
     }
 
@@ -131,6 +148,15 @@ public class DeliveryNetwork {
         }
     }
 
+    private void updateNearbyPlayers(ServerLevel level) {
+        this.playersNearby.clear();
+        for (Player player : level.players()) {
+            if (this.isNearbyNetwork(player.position())) {
+                this.playersNearby.add(player);
+            }
+        }
+    }
+
     private static int getAddressPriority(String address) {
         return (int) -address.chars().filter(c -> c == '*').count();
     }
@@ -169,18 +195,48 @@ public class DeliveryNetwork {
 
     public void addNode(BlockPos pos) {
         this.nodes.add(pos);
+
+        getSectionsInRadius(pos, PLAYER_SEARCH_RADIUS).forEach(sec ->
+                this.cellSearchMap.computeIfAbsent(sec, k -> new HashSet<>()).add(pos)
+        );
     }
 
     public void removeNode(BlockPos pos) {
         this.nodes.remove(pos);
+
+        getSectionsInRadius(pos, PLAYER_SEARCH_RADIUS).forEach(sec -> {
+            Set<BlockPos> set = this.cellSearchMap.get(sec);
+            if (set == null) return;
+            set.remove(pos);
+            if (set.isEmpty()) this.cellSearchMap.remove(sec);
+        });
     }
 
     public List<BlockPos> getAllNodes() {
         return this.nodes.stream().toList();
     }
 
-    public static boolean isValidNode(Level level, BlockPos pos) {
-        return level.getBlockState(pos).getBlock() instanceof DepotBlock;
+    public void refreshCellMap() {
+        this.cellSearchMap.clear();
+        for (BlockPos pos : this.nodes) {
+            getSectionsInRadius(pos, PLAYER_SEARCH_RADIUS).forEach(sec ->
+                    this.cellSearchMap.computeIfAbsent(sec, k -> new HashSet<>()).add(pos)
+            );
+        }
+    }
+
+    public boolean isNearbyNetwork(Vec3 vec) {
+        SectionPos sec = SectionPos.of(BlockPos.containing(vec));
+        Set<BlockPos> candidates = this.cellSearchMap.get(sec);
+        if (candidates == null) return false;
+
+        for (BlockPos node : candidates) {
+            double dx = vec.x - (node.getX() + 0.5);
+            double dy = vec.y - (node.getY() + 0.5);
+            double dz = vec.z - (node.getZ() + 0.5);
+            if (dx*dx + dy*dy + dz*dz <= PLAYER_SEARCH_RADIUS * PLAYER_SEARCH_RADIUS) return true;
+        }
+        return false;
     }
 
     @Nonnull
@@ -206,4 +262,24 @@ public class DeliveryNetwork {
     }
 
     public record Job(BlockPos from, BlockPos to) { }
+
+    public static boolean isValidNode(Level level, BlockPos pos) {
+        return level.getBlockState(pos).getBlock() instanceof DepotBlock;
+    }
+
+    public static List<SectionPos> getSectionsInRadius(BlockPos pos, int radius) {
+        SectionPos center = SectionPos.of(pos);
+        int cellRadius = (int) Math.ceil((double) radius / SectionPos.SECTION_SIZE);
+        List<SectionPos> sections = new ArrayList<>();
+
+        for (int dx = -cellRadius; dx <= cellRadius; dx++) {
+            for (int dy = -cellRadius; dy <= cellRadius; dy++) {
+                for (int dz = -cellRadius; dz <= cellRadius; dz++) {
+                    sections.add(SectionPos.of(center.x() + dx, center.y() + dy, center.z() + dz));
+                }
+            }
+        }
+
+        return sections;
+    }
 }
