@@ -130,20 +130,33 @@ public class DeliveryNetwork {
 
         this.availableJobs.clear();
         for (Map.Entry<BlockPos, ItemStack> entry : sources.entrySet()) {
-            int priority = -100000;
-            BlockPos targetDest = null;
-            for (Map.Entry<BlockPos, String> destEntry : destinations.entrySet()) {
-                if (PackageItem.matchAddress(entry.getValue(), destEntry.getValue())) {
-                    int currentPriority = getAddressPriority(destEntry.getValue());
-                    if (currentPriority > priority) {
-                        targetDest = destEntry.getKey();
-                        priority = currentPriority;
+
+            // Special "@Address" interaction
+            String packageAddress =  PackageItem.getAddress(entry.getValue());
+            int atIndex = packageAddress.indexOf('@');
+            if (atIndex != -1) {  // TODO: ponder info about explicit @address player targets
+                packageAddress = packageAddress.substring(atIndex + 1);
+                for (Player player : this.playersNearby) {
+                    if (PackageItem.matchAddress(player.getName().getString(), packageAddress)) {
+                        this.availableJobs.add(new Job(entry.getKey(), targetDest));
                     }
                 }
-            }
-            if (targetDest != null) {
-                this.availableJobs.add(new Job(entry.getKey(), targetDest));
-                destinations.remove(targetDest);
+            } else {
+                int priority = -100000;
+                BlockPos targetDest = null;
+                for (Map.Entry<BlockPos, String> destEntry : destinations.entrySet()) {
+                    if (PackageItem.matchAddress(entry.getValue(), destEntry.getValue())) {
+                        int currentPriority = getAddressPriority(destEntry.getValue());
+                        if (currentPriority > priority) {
+                            targetDest = destEntry.getKey();
+                            priority = currentPriority;
+                        }
+                    }
+                }
+                if (targetDest != null) {
+                    this.availableJobs.add(new Job(entry.getKey(), targetDest));
+                    destinations.remove(targetDest);
+                }
             }
         }
     }
