@@ -6,6 +6,7 @@ import net.minecraft.world.level.Level;
 
 // Using interface injection pattern instead of behaviours so it's more generic
 // and I don't have to deal with adding behaviours to extending classes
+// TODO: replace with attaching behaviours to SmartBlockEntities
 public interface CourierDestination {
     void cmpc$onReachedDestination(Level level, BlockPos pos, CardboardPlane plane);
     boolean cmpc$hasSpace(Level level, BlockPos pos);
