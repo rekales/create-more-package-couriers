@@ -87,4 +87,12 @@ public class PlayerPackageDest implements PackageDestination {
         carrier.setPackage(ItemStack.EMPTY);
         return true;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Player{name=%s, pos=%s}",
+                this.entity != null ? this.entity.getName().toString() : "",
+                this.getPos()
+        );
+    }
 }

@@ -86,4 +86,11 @@ public class SmartBEPackageDest implements PackageDestination {
 
         return false;
     }
+
+    @Override
+    public String toString() {
+        return String.format("SBE{pos=%s}",
+                this.blockPos
+        );
+    }
 }

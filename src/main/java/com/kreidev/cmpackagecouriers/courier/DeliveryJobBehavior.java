@@ -56,7 +56,7 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier>
             level.addFreshEntity(itementity);
             entity.getInventory().setItem(0, ItemStack.EMPTY);
         }
-        BehaviorUtils.setWalkAndLookTargetMemories(entity, job.get().from(), SPEED_MOD, 3);
+//        BehaviorUtils.setWalkAndLookTargetMemories(entity, job.get().from(), SPEED_MOD, 3);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier>
         ItemStack box = owner.getInventory().getItem(0);
         if (box.isEmpty()) {
             if (walkTarget.isEmpty()) {
-                BehaviorUtils.setWalkAndLookTargetMemories(owner, job.from(), SPEED_MOD, 3);
+//                BehaviorUtils.setWalkAndLookTargetMemories(owner, job.from(), SPEED_MOD, 3);
                 return;
             }
             BlockPos targetPos = walkTarget.get().getTarget().currentBlockPosition();
@@ -77,7 +77,7 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier>
                         && PackageItem.isPackage(be.getHeldItem())) {
                     owner.getInventory().setItem(0, be.getHeldItem());
                     be.clearContent();
-                    BehaviorUtils.setWalkAndLookTargetMemories(owner, job.to(), SPEED_MOD, 3);
+//                    BehaviorUtils.setWalkAndLookTargetMemories(owner, job.to(), SPEED_MOD, 3);
                 } else {
                     this.stopJob(owner);
                     return;
@@ -85,7 +85,7 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier>
             }
         } else {
             if (walkTarget.isEmpty()) {
-                BehaviorUtils.setWalkAndLookTargetMemories(owner, job.to(), SPEED_MOD, 0);
+//                BehaviorUtils.setWalkAndLookTargetMemories(owner, job.to(), SPEED_MOD, 0);
                 return;
             }
             BlockPos targetPos = walkTarget.get().getTarget().currentBlockPosition();
