@@ -1,11 +1,15 @@
 package com.kreidev.cmpackagecouriers.courier;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
+import com.kreidev.cmpackagecouriers.PackageDestination;
+import com.kreidev.cmpackagecouriers.PlayerPackageDest;
+import com.kreidev.cmpackagecouriers.SmartBEPackageDest;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
+import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -93,7 +97,9 @@ public class DeliveryNetwork {
         Set<BlockPos> reserved = new HashSet<>();
         for (Job job : activeJobs.keySet()) {
             reserved.add(job.from);
-            reserved.add(job.to);
+            if (job.to.getType() == PackageDestination.Type.SMART_BLOCK_ENTITY) {
+                reserved.add(BlockPos.containing(job.to.getPos()));
+            }
         }
 
         Map<BlockPos, String> destinations = new HashMap<>();
@@ -138,24 +144,25 @@ public class DeliveryNetwork {
                 packageAddress = packageAddress.substring(atIndex + 1);
                 for (Player player : this.playersNearby) {
                     if (PackageItem.matchAddress(player.getName().getString(), packageAddress)) {
-                        this.availableJobs.add(new Job(entry.getKey(), targetDest));
+                        this.availableJobs.add(new Job(entry.getKey(), new PlayerPackageDest(player)));
                     }
                 }
             } else {
                 int priority = -100000;
-                BlockPos targetDest = null;
+                SmartBlockEntity targetDest = null;
                 for (Map.Entry<BlockPos, String> destEntry : destinations.entrySet()) {
-                    if (PackageItem.matchAddress(entry.getValue(), destEntry.getValue())) {
-                        int currentPriority = getAddressPriority(destEntry.getValue());
-                        if (currentPriority > priority) {
-                            targetDest = destEntry.getKey();
-                            priority = currentPriority;
-                        }
+                    if (!(level.getBlockEntity(destEntry.getKey()) instanceof SmartBlockEntity be)) continue;
+                    if (!PackageItem.matchAddress(entry.getValue(), destEntry.getValue())) continue;
+
+                    int currentPriority = getAddressPriority(destEntry.getValue());
+                    if (currentPriority > priority) {
+                        targetDest = be;
+                        priority = currentPriority;
                     }
                 }
                 if (targetDest != null) {
-                    this.availableJobs.add(new Job(entry.getKey(), targetDest));
-                    destinations.remove(targetDest);
+                    this.availableJobs.add(new Job(entry.getKey(), new SmartBEPackageDest(level, targetDest)));
+                    destinations.remove(targetDest.getBlockPos());
                 }
             }
         }
@@ -274,7 +281,12 @@ public class DeliveryNetwork {
         return null;
     }
 
-    public record Job(BlockPos from, BlockPos to) { }
+    public record Job(@Nullable BlockPos from, @Nonnull PackageDestination to) {
+        public static final MapCodec<Job> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                BlockPos.CODEC.optionalFieldOf("From").forGetter(t -> Optional.ofNullable(t.from())),
+                PackageDestination.CODEC.fieldOf("To").forGetter(Job::to)
+        ).apply(instance, (from, to) -> new Job(from.orElse(null), to)));
+    }
 
     public static boolean isValidNode(Level level, BlockPos pos) {
         return level.getBlockState(pos).getBlock() instanceof DepotBlock;
