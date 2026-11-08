@@ -3,6 +3,7 @@ package com.kreidev.cmpackagecouriers.blockentity;
 import com.kreidev.cmpackagecouriers.PackageCarrier;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
+import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,8 +16,9 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
-public class DepotDestinationBehaviour extends PackageDestinationBehaviour {
+public class DepotDestinationBehaviour extends BlockEntityBehaviour {
 
     public static final BehaviourType<DepotDestinationBehaviour> TYPE = new BehaviourType<>();
 
@@ -27,6 +29,14 @@ public class DepotDestinationBehaviour extends PackageDestinationBehaviour {
         this.setLazyTickRate(50);
     }
 
+    public void addSubBehaviours(List<BlockEntityBehaviour> behaviours) {
+        behaviours.add(new PackageDestinationBehaviour(this.blockEntity)
+                .addressSupplier(() -> this.signAddress)
+                .hasSpaceWhen(this::hasSpace)
+                .setInsertionHandler(this::tryInsertPackage)
+        );
+    }
+
     @Override
     public void lazyTick() {
         String address = getSignAddress(this.blockEntity.getLevel(), this.blockEntity.getBlockPos());
@@ -34,18 +44,11 @@ public class DepotDestinationBehaviour extends PackageDestinationBehaviour {
         // TODO: cardboard plane add as target to global tracker
     }
 
-    @Override
-    public String getAddress() {
-        return this.signAddress;
-    }
-
-    @Override
-    public boolean hasSpace() {
+    private boolean hasSpace() {
         return ((DepotBlockEntity) this.blockEntity).getHeldItem().is(Items.AIR);
     }
 
-    @Override
-    public boolean tryInsertPackage(PackageCarrier carrier) {
+    private boolean tryInsertPackage(PackageCarrier carrier) {
         if (!this.hasSpace()) return false;
         DepotBlockEntity depot = (DepotBlockEntity) this.blockEntity;
         depot.setHeldItem(carrier.getPackage());
