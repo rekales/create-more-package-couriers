@@ -1,22 +1,16 @@
 package com.kreidev.cmpackagecouriers;
 
+import com.kreidev.cmpackagecouriers.blockentity.PackageDestinationBehaviour;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
-import com.simibubi.create.content.kinetics.belt.BeltHelper;
-import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
-import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -66,25 +60,29 @@ public class SmartBEPackageDest implements PackageDestination {
     public boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier) {
         if (!(level.getBlockEntity(this.blockPos) instanceof SmartBlockEntity be)) return false;
 
-        // TODO: use unified sbe behaviour
-        if (be instanceof DepotBlockEntity depot) {
-            if (depot.getHeldItem().is(Items.AIR)) {
-                depot.setHeldItem(carrier.getPackage());
-                depot.notifyUpdate();
-                return true;
-            }
-            return false;
-        } else if (BeltHelper.getSegmentBE(level, this.blockPos) instanceof BeltBlockEntity belt) {
-            TransportedItemStack tStack = belt.getInventory().getStackAtOffset(belt.index);
-            if (tStack == null) {
-                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, belt.getBlockPos(), null);
-                if (handler == null) return false;
-                handler.insertItem(0, carrier.getPackage(), false);
-                return true;
-            }
-        }
-
-        return false;
+        PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
+        if (behaviour == null) return false;
+        return behaviour.tryInsertPackage(carrier);
+//
+//        // TODO: use unified sbe behaviour
+//        if (be instanceof DepotBlockEntity depot) {
+//            if (depot.getHeldItem().is(Items.AIR)) {
+//                depot.setHeldItem(carrier.getPackage());
+//                depot.notifyUpdate();
+//                return true;
+//            }
+//            return false;
+//        } else if (BeltHelper.getSegmentBE(level, this.blockPos) instanceof BeltBlockEntity belt) {
+//            TransportedItemStack tStack = belt.getInventory().getStackAtOffset(belt.index);
+//            if (tStack == null) {
+//                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, belt.getBlockPos(), null);
+//                if (handler == null) return false;
+//                handler.insertItem(0, carrier.getPackage(), false);
+//                return true;
+//            }
+//        }
+//
+//        return false;
     }
 
     @Override
