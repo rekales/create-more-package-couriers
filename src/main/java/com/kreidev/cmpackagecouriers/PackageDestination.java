@@ -17,7 +17,7 @@ public interface PackageDestination {
 
     // NOTE: Can't be bothered with extendability for other mods, I'll be the one handling integration anyway.
     enum Type implements StringRepresentable {
-        SMART_BLOCK_ENTITY("SmartBlockEntity", SmartBEPackageDest.CODEC),
+        SMART_BLOCK_ENTITY("SmartBlockEntity", SmartBlockPackageDest.CODEC),
         PLAYER("Player", PlayerPackageDest.CODEC);
 
         public static final Codec<Type> CODEC = StringRepresentable.fromEnum(Type::values);

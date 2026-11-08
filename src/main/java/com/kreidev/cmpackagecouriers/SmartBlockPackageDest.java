@@ -17,25 +17,25 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class SmartBEPackageDest implements PackageDestination {
+public class SmartBlockPackageDest implements PackageDestination {
 
-    public static final MapCodec<SmartBEPackageDest> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+    public static final MapCodec<SmartBlockPackageDest> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BlockPos.CODEC.fieldOf("BlockPos").forGetter(dest -> dest.blockPos),
-            ResourceKey.codec(Registries.DIMENSION).fieldOf("Dim").forGetter(SmartBEPackageDest::getDim)
-    ).apply(instance, SmartBEPackageDest::new));
+            ResourceKey.codec(Registries.DIMENSION).fieldOf("Dim").forGetter(SmartBlockPackageDest::getDim)
+    ).apply(instance, SmartBlockPackageDest::new));
 
     @Nonnull private final BlockPos blockPos;
     @Nonnull private final ResourceKey<Level> dim;
     @Nonnull private final Vec3 centerPos;
 
-    public SmartBEPackageDest(ServerLevel level, SmartBlockEntity be) {
+    public SmartBlockPackageDest(ServerLevel level, SmartBlockEntity be) {
         this.blockPos = be.getBlockPos();
         this.dim = level.dimension();
         this.centerPos = Vec3.atCenterOf(this.blockPos);
     }
 
     // For Codec Deserialization
-    private SmartBEPackageDest(BlockPos blockPos, ResourceKey<Level> dim) {
+    private SmartBlockPackageDest(BlockPos blockPos, ResourceKey<Level> dim) {
         this.blockPos = blockPos;
         this.dim = dim;
         this.centerPos = Vec3.atCenterOf(this.blockPos);
@@ -63,26 +63,6 @@ public class SmartBEPackageDest implements PackageDestination {
         PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
         if (behaviour == null) return false;
         return behaviour.tryInsertPackage(carrier);
-//
-//        // TODO: use unified sbe behaviour
-//        if (be instanceof DepotBlockEntity depot) {
-//            if (depot.getHeldItem().is(Items.AIR)) {
-//                depot.setHeldItem(carrier.getPackage());
-//                depot.notifyUpdate();
-//                return true;
-//            }
-//            return false;
-//        } else if (BeltHelper.getSegmentBE(level, this.blockPos) instanceof BeltBlockEntity belt) {
-//            TransportedItemStack tStack = belt.getInventory().getStackAtOffset(belt.index);
-//            if (tStack == null) {
-//                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, belt.getBlockPos(), null);
-//                if (handler == null) return false;
-//                handler.insertItem(0, carrier.getPackage(), false);
-//                return true;
-//            }
-//        }
-//
-//        return false;
     }
 
     @Override

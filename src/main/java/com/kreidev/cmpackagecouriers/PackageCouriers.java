@@ -11,6 +11,7 @@ import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterReg;
 import com.mojang.logging.LogUtils;
 import com.simibubi.create.AllCreativeModeTabs;
+import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
@@ -26,6 +27,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
@@ -76,6 +78,17 @@ public class PackageCouriers {
         // Event Handler Class: CourierTarget
         // Event Handler Class: CardboardPlaneManager
         // Event Handler Class: StockTickerIntegration
+
+        NeoForge.EVENT_BUS.addListener((PlayerInteractEvent.RightClickBlock event) -> {
+            if (event.getLevel().isClientSide) return;
+
+            if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof BeltBlockEntity belt)) return;
+
+
+            PackageCouriers.LOGGER.debug("" + belt.beltLength);
+
+
+                });
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {

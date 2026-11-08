@@ -1,10 +1,8 @@
 package com.kreidev.cmpackagecouriers.courier;
 
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.PlayerPackageDest;
-import com.kreidev.cmpackagecouriers.SmartBEPackageDest;
-import com.mojang.serialization.DataResult;
+import com.kreidev.cmpackagecouriers.SmartBlockPackageDest;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.content.logistics.box.PackageItem;
@@ -17,9 +15,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -165,7 +160,7 @@ public class DeliveryNetwork {
                     }
                 }
                 if (targetDest != null) {
-                    this.availableJobs.add(new Job(entry.getKey(), new SmartBEPackageDest(level, targetDest)));
+                    this.availableJobs.add(new Job(entry.getKey(), new SmartBlockPackageDest(level, targetDest)));
                     destinations.remove(targetDest.getBlockPos());
                 }
             }
