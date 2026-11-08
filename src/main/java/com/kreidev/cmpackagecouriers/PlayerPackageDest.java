@@ -66,7 +66,7 @@ public class PlayerPackageDest implements PackageDestination {
     }
 
     @Override
-    public boolean transferPackage(ServerLevel level, PackageCarrier carrier) {
+    public boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier) {
         if (this.entity == null) return false;
         if (this.entity.isRemoved() || this.entity.isDeadOrDying()) return false;
 

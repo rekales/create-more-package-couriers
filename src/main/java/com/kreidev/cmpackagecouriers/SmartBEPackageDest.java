@@ -63,7 +63,7 @@ public class SmartBEPackageDest implements PackageDestination {
     }
 
     @Override
-    public boolean transferPackage(ServerLevel level, PackageCarrier carrier) {
+    public boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier) {
         if (!(level.getBlockEntity(this.blockPos) instanceof SmartBlockEntity be)) return false;
 
         // TODO: use unified sbe behaviour

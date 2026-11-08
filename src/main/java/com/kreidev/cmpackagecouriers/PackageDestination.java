@@ -38,10 +38,13 @@ public interface PackageDestination {
 
     ResourceKey<Level> getDim();
 
+    default void tickIncoming(PackageCarrier carrier) {
+    }
+
     /**
      * Called when the carrier arrives at the destination and to transfer the package to it.
      * @return false means it failed the transfer
      */
-    boolean transferPackage(ServerLevel level, PackageCarrier carrier);
+    boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier);
 
 }

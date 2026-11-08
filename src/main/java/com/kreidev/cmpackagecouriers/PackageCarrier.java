@@ -9,9 +9,14 @@ import javax.annotation.Nullable;
 public interface PackageCarrier {
 
     Vec3 getPos();
+
     void setPackage(ItemStack box);
+
+    // In theory, carriers would only carry a single package
     ItemStack getPackage();
+
     @Nullable PackageDestination getTarget();
+
     default boolean shouldUnpack() {  // unpacking on arrival
         return false;
     }
