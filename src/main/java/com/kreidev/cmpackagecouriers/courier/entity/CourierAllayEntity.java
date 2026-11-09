@@ -1,6 +1,9 @@
-package com.kreidev.cmpackagecouriers.courier;
+package com.kreidev.cmpackagecouriers.courier.entity;
 
 import com.google.common.collect.ImmutableList;
+import com.kreidev.cmpackagecouriers.courier.CourierMob;
+import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
+import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.EntityType;

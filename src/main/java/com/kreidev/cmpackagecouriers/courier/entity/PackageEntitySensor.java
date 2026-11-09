@@ -1,6 +1,7 @@
-package com.kreidev.cmpackagecouriers.courier;
+package com.kreidev.cmpackagecouriers.courier.entity;
 
 import com.google.common.collect.ImmutableSet;
+import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
 import com.simibubi.create.content.logistics.box.PackageEntity;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.server.level.ServerLevel;

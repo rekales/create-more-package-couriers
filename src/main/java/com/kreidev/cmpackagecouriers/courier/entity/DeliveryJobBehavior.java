@@ -1,5 +1,8 @@
-package com.kreidev.cmpackagecouriers.courier;
+package com.kreidev.cmpackagecouriers.courier.entity;
 
+import com.kreidev.cmpackagecouriers.courier.CourierMob;
+import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
+import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -8,7 +11,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;

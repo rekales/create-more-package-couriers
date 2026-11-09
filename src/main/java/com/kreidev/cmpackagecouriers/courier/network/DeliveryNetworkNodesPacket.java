@@ -1,6 +1,7 @@
-package com.kreidev.cmpackagecouriers.courier;
+package com.kreidev.cmpackagecouriers.courier.network;
 
 import com.kreidev.cmpackagecouriers.PackageCouriers;
+import com.kreidev.cmpackagecouriers.courier.WaybillItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;

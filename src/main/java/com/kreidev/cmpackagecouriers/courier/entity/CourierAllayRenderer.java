@@ -1,4 +1,4 @@
-package com.kreidev.cmpackagecouriers.courier;
+package com.kreidev.cmpackagecouriers.courier.entity;
 
 import net.minecraft.client.renderer.entity.AllayRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

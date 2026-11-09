@@ -1,4 +1,4 @@
-package com.kreidev.cmpackagecouriers.courier;
+package com.kreidev.cmpackagecouriers.courier.network;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;

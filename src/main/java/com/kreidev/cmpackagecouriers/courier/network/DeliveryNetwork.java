@@ -1,9 +1,11 @@
-package com.kreidev.cmpackagecouriers.courier;
+package com.kreidev.cmpackagecouriers.courier.network;
 
+import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.PlayerPackageDest;
 import com.kreidev.cmpackagecouriers.SmartBlockPackageDest;
 import com.kreidev.cmpackagecouriers.blockentity.PackageDestinationBehaviour;
+import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.content.logistics.box.PackageItem;
@@ -73,7 +75,7 @@ public class DeliveryNetwork {
             verifyActiveJobs(level);
             updateJobs(level);
             updateNearbyPlayers(level);
-//            PackageCouriers.LOGGER.debug("jobs" + availableJobs);
+            PackageCouriers.LOGGER.debug("jobs" + availableJobs);
 //            PackageCouriers.LOGGER.debug("" + cellSearchMap);
 //            PackageCouriers.LOGGER.debug("" + this.playersNearby);
 

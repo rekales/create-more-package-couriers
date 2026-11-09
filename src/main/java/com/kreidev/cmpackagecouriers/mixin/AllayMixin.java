@@ -1,6 +1,6 @@
 package com.kreidev.cmpackagecouriers.mixin;
 
-import com.kreidev.cmpackagecouriers.courier.CourierAllayEntity;
+import com.kreidev.cmpackagecouriers.courier.entity.CourierAllayEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

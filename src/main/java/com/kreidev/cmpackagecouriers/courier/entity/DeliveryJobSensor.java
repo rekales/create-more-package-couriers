@@ -1,5 +1,8 @@
-package com.kreidev.cmpackagecouriers.courier;
+package com.kreidev.cmpackagecouriers.courier.entity;
 
+import com.kreidev.cmpackagecouriers.courier.CourierMob;
+import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
+import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
