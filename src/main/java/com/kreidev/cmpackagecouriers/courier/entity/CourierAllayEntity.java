@@ -1,18 +1,20 @@
 package com.kreidev.cmpackagecouriers.courier.entity;
 
-import com.google.common.collect.ImmutableList;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
+import com.kreidev.cmpackagecouriers.courier.WaybillItem;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.sensing.Sensor;
-import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.allay.Allay;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -21,42 +23,38 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public class CourierAllayEntity extends Allay implements CourierMob {
 
-    protected final DeliveryNetwork network;
+    // Relevant only on serverside
+    protected DeliveryNetwork network;  // TODO: or waybill stack?
 
-    protected static final ImmutableList<SensorType<? extends Sensor<? super Allay>>> SENSOR_TYPES = ImmutableList.of(
-            DeliveryNetworkReg.NEAREST_PACKAGE_SENSOR.get(),
-            DeliveryNetworkReg.NEAREST_DEPOT_SENSOR.get(),
-            DeliveryNetworkReg.NEAREST_DEPOT_SENSOR.get(),
-            SensorType.HURT_BY
-    );
-
-    protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
-            MemoryModuleType.PATH,
-            MemoryModuleType.LOOK_TARGET,
-            MemoryModuleType.WALK_TARGET,
-            MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-            MemoryModuleType.HURT_BY,
-            MemoryModuleType.IS_PANICKING,
-            DeliveryNetworkReg.NEAREST_PACKAGE_ENTITY.get(),
-            DeliveryNetworkReg.TARGET_DEPOT.get(),
-            DeliveryNetworkReg.DELIVERY_JOB_MEM.get()
-    );
-
-    public CourierAllayEntity(EntityType<? extends Allay> entityType, Level level) {
+    public CourierAllayEntity(EntityType<? extends CourierAllayEntity> entityType, Level level) {
         super(entityType, level);
         this.network = null;
-
         this.getPersistentData().putBoolean("TrainHat", true);
     }
 
     @Override
+    public void tick() {
+        super.tick();
+
+        if (this.level().isClientSide) return;
+
+        if (this.network == null) {
+            // revert to allay
+        }
+    }
+
+    @Override
     protected Brain.Provider<Allay> brainProvider() {
-        return Brain.provider(CourierAllayEntity.MEMORY_TYPES, CourierAllayEntity.SENSOR_TYPES);
+        return CourierAllayAi.brainProvider();
     }
 
     @Override
     protected Brain<?> makeBrain(Dynamic<?> dynamic) {
         return CourierAllayAi.makeBrain(this.brainProvider().makeBrain(dynamic));
+    }
+
+    public void setDeliveryNetwork(DeliveryNetwork network) {
+        this.network = network;
     }
 
     @Override
@@ -67,5 +65,49 @@ public class CourierAllayEntity extends Allay implements CourierMob {
     @Override
     public @Nullable DeliveryNetwork.Job getCurrentJob() {
         return this.getBrain().getMemory(DeliveryNetworkReg.DELIVERY_JOB_MEM.get()).orElse(null);
+    }
+
+    public static boolean convert(Allay allay, DeliveryNetwork network) {
+        CourierAllayEntity courier = allay.convertTo(DeliveryNetworkReg.COURIER_ALLAY_ENTITY.get(), true);
+        if (courier == null) return false;
+        courier.setDeliveryNetwork(network);
+        return true;
+    }
+
+    public static boolean revert(CourierAllayEntity courier) {
+        Allay allay = courier.convertTo(EntityType.ALLAY, true);
+        return allay != null;
+    }
+
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+        if (!(event.getTarget() instanceof Mob mob)) return;
+
+        ItemStack stack = event.getItemStack();
+        Level level = event.getLevel();
+
+        if (mob.getType() == EntityType.ALLAY && stack.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) {
+            DeliveryNetwork delNet = WaybillItem.getAssignedNetwork(stack);
+            if (delNet != null) {
+                if (!level.isClientSide && convert((Allay) mob, delNet)) {
+                    stack.consume(1, event.getEntity());
+                }
+                event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
+                event.setCanceled(true);
+            }
+        } else if (mob.getType() == DeliveryNetworkReg.COURIER_ALLAY_ENTITY.get() && stack.isEmpty()) {
+            // TODO: remove package first
+            if (!level.isClientSide) {
+                CourierAllayEntity courier = (CourierAllayEntity) mob;
+                DeliveryNetwork delNet = courier.getDeliveryNetwork();
+                if (revert(courier)) {
+                    ItemStack waybill = new ItemStack(DeliveryNetworkReg.WAYBILL_ITEM.get());
+                    WaybillItem.setAssignedNetwork(waybill, delNet);
+                    event.getEntity().setItemInHand(InteractionHand.MAIN_HAND, waybill);
+                }
+            }
+            event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
+            event.setCanceled(true);
+        }
     }
 }

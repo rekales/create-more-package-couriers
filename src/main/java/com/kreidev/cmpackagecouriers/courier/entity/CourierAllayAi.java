@@ -7,8 +7,12 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.sensing.Sensor;
+import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.schedule.Activity;
 
@@ -28,6 +32,25 @@ public class CourierAllayAi {
     private static final int TIME_TO_FORGET_NOTEBLOCK = 600;
     private static final int DISTANCE_TO_WANTED_ITEM = 32;
     private static final int GIVE_ITEM_TIMEOUT_DURATION = 20;
+
+    private static final ImmutableList<SensorType<? extends Sensor<? super Allay>>> SENSOR_TYPES = ImmutableList.of(
+            DeliveryNetworkReg.NEAREST_PACKAGE_SENSOR.get(),
+            DeliveryNetworkReg.NEAREST_DEPOT_SENSOR.get(),
+            DeliveryNetworkReg.NEAREST_DEPOT_SENSOR.get(),
+            SensorType.HURT_BY
+    );
+
+    private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
+            MemoryModuleType.PATH,
+            MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.WALK_TARGET,
+            MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
+            MemoryModuleType.HURT_BY,
+            MemoryModuleType.IS_PANICKING,
+            DeliveryNetworkReg.NEAREST_PACKAGE_ENTITY.get(),
+            DeliveryNetworkReg.TARGET_DEPOT.get(),
+            DeliveryNetworkReg.DELIVERY_JOB_MEM.get()
+    );
 
     protected static Brain<?> makeBrain(Brain<Allay> brain) {
         initCoreActivity(brain);
@@ -78,5 +101,9 @@ public class CourierAllayAi {
 //    public static BehaviorControl<LivingEntity> goToPackage(float speed) {
 //        return BehaviorBuilder.create()
 //    }
+
+    static <T extends Allay> Brain.Provider<T> brainProvider() {
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
 
 }
