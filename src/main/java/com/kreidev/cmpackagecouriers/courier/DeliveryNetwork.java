@@ -3,28 +3,23 @@ package com.kreidev.cmpackagecouriers.courier;
 import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.PlayerPackageDest;
 import com.kreidev.cmpackagecouriers.SmartBlockPackageDest;
+import com.kreidev.cmpackagecouriers.blockentity.PackageDestinationBehaviour;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.SignBlockEntity;
-import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
@@ -114,15 +109,21 @@ public class DeliveryNetwork {
 
             if (reserved.contains(pos)) continue;
 
-            if (!(level.getBlockEntity(pos) instanceof DepotBlockEntity depot)) continue;
-
-            // TODO: address depot behaviour
-            String address = getDepotAddress(level, pos);
-            if (address != null && !address.isBlank()) {
-                if (depot.getHeldItem().isEmpty()) {
-                    destinations.put(pos, address);
+            // Destination Check
+            // Should destinations also be suppliers if address is not matched?
+            if (level.getBlockEntity(pos) instanceof SmartBlockEntity be) {
+                PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
+                if (behaviour != null) {
+                    String address = behaviour.getAddress();
+                    if (address != null && !address.isBlank() && behaviour.hasSpace()) {
+                        destinations.put(pos, address);
+                        continue;
+                    }
                 }
-            } else {
+            }
+
+            // Supplier Check
+            if (level.getBlockEntity(pos) instanceof DepotBlockEntity depot) {
                 ItemStack stack = depot.getHeldItem();
                 if (PackageItem.isPackage(stack)) {
                     String packageAddress =  PackageItem.getAddress(stack);
@@ -138,7 +139,7 @@ public class DeliveryNetwork {
 
             // Special "@Address" interaction
             String packageAddress =  PackageItem.getAddress(entry.getValue());
-            int atIndex = packageAddress.indexOf('@');
+            int atIndex = packageAddress.indexOf('@');  // TODO: also allow player targets even without '@'
             if (atIndex != -1) {  // TODO: ponder info about explicit @address player targets
                 packageAddress = packageAddress.substring(atIndex + 1);
                 for (Player player : this.playersNearby) {
@@ -153,7 +154,7 @@ public class DeliveryNetwork {
                     if (!(level.getBlockEntity(destEntry.getKey()) instanceof SmartBlockEntity be)) continue;
                     if (!PackageItem.matchAddress(entry.getValue(), destEntry.getValue())) continue;
 
-                    int currentPriority = getAddressPriority(destEntry.getValue());
+                    int currentPriority = PackageDestination.getAddressPriority(destEntry.getValue());
                     if (currentPriority > priority) {
                         targetDest = be;
                         priority = currentPriority;
@@ -174,38 +175,6 @@ public class DeliveryNetwork {
                 this.playersNearby.add(player);
             }
         }
-    }
-
-    private static int getAddressPriority(String address) {
-        return (int) -address.chars().filter(c -> c == '*').count();
-    }
-
-    private static @Nullable String getDepotAddress(Level level, BlockPos pos) {
-        for (Direction side : Iterate.directions) {
-            String address = getSign(level, pos, side);
-            if (address == null || address.isBlank())
-                continue;
-            return address;
-        }
-        return null;
-    }
-
-    private static String getSign(Level level, BlockPos pos, Direction side) {
-        BlockEntity blockEntity = level.getBlockEntity(pos.relative(side));
-        if (!(blockEntity instanceof SignBlockEntity sign))
-            return null;
-        for (boolean front : Iterate.trueAndFalse) {
-            SignText text = sign.getText(front);
-            String address = "";
-            for (Component component : text.getMessages(false)) {
-                String string = component.getString();
-                if (!string.isBlank())
-                    address += string.trim() + " ";
-            }
-            if (!address.isBlank())
-                return address.trim();
-        }
-        return null;
     }
 
     public boolean hasNode(BlockPos pos) {
@@ -288,7 +257,12 @@ public class DeliveryNetwork {
     }
 
     public static boolean isValidNode(Level level, BlockPos pos) {
-        return level.getBlockState(pos).getBlock() instanceof DepotBlock;
+        if (level.getBlockEntity(pos) instanceof SmartBlockEntity be) {  // Destination
+            PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
+            if (behaviour != null) return true;
+        }
+
+        return level.getBlockState(pos).getBlock() instanceof DepotBlock;  // Supplier, depot only for now.
     }
 
     public static List<SectionPos> getSectionsInRadius(BlockPos pos, int radius) {

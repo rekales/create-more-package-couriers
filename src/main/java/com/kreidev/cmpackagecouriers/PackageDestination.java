@@ -47,4 +47,7 @@ public interface PackageDestination {
      */
     boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier);
 
+    static int getAddressPriority(String address) {
+        return (int) -address.chars().filter(c -> c == '*').count();
+    }
 }
