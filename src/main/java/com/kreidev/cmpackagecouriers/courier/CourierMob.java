@@ -2,8 +2,10 @@ package com.kreidev.cmpackagecouriers.courier;
 
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 
+import javax.annotation.Nullable;
+
 public interface CourierMob {
 
-    DeliveryNetwork getDeliveryNetwork();
-    DeliveryNetwork.Job getCurrentJob();
+    @Nullable DeliveryNetwork getDeliveryNetwork();
+    @Nullable DeliveryNetwork.Job getCurrentJob();
 }

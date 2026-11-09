@@ -6,6 +6,10 @@ import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -23,12 +27,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public class CourierAllayEntity extends Allay implements CourierMob {
 
-    // Relevant only on serverside
-    protected DeliveryNetwork network;  // TODO: or waybill stack?
+    private static final String WAYBILL_TAG_KEY = "Waybill";
+    private static final EntityDataAccessor<ItemStack> WAYBILL =
+            SynchedEntityData.defineId(CourierAllayEntity.class, EntityDataSerializers.ITEM_STACK);
 
     public CourierAllayEntity(EntityType<? extends CourierAllayEntity> entityType, Level level) {
         super(entityType, level);
-        this.network = null;
         this.getPersistentData().putBoolean("TrainHat", true);
     }
 
@@ -38,8 +42,8 @@ public class CourierAllayEntity extends Allay implements CourierMob {
 
         if (this.level().isClientSide) return;
 
-        if (this.network == null) {
-            // revert to allay
+        if (this.getWaybill().isEmpty()) {
+            revert(this);
         }
     }
 
@@ -53,13 +57,18 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         return CourierAllayAi.makeBrain(this.brainProvider().makeBrain(dynamic));
     }
 
-    public void setDeliveryNetwork(DeliveryNetwork network) {
-        this.network = network;
+    public void setWaybill(ItemStack waybill) {
+        if (!waybill.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) return;
+        this.entityData.set(WAYBILL, waybill);
+    }
+
+    public ItemStack getWaybill() {
+        return this.entityData.get(WAYBILL);
     }
 
     @Override
-    public DeliveryNetwork getDeliveryNetwork() {
-        return this.network;
+    public @Nullable DeliveryNetwork getDeliveryNetwork() {
+        return WaybillItem.getAssignedNetwork(this.getWaybill());
     }
 
     @Override
@@ -67,10 +76,28 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         return this.getBrain().getMemory(DeliveryNetworkReg.DELIVERY_JOB_MEM.get()).orElse(null);
     }
 
-    public static boolean convert(Allay allay, DeliveryNetwork network) {
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(WAYBILL, ItemStack.EMPTY);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.put(WAYBILL_TAG_KEY, this.getWaybill().saveOptional(this.registryAccess()));
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        this.setWaybill(ItemStack.parseOptional(this.registryAccess(), tag.getCompound(WAYBILL_TAG_KEY)));
+    }
+
+    public static boolean convert(Allay allay, ItemStack waybill) {
+        if (!waybill.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) return false;
         CourierAllayEntity courier = allay.convertTo(DeliveryNetworkReg.COURIER_ALLAY_ENTITY.get(), true);
         if (courier == null) return false;
-        courier.setDeliveryNetwork(network);
+        courier.setWaybill(waybill);
         return true;
     }
 
@@ -87,22 +114,17 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         Level level = event.getLevel();
 
         if (mob.getType() == EntityType.ALLAY && stack.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) {
-            DeliveryNetwork delNet = WaybillItem.getAssignedNetwork(stack);
-            if (delNet != null) {
-                if (!level.isClientSide && convert((Allay) mob, delNet)) {
-                    stack.consume(1, event.getEntity());
-                }
-                event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
-                event.setCanceled(true);
+            if (!level.isClientSide && convert((Allay) mob, stack.copyWithCount(1))) {
+                stack.consume(1, event.getEntity());
             }
+            event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
+            event.setCanceled(true);
         } else if (mob.getType() == DeliveryNetworkReg.COURIER_ALLAY_ENTITY.get() && stack.isEmpty()) {
             // TODO: remove package first
             if (!level.isClientSide) {
                 CourierAllayEntity courier = (CourierAllayEntity) mob;
-                DeliveryNetwork delNet = courier.getDeliveryNetwork();
+                ItemStack waybill = courier.getWaybill();
                 if (revert(courier)) {
-                    ItemStack waybill = new ItemStack(DeliveryNetworkReg.WAYBILL_ITEM.get());
-                    WaybillItem.setAssignedNetwork(waybill, delNet);
                     event.getEntity().setItemInHand(InteractionHand.MAIN_HAND, waybill);
                 }
             }
