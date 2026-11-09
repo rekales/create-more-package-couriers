@@ -7,8 +7,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.List;
-
 public class DepotDestinationBehaviour extends BlockEntityBehaviour {
 
     public static final BehaviourType<DepotDestinationBehaviour> TYPE = new BehaviourType<>();
@@ -18,10 +16,10 @@ public class DepotDestinationBehaviour extends BlockEntityBehaviour {
         this.setLazyTickRate(50);
     }
 
-    public void addSubBehaviours(List<BlockEntityBehaviour> behaviours) {
+    public void attachSubBehaviours(ModBlockEntityBehaviours.BehaviourInstaller installer) {
         SignAddressableBehaviour addressableBehaviour = new SignAddressableBehaviour(this.blockEntity);
-        behaviours.add(addressableBehaviour);
-        behaviours.add(new PackageDestinationBehaviour(this.blockEntity)
+        installer.attach(addressableBehaviour);
+        installer.attach(new PackageDestinationBehaviour(this.blockEntity)
                 .addressSupplier(addressableBehaviour::getAddressFilter)
                 .hasSpaceWhen(this::hasSpace)
                 .setInsertionHandler(this::tryInsertPackage)

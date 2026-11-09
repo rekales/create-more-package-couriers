@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers;
 
+import com.kreidev.cmpackagecouriers.blockentity.ModBlockEntityBehaviours;
 import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
@@ -75,6 +76,8 @@ public class PackageCouriers {
             NeoForge.EVENT_BUS.addListener(PackageCouriersKeys::onKeyInput);
         }
 
+        NeoForge.EVENT_BUS.addListener(ModBlockEntityBehaviours::attachBehaviours);
+
         // Event Handler Class: CourierTarget
         // Event Handler Class: CardboardPlaneManager
         // Event Handler Class: StockTickerIntegration
@@ -88,7 +91,7 @@ public class PackageCouriers {
             PackageCouriers.LOGGER.debug("" + belt.beltLength);
 
 
-                });
+        });
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {

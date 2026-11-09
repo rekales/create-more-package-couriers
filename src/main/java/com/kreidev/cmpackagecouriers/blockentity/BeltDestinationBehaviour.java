@@ -7,8 +7,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import java.util.List;
-
 public class BeltDestinationBehaviour extends BlockEntityBehaviour {
 
     public static final BehaviourType<BeltDestinationBehaviour> TYPE = new BehaviourType<>();
@@ -17,10 +15,10 @@ public class BeltDestinationBehaviour extends BlockEntityBehaviour {
         super(be);
     }
 
-    public void addSubBehaviours(List<BlockEntityBehaviour> behaviours) {
+    public void attachSubBehaviours(ModBlockEntityBehaviours.BehaviourInstaller installer) {
         SignAddressableBehaviour addressableBehaviour = new SignAddressableBehaviour(this.blockEntity);
-        behaviours.add(addressableBehaviour);
-        behaviours.add(new PackageDestinationBehaviour(this.blockEntity)
+        installer.attach(addressableBehaviour);
+        installer.attach(new PackageDestinationBehaviour(this.blockEntity)
                 .addressSupplier(addressableBehaviour::getAddressFilter)
                 .hasSpaceWhen(this::hasSpace)
                 .setInsertionHandler(this::tryInsertPackage)
