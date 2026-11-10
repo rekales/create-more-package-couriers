@@ -60,9 +60,11 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         return CourierAllayAi.brainProvider();
     }
 
+    @SuppressWarnings("unchecked")  // Generics jank but I think it works without issues
     @Override
     protected Brain<?> makeBrain(Dynamic<?> dynamic) {
-        return CourierAllayAi.makeBrain(this.brainProvider().makeBrain(dynamic));
+        Brain<?> brain = this.brainProvider().makeBrain(dynamic);
+        return CourierAllayAi.makeBrain((Brain<CourierAllayEntity>) brain);
     }
 
     @Override
