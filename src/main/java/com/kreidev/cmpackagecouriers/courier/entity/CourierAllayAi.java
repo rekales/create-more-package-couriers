@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
@@ -38,12 +39,14 @@ public class CourierAllayAi {
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.HURT_BY,
             MemoryModuleType.IS_PANICKING,
-            CourierNetworkReg.DELIVERY_JOB_MEM.get()
+            CourierNetworkReg.DELIVERY_JOB_MEM.get(),
+            CourierNetworkReg.PLAYER_SERVING_MEM.get()
     );
 
     protected static Brain<?> makeBrain(Brain<CourierAllayEntity> brain) {
         initCoreActivity(brain);
         initIdleActivity(brain);
+        initWorkActivity(brain);
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         brain.setDefaultActivity(Activity.IDLE);
         brain.useDefaultActivity();
@@ -68,19 +71,17 @@ public class CourierAllayAi {
             1. if network has job and no current job then get the job
             2. if has job and no package, then go to job.from
             3. if has job and has package, then go to job.to
-            4. if has no job and player nearby then go close to player.
+            4. if has no job but has package, try to create job with null job.from, otherwise drop package.
+            5. if has no job and player nearby then go close to player.
                 - set anchor point first and if player goes to far from the anchor point, stop.
-            5. if has no job and no player nearby, roam within network
+            6. if has no job and no player nearby, roam within network
          */
 
         brain.addActivityWithConditions(
                 Activity.IDLE,
                 ImmutableList.of(
+                        Pair.of(0, FetchJobFromNetwork.create()),
 
-
-
-//                        Pair.of(0, GoToWantedItem.create(p_218428_ -> true, 1.75F, true, 32)),
-//                        Pair.of(1, new GoAndGiveItemsToTarget<>(AllayAi::getItemDepositPosition, 2.25F, 20)),
                         Pair.of(3, SetEntityLookTargetSometimes.create(6.0F, UniformInt.of(30, 60))),
                         Pair.of(4, new RunOne<>(ImmutableList.of(
                                         Pair.of(RandomStroll.fly(1.0F), 2),
@@ -92,11 +93,17 @@ public class CourierAllayAi {
         );
     }
 
+    private static void initWorkActivity(Brain<CourierAllayEntity> brain) {
+        brain.addActivityWithConditions(Activity.WORK, ImmutableList.of(
+                Pair.of(1, new DeliveryJobBehavior<>())
+        ), ImmutableSet.of(Pair.of(CourierNetworkReg.DELIVERY_JOB_MEM.get(), MemoryStatus.VALUE_PRESENT)));
+    }
+
     static <T extends Mob> Brain.Provider<T> brainProvider() {
         return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
     }
 
     public static void updateActivity(Mob mob) {
-        mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
+        mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activity.IDLE));
     }
 }

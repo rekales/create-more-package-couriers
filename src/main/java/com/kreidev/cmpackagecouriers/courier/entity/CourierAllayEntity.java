@@ -102,6 +102,11 @@ public class CourierAllayEntity extends Allay implements CourierMob {
     }
 
     @Override
+    public @Nullable Player getPlayerFollowing() {
+        return this.getBrain().getMemory(CourierNetworkReg.PLAYER_SERVING_MEM.get()).orElse(null);
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(WAYBILL, ItemStack.EMPTY);

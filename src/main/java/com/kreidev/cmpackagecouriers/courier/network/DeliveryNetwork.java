@@ -27,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 // TODO: add method for checking possible destinations from an address
 // for when the current destination is full or package was given by the player
@@ -48,7 +49,7 @@ public class DeliveryNetwork {
     private final Map<Job, CourierMob> activeJobs;  // TODO: make the courier remind the delnet because of load/save inconsistencies.
 
     private final Map<SectionPos, Set<BlockPos>> cellSearchMap = new HashMap<>();  // Spatial hash : Nodes covering that hash
-    private final Set<Player> playersNearby = new HashSet<>();
+    private final Map<Player, CourierMob> playersNearby = new HashMap<>();  // Player : Assigned mob to be nearby
 
     // NOTE: optimizations - hotspot positions
 
@@ -144,7 +145,7 @@ public class DeliveryNetwork {
             int atIndex = packageAddress.indexOf('@');  // TODO: also allow player targets even without '@'
             if (atIndex != -1) {  // TODO: ponder info about explicit @address player targets
                 packageAddress = packageAddress.substring(atIndex + 1);
-                for (Player player : this.playersNearby) {
+                for (Player player : this.playersNearby.keySet()) {
                     if (PackageItem.matchAddress(player.getName().getString(), packageAddress)) {
                         this.availableJobs.add(new Job(entry.getKey(), new PlayerPackageDest(player)));
                     }
@@ -174,7 +175,7 @@ public class DeliveryNetwork {
         this.playersNearby.clear();
         for (Player player : level.players()) {
             if (this.isNearbyNetwork(player.position())) {
-                this.playersNearby.add(player);
+                this.playersNearby.put(player, null);
             }
         }
     }
@@ -240,6 +241,20 @@ public class DeliveryNetwork {
 
     private Set<BlockPos> getNodes() {
         return this.nodes;
+    }
+
+    public Set<Player> getUnassignedPlayersNearby() {
+        return this.playersNearby.entrySet().stream()
+                .filter(e -> e.getValue() == null)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+    }
+
+    // TODO: let couriers update the network it exists, and network to check couriers if they are following anything
+    public void assignCourierToPlayer(Player player, CourierMob mob) {
+        if (this.playersNearby.containsKey(player)) {
+            this.playersNearby.put(player, mob);
+        }
     }
 
     public @Nullable DeliveryNetwork.Job getJob(CourierMob courier) {
