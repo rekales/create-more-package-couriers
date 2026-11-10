@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers.courier.entity;
 
+import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.kreidev.cmpackagecouriers.courier.WaybillItem;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import javax.annotation.Nullable;
@@ -141,5 +143,25 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         }
         event.setCancellationResult(InteractionResult.SUCCESS);
         event.setCanceled(true);
+    }
+
+    @Override
+    public Vec3 getPos() {
+        return this.position();
+    }
+
+    @Override
+    public void setPackage(ItemStack box) {
+        this.setItemInHand(InteractionHand.MAIN_HAND, box);
+    }
+
+    @Override
+    public ItemStack getPackage() {
+        return this.getItemInHand(InteractionHand.MAIN_HAND);
+    }
+
+    @Override
+    public @Nullable PackageDestination getDestination() {
+        return null;
     }
 }

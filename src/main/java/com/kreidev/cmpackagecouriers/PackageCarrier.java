@@ -15,7 +15,7 @@ public interface PackageCarrier {
     // In theory, carriers would only carry a single package
     ItemStack getPackage();
 
-    @Nullable PackageDestination getTarget();
+    @Nullable PackageDestination getDestination();
 
     default boolean shouldUnpack() {  // unpacking on arrival
         return false;
