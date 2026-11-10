@@ -24,7 +24,7 @@ public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior
 
     private Vec3 anchor = Vec3.ZERO;
 
-    public FollowPlayerInNetwork(Map<MemoryModuleType<?>, MemoryStatus> entryCondition) {
+    public FollowPlayerInNetwork() {
         super(ImmutableMap.of(
                 MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED,
                 CourierNetworkReg.PLAYER_SERVING_MEM.get(), MemoryStatus.REGISTERED

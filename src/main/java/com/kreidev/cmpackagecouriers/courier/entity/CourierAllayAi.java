@@ -81,7 +81,8 @@ public class CourierAllayAi {
                 Activity.IDLE,
                 ImmutableList.of(
                         Pair.of(0, FetchJobFromNetwork.create()),
-                        Pair.of(4, new RunOne<>(ImmutableList.of(
+                        Pair.of(1, new FollowPlayerInNetwork<>()),
+                        Pair.of(2, new RunOne<>(ImmutableList.of(
                                         Pair.of(RandomStroll.fly(1.0F), 2),
                                         Pair.of(SetWalkTargetFromLookTarget.create(1.0F, 3), 2),
                                         Pair.of(RandomStrollWithinNetwork.create(1.0F), 1),
