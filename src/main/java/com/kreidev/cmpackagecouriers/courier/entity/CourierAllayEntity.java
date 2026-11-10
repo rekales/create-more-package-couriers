@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -52,7 +53,10 @@ public class CourierAllayEntity extends Allay implements CourierMob {
 
     @Override
     protected void customServerAiStep() {
-//        super.customServerAiStep();
+        this.level().getProfiler().push("courierAllayBrain");
+        this.getBrain().tick((ServerLevel)this.level(), this);
+        CourierAllayAi.updateActivity(this);
+        this.level().getProfiler().pop();
     }
 
     @Override

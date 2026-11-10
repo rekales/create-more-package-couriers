@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
@@ -16,17 +15,9 @@ import net.minecraft.world.entity.schedule.Activity;
 
 public class CourierAllayAi {
 
-    private static final float SPEED_MULTIPLIER_WHEN_IDLING = 1.0F;
-    private static final float SPEED_MULTIPLIER_WHEN_FOLLOWING_DEPOSIT_TARGET = 2.25F;
-    private static final float SPEED_MULTIPLIER_WHEN_RETRIEVING_ITEM = 1.75F;
-    private static final int CLOSE_ENOUGH_TO_TARGET = 4;
-    private static final int TOO_FAR_FROM_TARGET = 16;
-    private static final int MAX_LOOK_DISTANCE = 6;
-    private static final int MIN_WAIT_DURATION = 30;
-    private static final int MAX_WAIT_DURATION = 60;
-    private static final int TIME_TO_FORGET_NOTEBLOCK = 600;
-    private static final int DISTANCE_TO_WANTED_ITEM = 32;
-    private static final int GIVE_ITEM_TIMEOUT_DURATION = 20;
+    private static final float IDLE_MOVE_SPEED = 1.0F;
+    private static final float JOB_MOVE_SPEED = 1.75F;
+    private static final float PLAYER_DELIVERY_MOVE_SPEED = 2.25F;
 
     private static final ImmutableList<SensorType<? extends Sensor<? super Mob>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.HURT_BY
@@ -83,9 +74,9 @@ public class CourierAllayAi {
                         Pair.of(0, FetchJobFromNetwork.create()),
                         Pair.of(1, new FollowPlayerInNetwork<>()),
                         Pair.of(2, new RunOne<>(ImmutableList.of(
-                                        Pair.of(RandomStroll.fly(1.0F), 2),
-                                        Pair.of(SetWalkTargetFromLookTarget.create(1.0F, 3), 2),
-                                        Pair.of(RandomStrollWithinNetwork.create(1.0F), 1),
+                                        Pair.of(RandomStroll.fly(IDLE_MOVE_SPEED), 2),
+                                        Pair.of(SetWalkTargetFromLookTarget.create(IDLE_MOVE_SPEED, 3), 2),
+                                        Pair.of(RandomStrollWithinNetwork.create(IDLE_MOVE_SPEED, 4), 1),
                                         Pair.of(new DoNothing(30, 60), 3)
                         )))
                 ),
@@ -104,6 +95,7 @@ public class CourierAllayAi {
     }
 
     public static void updateActivity(Mob mob) {
-        mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activity.IDLE));
+//        mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activity.IDLE));
+        mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
     }
 }

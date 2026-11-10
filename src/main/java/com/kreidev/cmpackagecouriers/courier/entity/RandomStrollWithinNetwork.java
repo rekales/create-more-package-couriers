@@ -1,5 +1,6 @@
 package com.kreidev.cmpackagecouriers.courier.entity;
 
+import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import net.minecraft.core.BlockPos;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class RandomStrollWithinNetwork {
 
-    public static <T extends Mob & CourierMob> BehaviorControl<T> create(float speedModifier) {
+    public static <T extends Mob & CourierMob> BehaviorControl<T> create(float speedModifier, int closeEnoughDist) {
         return BehaviorBuilder.create(builder -> builder.group(builder.absent(MemoryModuleType.WALK_TARGET))
                 .apply(builder, walkAcc -> (level, mob, gameTime) -> {
                     DeliveryNetwork network = mob.getDeliveryNetwork();
@@ -24,9 +25,10 @@ public class RandomStrollWithinNetwork {
 
                     BlockPos node = nodes.get(mob.getRandom().nextInt(nodes.size()));
                     walkAcc.setWithExpiry(
-                            new WalkTarget(node, speedModifier, 4),
+                            new WalkTarget(node, speedModifier, closeEnoughDist),
                             (int) (30 * mob.position().distanceTo(node.getCenter()))
                     );
+                    PackageCouriers.LOGGER.debug("Roaming to node: " + node);
                     return true;
                 })
         );
