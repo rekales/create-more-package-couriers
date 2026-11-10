@@ -40,16 +40,18 @@ public class DeliveryNetwork {
             ).apply(instance, DeliveryNetwork::new));
 
     private static final int PLAYER_SEARCH_RADIUS = 16;  // TODO: config
+    private static final int COURIER_TRACKING_TIMEOUT = 10;
 
     @Nonnull private final UUID id;
     private final ResourceKey<Level> dim;
     private final Set<BlockPos> nodes;
 
     private final Queue<Job> availableJobs;
-    private final Map<Job, CourierMob> activeJobs;  // TODO: make the courier remind the delnet because of load/save inconsistencies.
+    private final Map<Job, CourierMob> activeJobs;
+    private final Map<CourierMob, Long> couriers;  // Courier : Level timestamp last check in
 
     private final Map<SectionPos, Set<BlockPos>> cellSearchMap = new HashMap<>();  // Spatial hash : Nodes covering that hash
-    private final Map<Player, CourierMob> playersNearby = new HashMap<>();  // Player : Assigned mob to be nearby
+    private final Map<Player, CourierMob> playersNearby = new HashMap<>();  // Player : Assigned mob to be nearby  // TODO: turn to BiMap
 
     // NOTE: optimizations - hotspot positions
 
@@ -59,6 +61,7 @@ public class DeliveryNetwork {
         this.nodes = new HashSet<>();
         this.availableJobs = new ArrayDeque<>();
         this.activeJobs = new HashMap<>();
+        this.couriers = new HashMap<>();
     }
 
     // For codec use
@@ -68,26 +71,50 @@ public class DeliveryNetwork {
         this.nodes = nodes;
         this.availableJobs = new ArrayDeque<>();
         this.activeJobs = new HashMap<>();
+        this.couriers = new HashMap<>();
         this.refreshCellMap();
     }
 
     public void tick(ServerLevel level) {
-        if (level.getGameTime() % 20 == 1) {
-            verifyActiveJobs(level);
+        if (level.getGameTime() % 5 == 1) {
+            updateCouriers(level);
+        }
+
+        if (level.getGameTime() % 20 == 1) {  // remember to match equal check with above
             updateJobs(level);
             updateNearbyPlayers(level);
-            PackageCouriers.LOGGER.debug("jobs" + availableJobs);
+//            PackageCouriers.LOGGER.debug("jobs" + availableJobs);
 //            PackageCouriers.LOGGER.debug("" + cellSearchMap);
-//            PackageCouriers.LOGGER.debug("" + this.playersNearby);
-
+            PackageCouriers.LOGGER.debug("" + this.playersNearby);
         }
     }
 
-    @SuppressWarnings("unused")
-    private void verifyActiveJobs(ServerLevel level) {
-        activeJobs.entrySet().removeIf(entry ->
-                !(entry.getValue() instanceof Entity entity && entity.isAlive())
-                || entry.getValue().getCurrentJob() != entry.getKey());
+    private void updateCouriers(ServerLevel level) {
+        long gameTime = level.getGameTime();
+        this.activeJobs.clear();
+        for (Iterator<Map.Entry<CourierMob, Long>> it = this.couriers.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<CourierMob, Long> e = it.next();
+            if (gameTime - e.getValue() > COURIER_TRACKING_TIMEOUT) {
+                it.remove();
+                continue;
+            }
+
+            // Should be fine to restrict non entities right?
+            if (!(e.getKey() instanceof Entity entity && entity.isAlive() && !entity.isRemoved())) {
+                it.remove();
+                continue;
+            }
+
+            Job job = e.getKey().getCurrentJob();
+            if (job != null) {
+                this.activeJobs.put(job, e.getKey());
+            }
+
+            Player following = e.getKey().getPlayerFollowing();
+            if (following != null) {
+                this.assignCourierToPlayer(following, e.getKey());
+            }
+        }
     }
 
     private void updateJobs(ServerLevel level) {
@@ -180,6 +207,14 @@ public class DeliveryNetwork {
         }
     }
 
+    /**
+     * called by courier mobs to tell the network it exists.
+     */
+    public void checkIn(ServerLevel level, CourierMob courier) {
+        if (courier.getDeliveryNetwork() != this) return;
+        this.couriers.put(courier, level.getGameTime());
+    }
+
     public boolean hasNode(BlockPos pos) {
         return this.nodes.contains(pos);
     }
@@ -250,10 +285,10 @@ public class DeliveryNetwork {
                 .collect(Collectors.toSet());
     }
 
-    // TODO: let couriers update the network it exists, and network to check couriers if they are following anything
-    public void assignCourierToPlayer(Player player, CourierMob mob) {
+    // NOTE: remember to call from the courier to avoid having multiple follow the same player
+    public void assignCourierToPlayer(Player player, CourierMob courier) {
         if (this.playersNearby.containsKey(player)) {
-            this.playersNearby.put(player, mob);
+            this.playersNearby.put(player, courier);
         }
     }
 

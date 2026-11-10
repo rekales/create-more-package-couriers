@@ -48,6 +48,12 @@ public class CourierAllayEntity extends Allay implements CourierMob {
 
         if (this.getWaybill().isEmpty()) {
             revert(this);
+            return;
+        }
+
+        DeliveryNetwork network = this.getDeliveryNetwork();
+        if (network != null) {
+            network.checkIn((ServerLevel) this.level(), this);
         }
     }
 

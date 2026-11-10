@@ -65,6 +65,7 @@ public class DeliveryNetworkManager extends SavedData {
         return network;
     }
 
+    // TODO: removing empty and redundant networks
     public static void removeNetwork(UUID id) {
         INSTANCE.networks.remove(id);
     }

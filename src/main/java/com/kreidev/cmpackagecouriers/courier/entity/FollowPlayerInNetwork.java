@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
 import java.util.Set;
 
 // TODO: config feature
@@ -34,13 +35,18 @@ public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior
         DeliveryNetwork network = mob.getDeliveryNetwork();
         if (network == null) return false;
 
+//        if (mob.getPlayerFollowing() != null) return true;
+
+
+
         // TODO: check interval
-        Set<Player> players = network.getUnassignedPlayersNearby();
-        if (players.isEmpty()) return false;
+        Optional<Player> player = network.getUnassignedPlayersNearby().stream().findAny();
+        if (player.isEmpty()) return false;
 
         // start logic in here to avoid double fetching DeliveryNetwork#getUnassignedPlayersNearby
-        mob.getBrain().setMemory(CourierNetworkReg.PLAYER_SERVING_MEM.get(), players.stream().findAny());
+        mob.getBrain().setMemory(CourierNetworkReg.PLAYER_SERVING_MEM.get(), player);
         this.anchor = mob.position();
+        network.assignCourierToPlayer(player.get(), mob);
         return true;
     }
 
