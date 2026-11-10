@@ -4,7 +4,7 @@ import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.kreidev.cmpackagecouriers.courier.WaybillItem;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
-import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
+import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
@@ -83,7 +83,7 @@ public class CourierAllayEntity extends Allay implements CourierMob {
     }
 
     public void setWaybill(ItemStack waybill) {
-        if (!waybill.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) return;
+        if (!waybill.is(CourierNetworkReg.WAYBILL_ITEM.get())) return;
         this.entityData.set(WAYBILL, waybill);
     }
 
@@ -98,7 +98,7 @@ public class CourierAllayEntity extends Allay implements CourierMob {
 
     @Override
     public @Nullable DeliveryNetwork.Job getCurrentJob() {
-        return this.getBrain().getMemory(DeliveryNetworkReg.DELIVERY_JOB_MEM.get()).orElse(null);
+        return this.getBrain().getMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get()).orElse(null);
     }
 
     @Override
@@ -119,9 +119,9 @@ public class CourierAllayEntity extends Allay implements CourierMob {
     }
 
     public static boolean convert(Allay allay, ItemStack waybill) {
-        if (!waybill.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) return false;
+        if (!waybill.is(CourierNetworkReg.WAYBILL_ITEM.get())) return false;
         List<ItemStack> items = allay.getInventory().removeAllItems();
-        CourierAllayEntity courier = allay.convertTo(DeliveryNetworkReg.COURIER_ALLAY_ENTITY.get(), true);
+        CourierAllayEntity courier = allay.convertTo(CourierNetworkReg.COURIER_ALLAY_ENTITY.get(), true);
         if (courier == null) return false;
         items.forEach(allay::spawnAtLocation);
         courier.dropEquipment();
@@ -139,7 +139,7 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         if (!(event.getTarget() instanceof Allay allay && allay.getType() == EntityType.ALLAY)) return;
 
         ItemStack stack = event.getItemStack();
-        if (!stack.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) return;
+        if (!stack.is(CourierNetworkReg.WAYBILL_ITEM.get())) return;
         if (!event.getLevel().isClientSide && convert(allay, stack.copyWithCount(1))) {
             stack.consume(1, event.getEntity());
         }

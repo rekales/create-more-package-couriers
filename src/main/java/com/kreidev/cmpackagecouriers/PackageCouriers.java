@@ -1,7 +1,7 @@
 package com.kreidev.cmpackagecouriers;
 
 import com.kreidev.cmpackagecouriers.blockentity.ModBlockEntityBehaviours;
-import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
+import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.kreidev.cmpackagecouriers.compat.Mods;
 import com.kreidev.cmpackagecouriers.compat.create_factory_logistics.FactoryLogisticsCompat;
 import com.kreidev.cmpackagecouriers.compat.curios.CuriosCompat;
@@ -57,7 +57,7 @@ public class PackageCouriers {
             PortableStockTickerReg.register();
         LocationTransmitterReg.register(modEventBus);
         CardboardPlaneReg.register(modEventBus);
-        DeliveryNetworkReg.register(modEventBus);
+        CourierNetworkReg.register(modEventBus);
 
         REGISTRATE.registerEventListeners(modEventBus);
         DATA_COMPONENTS.register(modEventBus);

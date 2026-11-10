@@ -2,7 +2,7 @@ package com.kreidev.cmpackagecouriers.courier.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.kreidev.cmpackagecouriers.courier.DeliveryNetworkReg;
+import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Mob;
@@ -38,7 +38,7 @@ public class CourierAllayAi {
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.HURT_BY,
             MemoryModuleType.IS_PANICKING,
-            DeliveryNetworkReg.DELIVERY_JOB_MEM.get()
+            CourierNetworkReg.DELIVERY_JOB_MEM.get()
     );
 
     protected static Brain<?> makeBrain(Brain<CourierAllayEntity> brain) {
