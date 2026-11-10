@@ -2,7 +2,6 @@ package com.kreidev.cmpackagecouriers.courier.entity;
 
 import com.google.common.collect.ImmutableMap;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
-import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
@@ -25,8 +24,7 @@ public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior
 
     public FollowPlayerInNetwork() {
         super(ImmutableMap.of(
-                MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED,
-                CourierNetworkReg.PLAYER_SERVING_MEM.get(), MemoryStatus.VALUE_ABSENT
+                MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED
         ), 400, 600);
     }
 
@@ -35,18 +33,16 @@ public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior
         DeliveryNetwork network = mob.getDeliveryNetwork();
         if (network == null) return false;
 
-//        if (mob.getPlayerFollowing() != null) return true;
+        // Bypass and just start
+        if (network.getFollowingPlayer(mob) != null) return true;
 
-
-
-        // TODO: check interval
-        Optional<Player> player = network.getUnassignedPlayersNearby().stream().findAny();
+        if (level.getGameTime() % 10 != 2) return false;
+        Optional<Player> player = network.getUnfollowedPlayersNearby().stream().findAny();
         if (player.isEmpty()) return false;
 
         // start logic in here to avoid double fetching DeliveryNetwork#getUnassignedPlayersNearby
-        mob.getBrain().setMemory(CourierNetworkReg.PLAYER_SERVING_MEM.get(), player);
         this.anchor = mob.position();
-        network.assignCourierToPlayer(player.get(), mob);
+        network.setFollowingPlayer(player.get(), mob);
         return true;
     }
 
@@ -55,27 +51,28 @@ public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior
         DeliveryNetwork network = mob.getDeliveryNetwork();
         if (network == null) return false;
 
-        Player following = mob.getBrain().getMemory(CourierNetworkReg.PLAYER_SERVING_MEM.get()).orElse(null);
+        Player following = network.getFollowingPlayer(mob);
         if (following == null || following.isDeadOrDying() || following.isRemoved()) return false;
 
-        if (gameTime % 20 == 2) {
-            Set<Player> players = network.getUnassignedPlayersNearby();
-            if (!players.contains(following)) return false;
-        }
+        Set<Player> players = network.getNearbyPlayers();
+        if (!players.contains(following)) return false;
 
         return following.position().closerThan(this.anchor, 16);
     }
 
     @Override
     protected void stop(ServerLevel level, T mob, long gameTime) {
-        mob.getBrain().eraseMemory(CourierNetworkReg.PLAYER_SERVING_MEM.get());
         mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        DeliveryNetwork network = mob.getDeliveryNetwork();
+        if (network == null) return;
+        network.stopFollowingPlayer(mob);
     }
 
     @SuppressWarnings("DataFlowIssue")  // Already handled on canStillUse
     @Override
     protected void tick(ServerLevel level, T mob, long gameTime) {
-        Player following = mob.getBrain().getMemory(CourierNetworkReg.PLAYER_SERVING_MEM.get()).orElse(null);
+        DeliveryNetwork network = mob.getDeliveryNetwork();
+        Player following = network.getFollowingPlayer(mob);
         mob.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(following, 1.0F, 6));
     }
 }

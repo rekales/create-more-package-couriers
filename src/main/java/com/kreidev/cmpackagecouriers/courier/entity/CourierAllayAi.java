@@ -30,8 +30,7 @@ public class CourierAllayAi {
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.HURT_BY,
             MemoryModuleType.IS_PANICKING,
-            CourierNetworkReg.DELIVERY_JOB_MEM.get(),
-            CourierNetworkReg.PLAYER_SERVING_MEM.get()
+            CourierNetworkReg.DELIVERY_JOB_MEM.get()
     );
 
     protected static Brain<?> makeBrain(Brain<CourierAllayEntity> brain) {

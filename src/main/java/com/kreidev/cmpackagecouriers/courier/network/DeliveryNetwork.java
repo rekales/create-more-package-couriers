@@ -1,5 +1,9 @@
 package com.kreidev.cmpackagecouriers.courier.network;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.PlayerPackageDest;
@@ -27,7 +31,6 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 // TODO: add method for checking possible destinations from an address
 // for when the current destination is full or package was given by the player
@@ -51,7 +54,8 @@ public class DeliveryNetwork {
     private final Map<CourierMob, Long> couriers;  // Courier : Level timestamp last check in
 
     private final Map<SectionPos, Set<BlockPos>> cellSearchMap = new HashMap<>();  // Spatial hash : Nodes covering that hash
-    private final Map<Player, CourierMob> playersNearby = new HashMap<>();  // Player : Assigned mob to be nearby  // TODO: turn to BiMap
+    private final Set<Player> nearbyPlayers = new HashSet<>();
+    private final BiMap<Player, CourierMob> followedPlayers = HashBiMap.create();  // Player : Assigned mob to be nearby
 
     // NOTE: optimizations - hotspot positions
 
@@ -85,7 +89,7 @@ public class DeliveryNetwork {
             updateNearbyPlayers(level);
 //            PackageCouriers.LOGGER.debug("jobs" + availableJobs);
 //            PackageCouriers.LOGGER.debug("" + cellSearchMap);
-            PackageCouriers.LOGGER.debug("" + this.playersNearby);
+            PackageCouriers.LOGGER.debug("" + this.nearbyPlayers);
         }
     }
 
@@ -108,11 +112,6 @@ public class DeliveryNetwork {
             Job job = e.getKey().getCurrentJob();
             if (job != null) {
                 this.activeJobs.put(job, e.getKey());
-            }
-
-            Player following = e.getKey().getPlayerFollowing();
-            if (following != null) {
-                this.assignCourierToPlayer(following, e.getKey());
             }
         }
     }
@@ -172,7 +171,7 @@ public class DeliveryNetwork {
             int atIndex = packageAddress.indexOf('@');  // TODO: also allow player targets even without '@'
             if (atIndex != -1) {  // TODO: ponder info about explicit @address player targets
                 packageAddress = packageAddress.substring(atIndex + 1);
-                for (Player player : this.playersNearby.keySet()) {
+                for (Player player : this.nearbyPlayers) {
                     if (PackageItem.matchAddress(player.getName().getString(), packageAddress)) {
                         this.availableJobs.add(new Job(entry.getKey(), new PlayerPackageDest(player)));
                     }
@@ -199,10 +198,18 @@ public class DeliveryNetwork {
     }
 
     private void updateNearbyPlayers(ServerLevel level) {
-        this.playersNearby.clear();
         for (Player player : level.players()) {
+            if (player.isDeadOrDying() || player.isRemoved()) {
+                this.nearbyPlayers.remove(player);
+                this.followedPlayers.remove(player);
+                continue;
+            }
+
             if (this.isNearbyNetwork(player.position())) {
-                this.playersNearby.put(player, null);
+                this.nearbyPlayers.add(player);
+            } else {
+                this.nearbyPlayers.remove(player);
+                this.followedPlayers.remove(player);
             }
         }
     }
@@ -278,18 +285,25 @@ public class DeliveryNetwork {
         return this.nodes;
     }
 
-    public Set<Player> getUnassignedPlayersNearby() {
-        return this.playersNearby.entrySet().stream()
-                .filter(e -> e.getValue() == null)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+    public Set<Player> getNearbyPlayers() {
+        return ImmutableSet.copyOf(this.nearbyPlayers);
     }
 
-    // NOTE: remember to call from the courier to avoid having multiple follow the same player
-    public void assignCourierToPlayer(Player player, CourierMob courier) {
-        if (this.playersNearby.containsKey(player)) {
-            this.playersNearby.put(player, courier);
-        }
+    public Set<Player> getUnfollowedPlayersNearby() {
+        return Sets.difference(this.nearbyPlayers, this.followedPlayers.keySet());
+    }
+
+    public @Nullable Player getFollowingPlayer(CourierMob courier) {
+        return this.followedPlayers.inverse().get(courier);
+    }
+
+    public void setFollowingPlayer(Player player, CourierMob courier) {
+        if (!this.nearbyPlayers.contains(player)) return;
+        this.followedPlayers.put(player, courier);
+    }
+
+    public void stopFollowingPlayer(CourierMob courier) {
+        this.followedPlayers.inverse().remove(courier);
     }
 
     public @Nullable DeliveryNetwork.Job getJob(CourierMob courier) {

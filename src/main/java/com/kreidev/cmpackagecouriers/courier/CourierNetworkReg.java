@@ -17,7 +17,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.allay.Allay;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -42,8 +41,6 @@ public class CourierNetworkReg {
 
     public static final Supplier<MemoryModuleType<DeliveryNetwork.Job>> DELIVERY_JOB_MEM = MEMORY_MODULE_TYPES
             .register("delivery_job", () -> new MemoryModuleType<>(Optional.of(DeliveryNetwork.Job.CODEC.codec())));
-    public static final Supplier<MemoryModuleType<Player>> PLAYER_SERVING_MEM = MEMORY_MODULE_TYPES
-            .register("player_serving", () -> new MemoryModuleType<>(Optional.empty()));
 
     public static final Supplier<DataComponentType<UUID>> DELIVERY_NETWORK_ID = DATA_COMPONENTS
             .registerComponentType("delivery_network_id", builder -> builder
