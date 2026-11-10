@@ -13,15 +13,16 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.animal.allay.Allay;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -48,6 +49,11 @@ public class CourierAllayEntity extends Allay implements CourierMob {
     }
 
     @Override
+    protected void customServerAiStep() {
+//        super.customServerAiStep();
+    }
+
+    @Override
     protected Brain.Provider<Allay> brainProvider() {
         return CourierAllayAi.brainProvider();
     }
@@ -55,6 +61,21 @@ public class CourierAllayEntity extends Allay implements CourierMob {
     @Override
     protected Brain<?> makeBrain(Dynamic<?> dynamic) {
         return CourierAllayAi.makeBrain(this.brainProvider().makeBrain(dynamic));
+    }
+
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (hand == InteractionHand.MAIN_HAND) {
+            ItemStack itemstack = this.getItemInHand(hand);
+            if (itemstack.isEmpty() && player.getItemInHand(hand).isEmpty()) {
+                if (!this.level().isClientSide && revert(this)) {
+                    player.setItemInHand(hand, this.getWaybill());
+                }
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        return super.mobInteract(player, hand);
     }
 
     public void setWaybill(ItemStack waybill) {
@@ -95,8 +116,11 @@ public class CourierAllayEntity extends Allay implements CourierMob {
 
     public static boolean convert(Allay allay, ItemStack waybill) {
         if (!waybill.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) return false;
+        List<ItemStack> items = allay.getInventory().removeAllItems();
         CourierAllayEntity courier = allay.convertTo(DeliveryNetworkReg.COURIER_ALLAY_ENTITY.get(), true);
         if (courier == null) return false;
+        items.forEach(allay::spawnAtLocation);
+        courier.dropEquipment();
         courier.setWaybill(waybill);
         return true;
     }
@@ -106,30 +130,16 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         return allay != null;
     }
 
-    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+    public static void tryConvertToCourier(PlayerInteractEvent.EntityInteract event) {
         if (event.getHand() != InteractionHand.MAIN_HAND) return;
-        if (!(event.getTarget() instanceof Mob mob)) return;
+        if (!(event.getTarget() instanceof Allay allay && allay.getType() == EntityType.ALLAY)) return;
 
         ItemStack stack = event.getItemStack();
-        Level level = event.getLevel();
-
-        if (mob.getType() == EntityType.ALLAY && stack.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) {
-            if (!level.isClientSide && convert((Allay) mob, stack.copyWithCount(1))) {
-                stack.consume(1, event.getEntity());
-            }
-            event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
-            event.setCanceled(true);
-        } else if (mob.getType() == DeliveryNetworkReg.COURIER_ALLAY_ENTITY.get() && stack.isEmpty()) {
-            // TODO: remove package first
-            if (!level.isClientSide) {
-                CourierAllayEntity courier = (CourierAllayEntity) mob;
-                ItemStack waybill = courier.getWaybill();
-                if (revert(courier)) {
-                    event.getEntity().setItemInHand(InteractionHand.MAIN_HAND, waybill);
-                }
-            }
-            event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
-            event.setCanceled(true);
+        if (!stack.is(DeliveryNetworkReg.WAYBILL_ITEM.get())) return;
+        if (!event.getLevel().isClientSide && convert(allay, stack.copyWithCount(1))) {
+            stack.consume(1, event.getEntity());
         }
+        event.setCancellationResult(InteractionResult.SUCCESS);
+        event.setCanceled(true);
     }
 }

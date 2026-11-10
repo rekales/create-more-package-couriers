@@ -90,7 +90,7 @@ public class DeliveryNetworkReg {
         NeoForge.EVENT_BUS.addListener(DeliveryNetworkReg::registerCommands);
         NeoForge.EVENT_BUS.addListener(DeliveryNetworkManager::onServerStarting);
         NeoForge.EVENT_BUS.addListener(DeliveryNetworkManager::serverTick);
-        NeoForge.EVENT_BUS.addListener(CourierAllayEntity::onEntityInteract);
+        NeoForge.EVENT_BUS.addListener(CourierAllayEntity::tryConvertToCourier);
         MEMORY_MODULE_TYPES.register(modEventBus);
         SENSOR_TYPES.register(modEventBus);
     }
