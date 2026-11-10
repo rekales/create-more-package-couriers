@@ -1,111 +1,94 @@
 package com.kreidev.cmpackagecouriers.courier.entity;
 
+import com.kreidev.cmpackagecouriers.PackageCouriers;
+import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.ai.memory.WalkTarget;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
-import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class DeliveryJobBehavior <T extends Mob & CourierMob & InventoryCarrier> extends Behavior<T> {
+public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T> {
 
-    // TODO: put as constructor arg
-    public static final float SPEED_MOD = 1.75F;
+    private static final int TICKS_BEFORE_RETRY = 100;  // TODO: config?
 
-    public DeliveryJobBehavior() {
+    private final float speedModifier;
+    private final float playerSpeedModifier;
+
+    private int transferTicks = 0;
+
+    public DeliveryJobBehavior(float speed, float playerDeliverySpeed) {
         super(Map.of(
                 CourierNetworkReg.DELIVERY_JOB_MEM.get(), MemoryStatus.VALUE_PRESENT,
                 MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED
-        ));
+        ), 400);
+        this.speedModifier = speed;
+        this.playerSpeedModifier = playerDeliverySpeed;
+    }
+
+    @SuppressWarnings("unused")
+    public DeliveryJobBehavior(float speed) {
+        this(speed, speed);
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, T owner) {
-        // TODO: check if still holding a package. If so, deliver to the nearest default address first.
-        return super.checkExtraStartConditions(level, owner);
+    protected boolean canStillUse(ServerLevel level, T mob, long gameTime) {
+        DeliveryNetwork network = mob.getDeliveryNetwork();
+        if (network == null) return false;
+        return mob.getBrain().hasMemoryValue(CourierNetworkReg.DELIVERY_JOB_MEM.get());
     }
 
+    // TODO: invalidate jobs with null job.from if courier has no package in hand
+    @SuppressWarnings("DataFlowIssue")  // Already handled on canStillUse
     @Override
-    protected boolean canStillUse(ServerLevel level, T entity, long gameTime) {
-        Optional<DeliveryNetwork.Job> job = entity.getBrain().getMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
-        return job.isPresent();
-    }
-
-    @Override
-    protected void start(ServerLevel level, T entity, long gameTime) {
-        Optional<DeliveryNetwork.Job> job = entity.getBrain().getMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
-        if (job.isEmpty()) throw new IllegalStateException();
-        ItemStack stack = entity.getInventory().getItem(0);
-        if (!stack.isEmpty()) {
-            ItemEntity itementity = new ItemEntity(level, entity.getX(), entity.getY(), entity.getZ(), stack);
-            level.addFreshEntity(itementity);
-            entity.getInventory().setItem(0, ItemStack.EMPTY);
-        }
-//        BehaviorUtils.setWalkAndLookTargetMemories(entity, job.get().from(), SPEED_MOD, 3);
-    }
-
-    @Override
-    protected void tick(ServerLevel level, T owner, long gameTime) {
-        Brain<?> brain = owner.getBrain();
+    protected void tick(ServerLevel level, T mob, long gameTime) {
+        Brain<?> brain = mob.getBrain();
+        DeliveryNetwork network = mob.getDeliveryNetwork();
         DeliveryNetwork.Job job = brain.getMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get()).orElseThrow();
-        Optional<WalkTarget> walkTarget = brain.getMemory(MemoryModuleType.WALK_TARGET);
+        float speed = job.to().getType() == PackageDestination.Type.PLAYER ? this.playerSpeedModifier : this.speedModifier;
 
-        ItemStack box = owner.getInventory().getItem(0);
-        if (box.isEmpty()) {
-            if (walkTarget.isEmpty()) {
-//                BehaviorUtils.setWalkAndLookTargetMemories(owner, job.from(), SPEED_MOD, 3);
-                return;
-            }
-            BlockPos targetPos = walkTarget.get().getTarget().currentBlockPosition();
-            if (targetPos.getCenter().closerThan(owner.getEyePosition(), 3.0)) {
-                if (level.getBlockEntity(targetPos) instanceof DepotBlockEntity be
-                        && PackageItem.isPackage(be.getHeldItem())) {
-                    owner.getInventory().setItem(0, be.getHeldItem());
-                    be.clearContent();
-//                    BehaviorUtils.setWalkAndLookTargetMemories(owner, job.to(), SPEED_MOD, 3);
-                } else {
-                    this.stopJob(owner);
-                    return;
+        if (mob.getPackage().isEmpty()) {
+            BehaviorUtils.setWalkAndLookTargetMemories(mob, job.from(), speed, 1);
+            if (mob.position().closerThan(job.from().getCenter(), 1.5F)) {
+                // NOTE: update when sources gets expanded
+                if (level.getBlockEntity(job.from()) instanceof DepotBlockEntity depot) {
+                    ItemStack box = depot.getHeldItem();
+                    if (!PackageItem.isPackage(box)) {
+                        brain.eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
+                    }
+                    mob.setPackage(box);
+                    depot.setHeldItem(ItemStack.EMPTY);
+                    depot.notifyUpdate();
                 }
             }
         } else {
-            if (walkTarget.isEmpty()) {
-//                BehaviorUtils.setWalkAndLookTargetMemories(owner, job.to(), SPEED_MOD, 0);
-                return;
-            }
-            BlockPos targetPos = walkTarget.get().getTarget().currentBlockPosition();
-            if (targetPos.getCenter().closerThan(owner.getEyePosition(), 3.0)) {
-                if (!(level.getBlockEntity(targetPos) instanceof DepotBlockEntity be)) {
-                    this.stopJob(owner);
-                    return;
-                }
-                if (be.getHeldItem().isEmpty()) {
-                    be.setHeldItem(owner.getInventory().getItem(0));
-                    owner.getInventory().setItem(0, ItemStack.EMPTY);
-                    this.stopJob(owner);
+            BehaviorUtils.setWalkAndLookTargetMemories(mob, job.to().getPositionTracker(), speed, 1);
+            if (mob.position().closerThan(job.to().getPos(), 1.5F)) {
+                if (job.to().tryInsertPackage(level, mob)) {
+                    brain.eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
+                } else {
+                    PackageCouriers.LOGGER.debug("failed to transfer: " + this.transferTicks);
+                    if (this.transferTicks++ > TICKS_BEFORE_RETRY) {
+                        // TODO: find a new destination
+                        brain.eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
+                        PackageCouriers.LOGGER.debug("stopped trying");
+                    }
                 }
             }
         }
-    }
-
-    protected void stopJob(T owner) {
-        owner.getBrain().eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
     }
 }

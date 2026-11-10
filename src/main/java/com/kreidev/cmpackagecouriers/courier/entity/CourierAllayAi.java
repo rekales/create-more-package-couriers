@@ -85,7 +85,7 @@ public class CourierAllayAi {
 
     private static void initWorkActivity(Brain<CourierAllayEntity> brain) {
         brain.addActivityWithConditions(Activity.WORK, ImmutableList.of(
-                Pair.of(1, new DeliveryJobBehavior<>())
+                Pair.of(1, new DeliveryJobBehavior<>(JOB_MOVE_SPEED, PLAYER_DELIVERY_MOVE_SPEED))
         ), ImmutableSet.of(Pair.of(CourierNetworkReg.DELIVERY_JOB_MEM.get(), MemoryStatus.VALUE_PRESENT)));
     }
 
@@ -94,7 +94,6 @@ public class CourierAllayAi {
     }
 
     public static void updateActivity(Mob mob) {
-//        mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activity.IDLE));
-        mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
+        mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.WORK, Activity.IDLE));
     }
 }

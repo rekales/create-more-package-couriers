@@ -3,9 +3,12 @@ package com.kreidev.cmpackagecouriers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.PositionTracker;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -39,6 +42,26 @@ public interface PackageDestination {
     ResourceKey<Level> getDim();
 
     default void tickIncoming(PackageCarrier carrier) {
+    }
+
+    default PositionTracker getPositionTracker() {
+        return new PositionTracker() {
+
+            @Override
+            public Vec3 currentPosition() {
+                return PackageDestination.this.getPos();
+            }
+
+            @Override
+            public BlockPos currentBlockPosition() {
+                return BlockPos.containing(this.currentPosition());
+            }
+
+            @Override
+            public boolean isVisibleBy(LivingEntity livingEntity) {
+                return true;
+            }
+        };
     }
 
     /**

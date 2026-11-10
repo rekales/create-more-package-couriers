@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 // TODO: add method for checking possible destinations from an address
+// TODO: consider making active jobs a bimap
 // for when the current destination is full or package was given by the player
 public class DeliveryNetwork {
 
@@ -58,6 +59,7 @@ public class DeliveryNetwork {
     private final BiMap<Player, CourierMob> followedPlayers = HashBiMap.create();  // Player : Assigned mob to be nearby
 
     // NOTE: optimizations - hotspot positions
+    // NOTE: optimizations - cached paths
 
     public DeliveryNetwork(ServerLevel level) {
         this.id = UUID.randomUUID();

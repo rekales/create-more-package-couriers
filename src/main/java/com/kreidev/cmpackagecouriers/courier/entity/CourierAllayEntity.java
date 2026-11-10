@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+// TODO: drop waybill on death
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class CourierAllayEntity extends Allay implements CourierMob {
