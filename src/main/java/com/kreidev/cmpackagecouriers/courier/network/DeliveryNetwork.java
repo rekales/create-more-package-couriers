@@ -243,9 +243,9 @@ public class DeliveryNetwork {
     }
 
     public @Nullable DeliveryNetwork.Job getJob(CourierMob courier) {
-        if (!availableJobs.isEmpty()) {
-            Job job = availableJobs.poll();
-            activeJobs.put(job, courier);
+        if (!this.availableJobs.isEmpty()) {
+            Job job = this.availableJobs.poll();
+            this.activeJobs.put(job, courier);  // TODO: or maybe just let the courier remind the network themselves?
             return job;
         }
         return null;
