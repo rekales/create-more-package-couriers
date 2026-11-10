@@ -81,12 +81,11 @@ public class CourierAllayAi {
                 Activity.IDLE,
                 ImmutableList.of(
                         Pair.of(0, FetchJobFromNetwork.create()),
-
-                        Pair.of(3, SetEntityLookTargetSometimes.create(6.0F, UniformInt.of(30, 60))),
                         Pair.of(4, new RunOne<>(ImmutableList.of(
                                         Pair.of(RandomStroll.fly(1.0F), 2),
                                         Pair.of(SetWalkTargetFromLookTarget.create(1.0F, 3), 2),
-                                        Pair.of(new DoNothing(30, 60), 1)
+                                        Pair.of(RandomStrollWithinNetwork.create(1.0F), 1),
+                                        Pair.of(new DoNothing(30, 60), 3)
                         )))
                 ),
                 ImmutableSet.of()
