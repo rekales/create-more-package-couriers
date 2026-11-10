@@ -33,10 +33,7 @@ public class CourierAllayAi {
     private static final int DISTANCE_TO_WANTED_ITEM = 32;
     private static final int GIVE_ITEM_TIMEOUT_DURATION = 20;
 
-    private static final ImmutableList<SensorType<? extends Sensor<? super Allay>>> SENSOR_TYPES = ImmutableList.of(
-            DeliveryNetworkReg.NEAREST_PACKAGE_SENSOR.get(),
-            DeliveryNetworkReg.NEAREST_DEPOT_SENSOR.get(),
-            DeliveryNetworkReg.NEAREST_DEPOT_SENSOR.get(),
+    private static final ImmutableList<SensorType<? extends Sensor<? super Mob>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.HURT_BY
     );
 
@@ -47,8 +44,6 @@ public class CourierAllayAi {
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.HURT_BY,
             MemoryModuleType.IS_PANICKING,
-            DeliveryNetworkReg.NEAREST_PACKAGE_ENTITY.get(),
-            DeliveryNetworkReg.TARGET_DEPOT.get(),
             DeliveryNetworkReg.DELIVERY_JOB_MEM.get()
     );
 
@@ -80,7 +75,6 @@ public class CourierAllayAi {
                 ImmutableList.of(
 //                        Pair.of(0, GoToWantedItem.create(p_218428_ -> true, 1.75F, true, 32)),
 //                        Pair.of(1, new GoAndGiveItemsToTarget<>(AllayAi::getItemDepositPosition, 2.25F, 20)),
-                        Pair.of(2, StayCloseToTarget.create(CourierAllayAi::getDepotPosition, entity -> true, 4, 8, 1.5F)),
                         Pair.of(3, SetEntityLookTargetSometimes.create(6.0F, UniformInt.of(30, 60))),
                         Pair.of(4, new RunOne<>(ImmutableList.of(
                                         Pair.of(RandomStroll.fly(1.0F), 2),
@@ -92,17 +86,7 @@ public class CourierAllayAi {
         );
     }
 
-    private static Optional<PositionTracker> getDepotPosition(LivingEntity entity) {
-        Brain<?> brain = entity.getBrain();
-        Optional<BlockPos> optional = brain.getMemory(DeliveryNetworkReg.TARGET_DEPOT.get());
-        return optional.map(BlockPosTracker::new);
-    }
-
-//    public static BehaviorControl<LivingEntity> goToPackage(float speed) {
-//        return BehaviorBuilder.create()
-//    }
-
-    static <T extends Allay> Brain.Provider<T> brainProvider() {
+    static <T extends Mob> Brain.Provider<T> brainProvider() {
         return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
     }
 

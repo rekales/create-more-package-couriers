@@ -6,19 +6,16 @@ import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetworkManager;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetworkNodesPacket;
 import com.mojang.brigadier.Command;
-import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.tterrag.registrate.util.entry.EntityEntry;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.commands.Commands;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
@@ -43,22 +40,8 @@ public class DeliveryNetworkReg {
     private static final DeferredRegister<MemoryModuleType<?>> MEMORY_MODULE_TYPES = DeferredRegister
             .create(BuiltInRegistries.MEMORY_MODULE_TYPE, PackageCouriers.MOD_ID);
 
-    private static final DeferredRegister<SensorType<?>> SENSOR_TYPES = DeferredRegister
-            .create(BuiltInRegistries.SENSOR_TYPE, PackageCouriers.MOD_ID);
-
-    public static final Supplier<MemoryModuleType<PackageEntity>> NEAREST_PACKAGE_ENTITY = MEMORY_MODULE_TYPES
-            .register("nearest_package", () -> new MemoryModuleType<>(Optional.empty()));
-    public static final Supplier<MemoryModuleType<BlockPos>> TARGET_DEPOT = MEMORY_MODULE_TYPES
-            .register("target_depot", () -> new MemoryModuleType<>(Optional.empty()));
     public static final Supplier<MemoryModuleType<DeliveryNetwork.Job>> DELIVERY_JOB_MEM = MEMORY_MODULE_TYPES
-            .register("delivery_job", () -> new MemoryModuleType<>(Optional.empty()));
-
-    public static final Supplier<SensorType<PackageEntitySensor>> NEAREST_PACKAGE_SENSOR = SENSOR_TYPES
-            .register("nearest_package", () -> new SensorType<>(PackageEntitySensor::new));
-    public static final Supplier<SensorType<NearestDepotSensor>> NEAREST_DEPOT_SENSOR = SENSOR_TYPES
-            .register("nearest_depot", () -> new SensorType<>(NearestDepotSensor::new));
-    public static final Supplier<SensorType<DeliveryJobSensor<?>>> DELIVERY_JOB_SENSOR = SENSOR_TYPES
-            .register("delivery_job", () -> new SensorType<>(DeliveryJobSensor::new));
+            .register("delivery_job", () -> new MemoryModuleType<>(Optional.of(DeliveryNetwork.Job.CODEC.codec())));
 
     public static final Supplier<DataComponentType<UUID>> DELIVERY_NETWORK_ID = DATA_COMPONENTS
             .registerComponentType("delivery_network_id", builder -> builder
@@ -92,7 +75,6 @@ public class DeliveryNetworkReg {
         NeoForge.EVENT_BUS.addListener(DeliveryNetworkManager::serverTick);
         NeoForge.EVENT_BUS.addListener(CourierAllayEntity::tryConvertToCourier);
         MEMORY_MODULE_TYPES.register(modEventBus);
-        SENSOR_TYPES.register(modEventBus);
     }
 
     private static void clientInit(final FMLClientSetupEvent event) {
