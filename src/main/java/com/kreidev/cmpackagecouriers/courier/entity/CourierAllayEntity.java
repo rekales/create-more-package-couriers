@@ -1,6 +1,5 @@
 package com.kreidev.cmpackagecouriers.courier.entity;
 
-import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.kreidev.cmpackagecouriers.courier.WaybillItem;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
@@ -195,10 +194,5 @@ public class CourierAllayEntity extends Allay implements CourierMob {
     @Override
     public ItemStack getPackage() {
         return this.getItemInHand(InteractionHand.MAIN_HAND);
-    }
-
-    @Override
-    public @Nullable PackageDestination getDestination() {
-        return null;
     }
 }
