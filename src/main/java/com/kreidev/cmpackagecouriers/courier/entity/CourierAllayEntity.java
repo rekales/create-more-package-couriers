@@ -14,6 +14,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.animal.allay.Allay;
@@ -27,7 +28,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 // TODO: package on hand doesn't seem to save/load properly.
-// TODO: drop waybill on death
 public class CourierAllayEntity extends Allay implements CourierMob {
 
     private static final String WAYBILL_TAG_KEY = "Waybill";
@@ -55,8 +55,10 @@ public class CourierAllayEntity extends Allay implements CourierMob {
             network.checkIn((ServerLevel) this.level(), this);
         }
 
-        if (!PackageItem.isPackage(this.getItemInHand(InteractionHand.MAIN_HAND))) {
-            this.dropEquipment();
+        ItemStack stack = this.getItemInHand(InteractionHand.MAIN_HAND);
+        if (!PackageItem.isPackage(stack)) {
+            this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            this.spawnAtLocation(stack);
         }
     }
 
@@ -93,6 +95,12 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         }
 
         return super.mobInteract(player, hand);
+    }
+
+    @Override
+    protected void dropCustomDeathLoot(ServerLevel level, DamageSource damageSource, boolean recentlyHit) {
+        super.dropCustomDeathLoot(level, damageSource, recentlyHit);
+        this.spawnAtLocation(this.getWaybill());
     }
 
     public void setWaybill(ItemStack waybill) {
