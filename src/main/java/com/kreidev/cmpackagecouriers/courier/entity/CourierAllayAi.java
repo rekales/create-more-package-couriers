@@ -70,9 +70,10 @@ public class CourierAllayAi {
         brain.addActivityWithConditions(
                 Activity.IDLE,
                 ImmutableList.of(
-                        Pair.of(0, FetchJobFromNetwork.create()),
-                        Pair.of(1, new FollowPlayerInNetwork<>()),
-                        Pair.of(2, new RunOne<>(ImmutableList.of(
+//                        Pair.of(0, StartJob.fromHeldPackage()),
+                        Pair.of(1, StartJob.fromNetwork()),
+                        Pair.of(2, new FollowPlayerInNetwork<>()),
+                        Pair.of(3, new RunOne<>(ImmutableList.of(
                                         Pair.of(RandomStroll.fly(IDLE_MOVE_SPEED), 2),
                                         Pair.of(SetWalkTargetFromLookTarget.create(IDLE_MOVE_SPEED, 3), 2),
                                         Pair.of(RandomStrollWithinNetwork.create(IDLE_MOVE_SPEED, 4), 1),

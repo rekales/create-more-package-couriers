@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-// for when the current destination is full or package was given by the player
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class DeliveryNetwork {
@@ -90,7 +89,7 @@ public class DeliveryNetwork {
             updateNearbyPlayers(level);
 //            PackageCouriers.LOGGER.debug("jobs" + availableJobs);
 //            PackageCouriers.LOGGER.debug("" + cellSearchMap);
-            PackageCouriers.LOGGER.debug("" + this.nearbyPlayers);
+//            PackageCouriers.LOGGER.debug("" + this.nearbyPlayers);
         }
     }
 
@@ -337,7 +336,6 @@ public class DeliveryNetwork {
     public void stopFollowingPlayer(CourierMob courier) {
         this.followedPlayers.inverse().remove(courier);
     }
-
 
     @SuppressWarnings("unused")  // keep the param so no signature changes are needed when its needed
     public @Nullable DeliveryNetwork.Job getJob(CourierMob courier) {

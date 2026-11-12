@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+// TODO: package on hand doesn't seem to save/load properly.
 // TODO: drop waybill on death
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
