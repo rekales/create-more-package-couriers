@@ -7,7 +7,6 @@ import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
@@ -17,11 +16,8 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T> {
 
     private static final int TICKS_BEFORE_RETRY = 100;  // TODO: config?

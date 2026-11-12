@@ -12,12 +12,10 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.Set;
 
 // TODO: config feature
-@ParametersAreNonnullByDefault
 public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior<T> {
 
     private Vec3 anchor = Vec3.ZERO;

@@ -6,7 +6,6 @@ import com.kreidev.cmpackagecouriers.courier.WaybillItem;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -24,13 +23,10 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 // TODO: package on hand doesn't seem to save/load properly.
 // TODO: drop waybill on death
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CourierAllayEntity extends Allay implements CourierMob {
 
     private static final String WAYBILL_TAG_KEY = "Waybill";
