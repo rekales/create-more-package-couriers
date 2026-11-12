@@ -16,6 +16,7 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.depot.DepotBlock;
 import com.simibubi.create.content.logistics.depot.DepotBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.UUIDUtil;
@@ -30,11 +31,13 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-// TODO: add method for checking possible destinations from an address
 // TODO: consider making active jobs a bimap
 // for when the current destination is full or package was given by the player
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class DeliveryNetwork {
 
     public static final MapCodec<DeliveryNetwork> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -71,7 +74,7 @@ public class DeliveryNetwork {
     }
 
     // For codec use
-    private DeliveryNetwork(@Nonnull UUID id, ResourceKey<Level> dim, Set<BlockPos> nodes) {
+    private DeliveryNetwork(UUID id, ResourceKey<Level> dim, Set<BlockPos> nodes) {
         this.id = id;
         this.dim = dim;
         this.nodes = nodes;
@@ -119,92 +122,25 @@ public class DeliveryNetwork {
     }
 
     private void updateJobs(ServerLevel level) {
-        Set<BlockPos> reserved = new HashSet<>();
-        for (Job job : activeJobs.keySet()) {
-            reserved.add(job.from);
-            if (job.to.getType() == PackageDestination.Type.SMART_BLOCK_ENTITY) {
-                reserved.add(BlockPos.containing(job.to.getPos()));
-            }
-        }
-
-        Map<BlockPos, String> destinations = new HashMap<>();
+        this.pruneInvalidNodes(level);
+        Set<BlockPos> reserved = getReservedPositions();
+        Map<BlockPos, String> destinations = collectDestinations(level, reserved);
         Map<BlockPos, ItemStack> sources = new HashMap<>();
 
-        Iterator<BlockPos> posIterator = this.nodes.iterator();
-        while (posIterator.hasNext()) {
-            BlockPos pos = posIterator.next();
-            if (!isValidNode(level, pos)) {
-                posIterator.remove();
-                continue;
-            }
+        for (BlockPos pos : this.nodes) {
+            if (reserved.contains(pos) || destinations.containsKey(pos)) continue;
 
-            if (reserved.contains(pos)) continue;
-
-            // Destination Check
-            // Should destinations also be suppliers if address is not matched?
-            if (level.getBlockEntity(pos) instanceof SmartBlockEntity be) {
-                PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
-                if (behaviour != null) {
-                    String address = behaviour.getAddress();
-                    if (address != null && !address.isBlank() && behaviour.hasSpace()) {
-                        destinations.put(pos, address);
-                        continue;
-                    }
-                }
-            }
-
-            // Supplier Check
             if (level.getBlockEntity(pos) instanceof DepotBlockEntity depot) {
                 ItemStack stack = depot.getHeldItem();
-                if (PackageItem.isPackage(stack)) {
-                    String packageAddress =  PackageItem.getAddress(stack);
-                    if (packageAddress != null && !packageAddress.isBlank()) {
-                        sources.put(pos, stack);
-                    }
+                if (PackageItem.isPackage(stack) && !PackageItem.getAddress(stack).isBlank()) {
+                    sources.put(pos, stack);
                 }
             }
         }
 
         this.availableJobs.clear();
         for (Map.Entry<BlockPos, ItemStack> entry : sources.entrySet()) {
-
-            String packageAddress =  PackageItem.getAddress(entry.getValue());
-            PackageDestination dest = null;
-
-            // Special "@Address" interaction
-            int atIndex = packageAddress.indexOf('@');
-            boolean playerOnly = atIndex != -1;  // TODO: ponder info about explicit @address player targets
-            if (playerOnly) {
-                packageAddress = packageAddress.substring(atIndex + 1);
-            }
-
-            for (Player player : this.nearbyPlayers) {
-                if (PackageItem.matchAddress(player.getName().getString(), packageAddress)) {
-                    dest = new PlayerPackageDest(player);
-                    break;
-                }
-            }
-
-            if (!playerOnly && dest == null) {
-                int priority = -100000;
-
-                SmartBlockEntity targetBlock = null;
-                for (Map.Entry<BlockPos, String> destEntry : destinations.entrySet()) {
-                    if (!(level.getBlockEntity(destEntry.getKey()) instanceof SmartBlockEntity be)) continue;
-                    if (!PackageItem.matchAddress(entry.getValue(), destEntry.getValue())) continue;
-
-                    int currentPriority = PackageDestination.getAddressPriority(destEntry.getValue());
-                    if (currentPriority > priority) {
-                        targetBlock = be;
-                        priority = currentPriority;
-                    }
-                }
-                if (targetBlock != null) {
-                    dest = new SmartBlockPackageDest(level, targetBlock);
-                    destinations.remove(targetBlock.getBlockPos());
-                }
-            }
-
+            PackageDestination dest = this.findDestination(level, destinations, entry.getValue());
             if (dest != null) {
                 this.availableJobs.add(new Job(entry.getKey(), dest));
             }
@@ -226,6 +162,97 @@ public class DeliveryNetwork {
                 this.followedPlayers.remove(player);
             }
         }
+    }
+
+    /**
+     * For couriers to search for another destination when the current one is unavailable.
+     */
+    public @Nullable PackageDestination findDestination(ServerLevel level, ItemStack box) {
+        this.pruneInvalidNodes(level);
+        Set<BlockPos> reserved = getReservedPositions();
+        return this.findDestination(level, this.collectDestinations(level, reserved), box);
+    }
+
+    private @Nullable PackageDestination findDestination(ServerLevel level, Map<BlockPos, String> destinations, ItemStack box) {
+        String packageAddress =  PackageItem.getAddress(box);
+        if (packageAddress.isEmpty()) return null;
+        PackageDestination dest = null;
+
+        // Special "@Address" interaction
+        int atIndex = packageAddress.indexOf('@');
+        boolean playerOnly = atIndex != -1;  // TODO: ponder info about explicit @address player targets
+        if (playerOnly) {
+            packageAddress = packageAddress.substring(atIndex + 1);
+        }
+
+        for (Player player : this.nearbyPlayers) {
+            if (PackageItem.matchAddress(player.getName().getString(), packageAddress)) {
+                dest = new PlayerPackageDest(player);
+                break;
+            }
+        }
+
+        if (!playerOnly && dest == null) {
+            int priority = -100000;
+
+            SmartBlockEntity targetBlock = null;
+            for (Map.Entry<BlockPos, String> destEntry : destinations.entrySet()) {
+                if (!(level.getBlockEntity(destEntry.getKey()) instanceof SmartBlockEntity be)) continue;
+                if (!PackageItem.matchAddress(packageAddress, destEntry.getValue())) continue;
+
+                int currentPriority = PackageDestination.getAddressPriority(destEntry.getValue());
+                if (currentPriority > priority) {
+                    targetBlock = be;
+                    priority = currentPriority;
+                }
+            }
+            if (targetBlock != null) {
+                dest = new SmartBlockPackageDest(level, targetBlock);
+                destinations.remove(targetBlock.getBlockPos());
+            }
+        }
+
+        return dest;
+    }
+
+    private void pruneInvalidNodes(ServerLevel level) {
+        // don't remove directly, need to clean up spatial hash
+        new ArrayList<>(this.nodes).stream()
+                .filter(pos -> !isValidNode(level, pos))
+                .forEach(this::removeNode);
+    }
+
+    private Set<BlockPos> getReservedPositions() {
+        Set<BlockPos> reserved = new HashSet<>();
+        for (Job job : activeJobs.keySet()) {
+            reserved.add(job.from());
+            if (job.to().getType() == PackageDestination.Type.SMART_BLOCK_ENTITY) {
+                reserved.add(BlockPos.containing(job.to().getPos()));
+            }
+        }
+
+        return reserved;
+    }
+
+    private Map<BlockPos, String> collectDestinations(ServerLevel level, Set<BlockPos> reserved) {
+        Map<BlockPos, String> destinations = new HashMap<>();
+
+        for (BlockPos pos : this.nodes) {
+            if (reserved.contains(pos)) continue;
+
+            // Should destinations also be suppliers if address is not matched?
+            if (level.getBlockEntity(pos) instanceof SmartBlockEntity be) {
+                PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
+                if (behaviour != null) {
+                    String address = behaviour.getAddress();
+                    if (address != null && !address.isBlank() && behaviour.hasSpace()) {
+                        destinations.put(pos, address);
+                    }
+                }
+            }
+        }
+
+        return destinations;
     }
 
     /**
@@ -286,7 +313,6 @@ public class DeliveryNetwork {
         return false;
     }
 
-    @Nonnull
     public UUID getId() {
         return this.id;
     }
@@ -329,13 +355,14 @@ public class DeliveryNetwork {
         return null;
     }
 
-    public record Job(@Nullable BlockPos from, @Nonnull PackageDestination to) {
+    public record Job(@Nullable BlockPos from, PackageDestination to) {
         public static final MapCodec<Job> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 BlockPos.CODEC.optionalFieldOf("From").forGetter(t -> Optional.ofNullable(t.from())),
                 PackageDestination.CODEC.fieldOf("To").forGetter(Job::to)
         ).apply(instance, (from, to) -> new Job(from.orElse(null), to)));
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isValidNode(Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof SmartBlockEntity be) {  // Destination
             PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
