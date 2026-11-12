@@ -14,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -70,5 +71,16 @@ public class SmartBlockPackageDest implements PackageDestination {
         return String.format("SBE{pos=%s}",
                 this.blockPos
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof SmartBlockPackageDest that)) return false;
+        return Objects.equals(this.blockPos, that.blockPos) && Objects.equals(this.dim, that.dim);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.blockPos, this.dim) * 769;
     }
 }

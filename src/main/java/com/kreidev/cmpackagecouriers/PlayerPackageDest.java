@@ -16,6 +16,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -94,5 +95,17 @@ public class PlayerPackageDest implements PackageDestination {
                 this.entity != null ? this.entity.getName().toString() : "",
                 this.getPos()
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof PlayerPackageDest that)) return false;
+        if (that.entity == null) return false;
+        return Objects.equals(this.entity, that.entity);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.entity) * 429;
     }
 }
