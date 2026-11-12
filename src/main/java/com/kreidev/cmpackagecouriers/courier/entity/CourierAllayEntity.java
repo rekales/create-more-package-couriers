@@ -6,6 +6,7 @@ import com.kreidev.cmpackagecouriers.courier.WaybillItem;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.mojang.serialization.Dynamic;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -52,6 +53,10 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         DeliveryNetwork network = this.getDeliveryNetwork();
         if (network != null) {
             network.checkIn((ServerLevel) this.level(), this);
+        }
+
+        if (!PackageItem.isPackage(this.getItemInHand(InteractionHand.MAIN_HAND))) {
+            this.dropEquipment();
         }
     }
 

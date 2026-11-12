@@ -27,13 +27,13 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T
 
     private int transferTicks = 0;
 
-    public DeliveryJobBehavior(float speed, float playerDeliverySpeed) {
+    public DeliveryJobBehavior(float speedModifier, float playerSpeedModifier) {
         super(Map.of(
                 CourierNetworkReg.DELIVERY_JOB_MEM.get(), MemoryStatus.VALUE_PRESENT,
                 MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED
         ), 2000);
-        this.speedModifier = speed;
-        this.playerSpeedModifier = playerDeliverySpeed;
+        this.speedModifier = speedModifier;
+        this.playerSpeedModifier = playerSpeedModifier;
     }
 
     @SuppressWarnings("unused")

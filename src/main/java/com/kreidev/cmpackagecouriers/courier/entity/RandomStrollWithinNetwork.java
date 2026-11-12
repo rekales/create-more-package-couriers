@@ -1,6 +1,5 @@
 package com.kreidev.cmpackagecouriers.courier.entity;
 
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import net.minecraft.core.BlockPos;
@@ -28,7 +27,6 @@ public class RandomStrollWithinNetwork {
                             new WalkTarget(node, speedModifier, closeEnoughDist),
                             (int) (30 * mob.position().distanceTo(node.getCenter()))
                     );
-                    PackageCouriers.LOGGER.debug("Roaming to node: " + node);
                     return true;
                 })
         );
