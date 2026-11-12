@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-// TODO: consider making active jobs a bimap
 // for when the current destination is full or package was given by the player
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -54,7 +53,6 @@ public class DeliveryNetwork {
     private final Set<BlockPos> nodes;
 
     private final Queue<Job> availableJobs;
-    private final Map<Job, CourierMob> activeJobs;
     private final Map<CourierMob, Long> couriers;  // Courier : Level timestamp last check in
 
     private final Map<SectionPos, Set<BlockPos>> cellSearchMap = new HashMap<>();  // Spatial hash : Nodes covering that hash
@@ -69,7 +67,6 @@ public class DeliveryNetwork {
         this.dim = level.dimension();
         this.nodes = new HashSet<>();
         this.availableJobs = new ArrayDeque<>();
-        this.activeJobs = new HashMap<>();
         this.couriers = new HashMap<>();
     }
 
@@ -79,7 +76,6 @@ public class DeliveryNetwork {
         this.dim = dim;
         this.nodes = nodes;
         this.availableJobs = new ArrayDeque<>();
-        this.activeJobs = new HashMap<>();
         this.couriers = new HashMap<>();
         this.refreshCellMap();
     }
@@ -100,7 +96,6 @@ public class DeliveryNetwork {
 
     private void updateCouriers(ServerLevel level) {
         long gameTime = level.getGameTime();
-        this.activeJobs.clear();
         for (Iterator<Map.Entry<CourierMob, Long>> it = this.couriers.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<CourierMob, Long> e = it.next();
             if (gameTime - e.getValue() > COURIER_TRACKING_TIMEOUT) {
@@ -111,12 +106,6 @@ public class DeliveryNetwork {
             // Should be fine to restrict non entities right?
             if (!(e.getKey() instanceof Entity entity && entity.isAlive() && !entity.isRemoved())) {
                 it.remove();
-                continue;
-            }
-
-            Job job = e.getKey().getCurrentJob();
-            if (job != null) {
-                this.activeJobs.put(job, e.getKey());
             }
         }
     }
@@ -224,7 +213,10 @@ public class DeliveryNetwork {
 
     private Set<BlockPos> getReservedPositions() {
         Set<BlockPos> reserved = new HashSet<>();
-        for (Job job : activeJobs.keySet()) {
+        for (CourierMob courier : this.couriers.keySet()) {
+            Job job = courier.getCurrentJob();
+            if (job == null) continue;
+
             reserved.add(job.from());
             if (job.to().getType() == PackageDestination.Type.SMART_BLOCK_ENTITY) {
                 reserved.add(BlockPos.containing(job.to().getPos()));
@@ -346,13 +338,10 @@ public class DeliveryNetwork {
         this.followedPlayers.inverse().remove(courier);
     }
 
+
+    @SuppressWarnings("unused")  // keep the param so no signature changes are needed when its needed
     public @Nullable DeliveryNetwork.Job getJob(CourierMob courier) {
-        if (!this.availableJobs.isEmpty()) {
-            Job job = this.availableJobs.poll();
-            this.activeJobs.put(job, courier);  // TODO: or maybe just let the courier remind the network themselves?
-            return job;
-        }
-        return null;
+        return this.availableJobs.poll();
     }
 
     public record Job(@Nullable BlockPos from, PackageDestination to) {
