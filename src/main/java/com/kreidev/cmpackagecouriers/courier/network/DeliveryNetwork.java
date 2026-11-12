@@ -4,11 +4,11 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.PlayerPackageDest;
 import com.kreidev.cmpackagecouriers.SmartBlockPackageDest;
 import com.kreidev.cmpackagecouriers.blockentity.PackageDestinationBehaviour;
+import com.kreidev.cmpackagecouriers.blockentity.SignAddressableBehaviour;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -119,6 +119,9 @@ public class DeliveryNetwork {
             if (reserved.contains(pos) || destinations.containsKey(pos)) continue;
 
             if (level.getBlockEntity(pos) instanceof DepotBlockEntity depot) {
+                SignAddressableBehaviour signAddressableBehaviour = depot.getBehaviour(SignAddressableBehaviour.TYPE);
+                if (signAddressableBehaviour == null || !signAddressableBehaviour.getAddressFilter().isEmpty()) continue;
+
                 ItemStack stack = depot.getHeldItem();
                 if (PackageItem.isPackage(stack) && !PackageItem.getAddress(stack).isBlank()) {
                     sources.put(pos, stack);

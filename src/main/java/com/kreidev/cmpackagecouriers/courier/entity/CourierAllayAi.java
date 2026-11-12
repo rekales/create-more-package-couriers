@@ -70,7 +70,7 @@ public class CourierAllayAi {
         brain.addActivityWithConditions(
                 Activity.IDLE,
                 ImmutableList.of(
-//                        Pair.of(0, StartJob.fromHeldPackage()),
+                        Pair.of(0, StartJob.fromHeldPackage()),
                         Pair.of(1, StartJob.fromNetwork()),
                         Pair.of(2, new FollowPlayerInNetwork<>()),
                         Pair.of(3, new RunOne<>(ImmutableList.of(
