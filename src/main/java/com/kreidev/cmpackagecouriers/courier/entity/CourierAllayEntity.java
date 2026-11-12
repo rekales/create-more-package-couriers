@@ -30,7 +30,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import javax.annotation.Nullable;
 import java.util.List;
 
-// TODO: package on hand doesn't seem to save/load properly.
 public class CourierAllayEntity extends Allay implements CourierMob {
 
     private static final String WAYBILL_TAG_KEY = "Waybill";
@@ -150,6 +149,7 @@ public class CourierAllayEntity extends Allay implements CourierMob {
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
         this.setWaybill(ItemStack.parseOptional(this.registryAccess(), tag.getCompound(WAYBILL_TAG_KEY)));
     }
 
