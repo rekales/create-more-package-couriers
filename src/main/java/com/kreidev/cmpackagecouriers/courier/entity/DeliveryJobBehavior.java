@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T> {
 
@@ -31,7 +32,7 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T
         super(Map.of(
                 CourierNetworkReg.DELIVERY_JOB_MEM.get(), MemoryStatus.VALUE_PRESENT,
                 MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED
-        ), 400);
+        ), 2000);
         this.speedModifier = speed;
         this.playerSpeedModifier = playerDeliverySpeed;
     }
@@ -45,16 +46,30 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T
     protected boolean canStillUse(ServerLevel level, T mob, long gameTime) {
         DeliveryNetwork network = mob.getDeliveryNetwork();
         if (network == null) return false;
-        return mob.getBrain().hasMemoryValue(CourierNetworkReg.DELIVERY_JOB_MEM.get());
+
+        Optional<DeliveryNetwork.Job> opt = mob.getBrain().getMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
+        if (opt.isEmpty()) return false;
+        DeliveryNetwork.Job job = opt.get();
+        if (mob.getPackage().isEmpty() && job.from() == null) return false;
+
+        if (mob.tickCount % 20 == 0 && job.to().getType() == PackageDestination.Type.PLAYER) {
+            if (!network.isNearbyNetwork(job.to().getPos())) {
+                return mob.position().closerThan(job.to().getPos(), 4);
+            }
+        }
+
+        return true;
     }
 
-    // TODO: invalidate jobs with null job.from if courier has no package in hand
-    // TODO: validate job when player goes too far
+    @Override
+    protected void stop(ServerLevel level, T mob, long gameTime) {
+        mob.getBrain().eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
+    }
+
     @SuppressWarnings("DataFlowIssue")  // Already handled on canStillUse
     @Override
     protected void tick(ServerLevel level, T mob, long gameTime) {
         Brain<?> brain = mob.getBrain();
-        DeliveryNetwork network = mob.getDeliveryNetwork();
         DeliveryNetwork.Job job = brain.getMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get()).orElseThrow();
         float speed = job.to().getType() == PackageDestination.Type.PLAYER ? this.playerSpeedModifier : this.speedModifier;
 
