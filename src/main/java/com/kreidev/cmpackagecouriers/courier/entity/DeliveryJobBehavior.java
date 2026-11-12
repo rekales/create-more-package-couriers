@@ -1,6 +1,5 @@
 package com.kreidev.cmpackagecouriers.courier.entity;
 
-import com.kreidev.cmpackagecouriers.PackageCouriers;
 import com.kreidev.cmpackagecouriers.PackageDestination;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
@@ -62,6 +61,11 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T
     }
 
     @Override
+    protected void start(ServerLevel level, T entity, long gameTime) {
+        this.transferTicks = 0;
+    }
+
+    @Override
     protected void stop(ServerLevel level, T mob, long gameTime) {
         mob.getBrain().eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
     }
@@ -93,10 +97,8 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T
                 if (job.to().tryInsertPackage(level, mob)) {
                     brain.eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
                 } else {
-                    PackageCouriers.LOGGER.debug("failed to transfer: " + this.transferTicks);
                     if (this.transferTicks++ > TICKS_BEFORE_RETRY) {
                         brain.eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
-                        PackageCouriers.LOGGER.debug("stopped trying");
                     }
                 }
             }
