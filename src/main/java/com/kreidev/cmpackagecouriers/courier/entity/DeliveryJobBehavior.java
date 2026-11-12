@@ -53,6 +53,7 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T
     }
 
     // TODO: invalidate jobs with null job.from if courier has no package in hand
+    // TODO: validate job when player goes too far
     @SuppressWarnings("DataFlowIssue")  // Already handled on canStillUse
     @Override
     protected void tick(ServerLevel level, T mob, long gameTime) {

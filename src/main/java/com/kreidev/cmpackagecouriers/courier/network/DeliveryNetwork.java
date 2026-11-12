@@ -168,33 +168,45 @@ public class DeliveryNetwork {
         this.availableJobs.clear();
         for (Map.Entry<BlockPos, ItemStack> entry : sources.entrySet()) {
 
-            // Special "@Address" interaction
             String packageAddress =  PackageItem.getAddress(entry.getValue());
-            int atIndex = packageAddress.indexOf('@');  // TODO: also allow player targets even without '@'
-            if (atIndex != -1) {  // TODO: ponder info about explicit @address player targets
+            PackageDestination dest = null;
+
+            // Special "@Address" interaction
+            int atIndex = packageAddress.indexOf('@');
+            boolean playerOnly = atIndex != -1;  // TODO: ponder info about explicit @address player targets
+            if (playerOnly) {
                 packageAddress = packageAddress.substring(atIndex + 1);
-                for (Player player : this.nearbyPlayers) {
-                    if (PackageItem.matchAddress(player.getName().getString(), packageAddress)) {
-                        this.availableJobs.add(new Job(entry.getKey(), new PlayerPackageDest(player)));
-                    }
+            }
+
+            for (Player player : this.nearbyPlayers) {
+                if (PackageItem.matchAddress(player.getName().getString(), packageAddress)) {
+                    dest = new PlayerPackageDest(player);
+                    break;
                 }
-            } else {
+            }
+
+            if (!playerOnly && dest == null) {
                 int priority = -100000;
-                SmartBlockEntity targetDest = null;
+
+                SmartBlockEntity targetBlock = null;
                 for (Map.Entry<BlockPos, String> destEntry : destinations.entrySet()) {
                     if (!(level.getBlockEntity(destEntry.getKey()) instanceof SmartBlockEntity be)) continue;
                     if (!PackageItem.matchAddress(entry.getValue(), destEntry.getValue())) continue;
 
                     int currentPriority = PackageDestination.getAddressPriority(destEntry.getValue());
                     if (currentPriority > priority) {
-                        targetDest = be;
+                        targetBlock = be;
                         priority = currentPriority;
                     }
                 }
-                if (targetDest != null) {
-                    this.availableJobs.add(new Job(entry.getKey(), new SmartBlockPackageDest(level, targetDest)));
-                    destinations.remove(targetDest.getBlockPos());
+                if (targetBlock != null) {
+                    dest = new SmartBlockPackageDest(level, targetBlock);
+                    destinations.remove(targetBlock.getBlockPos());
                 }
+            }
+
+            if (dest != null) {
+                this.availableJobs.add(new Job(entry.getKey(), dest));
             }
         }
     }
