@@ -12,11 +12,14 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -58,7 +61,7 @@ public class CourierAllayEntity extends Allay implements CourierMob {
         ItemStack stack = this.getItemInHand(InteractionHand.MAIN_HAND);
         if (!PackageItem.isPackage(stack)) {
             this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            this.spawnAtLocation(stack);
+            BehaviorUtils.throwItem(this, stack, this.position());
         }
     }
 
@@ -84,17 +87,28 @@ public class CourierAllayEntity extends Allay implements CourierMob {
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (hand == InteractionHand.MAIN_HAND) {
-            ItemStack itemstack = this.getItemInHand(hand);
-            if (itemstack.isEmpty() && player.getItemInHand(hand).isEmpty()) {
-                if (!this.level().isClientSide && revert(this)) {
-                    player.setItemInHand(hand, this.getWaybill());
-                }
-                return InteractionResult.SUCCESS;
+        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+
+        ItemStack stack = player.getItemInHand(hand);
+        ItemStack box = this.getItemInHand(hand);
+
+        if (stack.isEmpty()) {
+            if (!box.isEmpty()) {
+                this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                this.level().playSound(player, this, SoundEvents.ALLAY_ITEM_TAKEN, SoundSource.NEUTRAL, 2.0F, 1.0F);
+                this.swing(InteractionHand.MAIN_HAND);
+            } else if (!this.level().isClientSide && revert(this)) {
+                player.setItemInHand(hand, this.getWaybill());
             }
+            return InteractionResult.SUCCESS;
+        } else if (PackageItem.isPackage(stack) && box.isEmpty()) {
+            this.setItemInHand(InteractionHand.MAIN_HAND, stack);
+            player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            this.level().playSound(player, this, SoundEvents.ALLAY_ITEM_GIVEN, SoundSource.NEUTRAL, 2.0F, 1.0F);
+            return InteractionResult.SUCCESS;
         }
 
-        return super.mobInteract(player, hand);
+        return InteractionResult.PASS;
     }
 
     @Override
