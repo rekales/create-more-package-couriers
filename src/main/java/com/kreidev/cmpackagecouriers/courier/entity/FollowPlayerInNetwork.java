@@ -2,6 +2,7 @@ package com.kreidev.cmpackagecouriers.courier.entity;
 
 import com.google.common.collect.ImmutableMap;
 import com.kreidev.cmpackagecouriers.courier.CourierMob;
+import com.kreidev.cmpackagecouriers.courier.CourierNetworkReg;
 import com.kreidev.cmpackagecouriers.courier.network.DeliveryNetwork;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
@@ -22,6 +23,7 @@ public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior
 
     public FollowPlayerInNetwork() {
         super(ImmutableMap.of(
+                CourierNetworkReg.DELIVERY_JOB_MEM.get(), MemoryStatus.VALUE_ABSENT,
                 MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED
         ), 400, 600);
     }
@@ -39,7 +41,7 @@ public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior
         if (player.isEmpty()) return false;
 
         // start logic in here to avoid double fetching DeliveryNetwork#getUnassignedPlayersNearby
-        this.anchor = mob.position();
+        this.anchor = player.get().position();
         network.setFollowingPlayer(player.get(), mob);
         return true;
     }
@@ -48,6 +50,7 @@ public class FollowPlayerInNetwork <T extends Mob & CourierMob> extends Behavior
     protected boolean canStillUse(ServerLevel level, T mob, long gameTime) {
         DeliveryNetwork network = mob.getDeliveryNetwork();
         if (network == null) return false;
+        if (!this.hasRequiredMemories(mob)) return false;
 
         Player following = network.getFollowingPlayer(mob);
         if (following == null || following.isDeadOrDying() || following.isRemoved()) return false;

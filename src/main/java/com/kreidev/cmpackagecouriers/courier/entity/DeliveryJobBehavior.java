@@ -80,7 +80,6 @@ public class DeliveryJobBehavior <T extends Mob & CourierMob> extends Behavior<T
                 } else {
                     PackageCouriers.LOGGER.debug("failed to transfer: " + this.transferTicks);
                     if (this.transferTicks++ > TICKS_BEFORE_RETRY) {
-                        // TODO: find a new destination
                         brain.eraseMemory(CourierNetworkReg.DELIVERY_JOB_MEM.get());
                         PackageCouriers.LOGGER.debug("stopped trying");
                     }
