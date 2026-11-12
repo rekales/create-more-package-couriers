@@ -23,6 +23,10 @@ public class RandomStrollWithinNetwork {
                     if (nodes.isEmpty()) return false;
 
                     BlockPos node = nodes.get(mob.getRandom().nextInt(nodes.size()));
+                    for (int i = 0 ; i < 5; i++) {
+                        if (mob.position().closerThan(node.getCenter(), 48)) break;
+                        node = nodes.get(mob.getRandom().nextInt(nodes.size()));
+                    }
                     walkAcc.setWithExpiry(
                             new WalkTarget(node, speedModifier, closeEnoughDist),
                             (int) (30 * mob.position().distanceTo(node.getCenter()))
