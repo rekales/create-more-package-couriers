@@ -1,6 +1,5 @@
 package com.kreidev.cmpackagecouriers;
 
-import com.kreidev.cmpackagecouriers.plane.UnpackEffect;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -31,11 +30,17 @@ public class PackageCouriersApi {
         return ITEM_UNPACK_EFFECTS.containsKey(item);
     }
 
-    public static ItemStack handleUnpackEffects(Level level, ItemStack stack, Vec3 planePos, CourierTarget target) {
+    // TODO: update pipebombs
+    public static ItemStack handleUnpackEffects(Level level, ItemStack stack, Vec3 carrierPos, PackageDestination destination) {
         UnpackEffect function = ITEM_UNPACK_EFFECTS.get(stack.getItem());
         if (function != null) {
-            return function.apply(level, stack, planePos, target);
+            return function.apply(level, stack, carrierPos, destination);
         }
         return stack;
+    }
+
+    @FunctionalInterface
+    public interface UnpackEffect {
+        ItemStack apply(Level level, ItemStack stack, Vec3 planePos, PackageDestination target);
     }
 }

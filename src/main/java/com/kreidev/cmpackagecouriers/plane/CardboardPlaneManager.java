@@ -112,11 +112,11 @@ public class CardboardPlaneManager {
                 && ServerConfig.planeLocationTargets
                 && targetLevel.getBlockState(targetBlockPos).getBlock() instanceof CourierDestination dest
                 && dest.cmpc$hasSpace(targetLevel, targetBlockPos))) {
-            CardboardPlane plane = new CardboardPlane(currentLevel, target, box);
-            plane.setPos(pos);
-            plane.setRot(pitch, yaw);
-            plane.setUnpack(unpack);
-            INSTANCE.pairedPlanes.add(Pair.of(plane, null));
+//            CardboardPlane plane = new CardboardPlane(currentLevel, target, box);
+//            plane.setPos(pos);
+//            plane.setRot(pitch, yaw);
+//            plane.setUnpack(unpack);
+//            INSTANCE.pairedPlanes.add(Pair.of(plane, null));
             return true;
         }
 

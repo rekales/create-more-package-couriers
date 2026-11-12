@@ -76,8 +76,7 @@ public class PlayerPackageDest implements PackageDestination {
             for (int slot = 0; slot < stacks.getSlots(); slot++) {
                 ItemStack stack = stacks.getStackInSlot(slot);
                 if (PackageCouriersApi.hasUnpackEffects(stack.getItem())) {
-                    // TODO: updated signature
-//                    stack = PackageCouriersApi.handleUnpackEffects(level, stack, this.lastPos, this.target);
+                    stack = PackageCouriersApi.handleUnpackEffects(level, stack, this.getPos(), this);
                     if (stack.isEmpty()) continue;
                 }
                 this.entity.getInventory().placeItemBackInInventory(stack);
