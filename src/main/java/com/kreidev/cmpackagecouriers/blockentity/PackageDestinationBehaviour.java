@@ -1,9 +1,12 @@
 package com.kreidev.cmpackagecouriers.blockentity;
 
 import com.kreidev.cmpackagecouriers.PackageCarrier;
+import com.kreidev.cmpackagecouriers.SmartBlockPackageDest;
+import com.kreidev.cmpackagecouriers.plane.GlobalDestinationManager;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -18,15 +21,22 @@ public class PackageDestinationBehaviour extends BlockEntityBehaviour {
     private Consumer<PackageCarrier> incomingTicker;
     private Supplier<Boolean> hasSpaceCheck;
     private Predicate<PackageCarrier> tryInsertCheck;
+    private final boolean globalDest;
 
     public static final BehaviourType<PackageDestinationBehaviour> TYPE = new BehaviourType<>();
 
-    public PackageDestinationBehaviour(SmartBlockEntity be) {
+    public PackageDestinationBehaviour(SmartBlockEntity be, boolean globalDest) {
         super(be);
         this.addressSupplier = () -> "";
         this.incomingTicker = carrier -> {};
         this.hasSpaceCheck = () -> true;
         this.tryInsertCheck = carrier -> false;
+        this.globalDest = globalDest;
+        this.setLazyTickRate(5);
+    }
+
+    public PackageDestinationBehaviour(SmartBlockEntity be) {
+        this(be, true);
     }
 
     /**
@@ -34,6 +44,17 @@ public class PackageDestinationBehaviour extends BlockEntityBehaviour {
      */
     public void tickIncoming(PackageCarrier carrier) {
         this.incomingTicker.accept(carrier);
+    }
+
+    @Override
+    public void lazyTick() {
+        if (this.globalDest && !getAddress().isEmpty() && this.blockEntity.getLevel() instanceof ServerLevel serverLevel) {
+            GlobalDestinationManager.checkIn(
+                    serverLevel,
+                    new SmartBlockPackageDest(serverLevel, this.blockEntity),
+                    this.getAddress()
+            );
+        }
     }
 
     public String getAddress() {

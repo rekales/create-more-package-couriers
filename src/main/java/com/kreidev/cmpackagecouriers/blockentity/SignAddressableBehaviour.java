@@ -14,30 +14,22 @@ import net.minecraft.world.level.block.entity.SignText;
 
 import javax.annotation.Nullable;
 
+// TODO: longer lazy rate, updated when nearby sign gets updated
 public class SignAddressableBehaviour extends BlockEntityBehaviour {
 
     public static final BehaviourType<SignAddressableBehaviour> TYPE = new BehaviourType<>();
 
     private String signAddress = "";
-    private final boolean planeTargetable;
-
-    public SignAddressableBehaviour(SmartBlockEntity be, boolean planeTargetable) {
-        super(be);
-        this.planeTargetable = planeTargetable;
-        this.setLazyTickRate(50);
-    }
 
     public SignAddressableBehaviour(SmartBlockEntity be) {
-        this(be, true);
+        super(be);
+        this.setLazyTickRate(50);
     }
 
     @Override
     public void lazyTick() {
         String address = getSignAddress(this.blockEntity.getLevel(), this.blockEntity.getBlockPos());
         this.signAddress = address == null ? "" : address;
-
-        if (!this.planeTargetable) return;
-        // TODO: cardboard plane add as target to global tracker
     }
 
     @Override
