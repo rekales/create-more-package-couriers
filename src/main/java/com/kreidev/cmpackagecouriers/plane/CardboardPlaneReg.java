@@ -51,7 +51,7 @@ public class CardboardPlaneReg {
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(CardboardPlaneReg::clientInit);
-        NeoForge.EVENT_BUS.addListener(CardboardPlaneSavedData::onServerStarting);
+        NeoForge.EVENT_BUS.addListener(CardboardPlaneManager::onServerStarting);
     }
 
     public static void clientInit(final FMLClientSetupEvent event) {

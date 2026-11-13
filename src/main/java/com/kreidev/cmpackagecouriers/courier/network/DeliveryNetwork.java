@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+// TODO: node wrong dimension handling
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class DeliveryNetwork {
