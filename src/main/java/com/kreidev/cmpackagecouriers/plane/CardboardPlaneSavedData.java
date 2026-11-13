@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +22,7 @@ public class CardboardPlaneSavedData extends SavedData {
     public static final Codec<List<CardboardPlane>> CODEC =
             Codec.list(CardboardPlane.CODEC.codec());
 
-    public List<Pair<CardboardPlane, CardboardPlaneEntity>> pairedPlanes;
+    public List<Pair<CardboardPlane, Optional<CardboardPlaneEntity>>> pairedPlanes;
 
     public CardboardPlaneSavedData() {
         super();
@@ -39,7 +38,7 @@ public class CardboardPlaneSavedData extends SavedData {
             );
 
             this.pairedPlanes = planeList.stream()
-                    .map(plane -> Pair.of(plane, (CardboardPlaneEntity) null))
+                    .<Pair<CardboardPlane, Optional<CardboardPlaneEntity>>>map(plane -> Pair.of(plane, Optional.empty()))
                     .collect(Collectors.toCollection(ArrayList::new));
         } else {
             this.pairedPlanes = new ArrayList<>();
@@ -47,7 +46,7 @@ public class CardboardPlaneSavedData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider provider) {
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider provider) {
         List<CardboardPlane> planeList = this.pairedPlanes.stream()
                 .map(Pair::getFirst)
                 .toList();

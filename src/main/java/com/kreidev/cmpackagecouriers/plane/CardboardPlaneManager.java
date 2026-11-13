@@ -16,9 +16,10 @@ import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 
 // TODO: merge manager and saved data
-@SuppressWarnings({"UnusedReturnValue", "ConstantValue", "DataFlowIssue", "unused"})
+@SuppressWarnings({"UnusedReturnValue", "DataFlowIssue", "unused"})
 @EventBusSubscriber(modid= PackageCouriers.MOD_ID)
 public class CardboardPlaneManager {
 
@@ -33,21 +34,21 @@ public class CardboardPlaneManager {
 
         MinecraftServer server = event.getServer();
 
-        for (Iterator<Pair<CardboardPlane, CardboardPlaneEntity>> iterator = INSTANCE.pairedPlanes.iterator(); iterator.hasNext();) {
-            Pair<CardboardPlane, CardboardPlaneEntity> pair = iterator.next();
+        for (Iterator<Pair<CardboardPlane, Optional<CardboardPlaneEntity>>> iterator = INSTANCE.pairedPlanes.iterator(); iterator.hasNext();) {
+            Pair<CardboardPlane, Optional<CardboardPlaneEntity>> pair = iterator.next();
             CardboardPlane plane = pair.getFirst();
-            CardboardPlaneEntity entity = pair.getSecond();
+            Optional<CardboardPlaneEntity> entity = pair.getSecond();
 
             plane.tick(server);
 
             if (plane.isForRemoval()) {
-                if (entity != null) entity.remove(Entity.RemovalReason.DISCARDED);
+                entity.ifPresent(e -> e.remove(Entity.RemovalReason.DISCARDED));
                 iterator.remove();
                 continue;
             }
 
             if (plane.hasTeleported()) {
-                if (entity != null) entity.remove(Entity.RemovalReason.DISCARDED);
+                entity.ifPresent(e -> e.remove(Entity.RemovalReason.DISCARDED));
                 pair.setSecond(null);
                 plane.setTeleported(false);
             }
@@ -55,14 +56,14 @@ public class CardboardPlaneManager {
             // Adding a plane entity for rendering
             ServerLevel level = server.getLevel(plane.getCurrentDim());
             if (Utils.isChunkTicking(level, plane.getPos())) {
-                if (entity == null) {
-                    entity = new CardboardPlaneEntity(level, plane);
-                    pair.setSecond(entity);
-                    level.addFreshEntity(entity);
+                if (entity.isEmpty()) {
+                    CardboardPlaneEntity planeEntity = new CardboardPlaneEntity(level, plane);
+                    pair.setSecond(Optional.of(planeEntity));
+                    level.addFreshEntity(planeEntity);
                 }
-            } else if (entity != null) {
-                entity.remove(Entity.RemovalReason.DISCARDED);
-                pair.setSecond(null);
+            } else if (entity.isPresent()) {
+                entity.ifPresent(e -> e.remove(Entity.RemovalReason.DISCARDED));
+                pair.setSecond(Optional.empty());
             }
         }
     }
@@ -94,7 +95,7 @@ public class CardboardPlaneManager {
         plane.setPos(pos);
         plane.setRot(pitch, yaw);
         plane.setUnpack(unpack);
-        INSTANCE.pairedPlanes.add(Pair.of(plane, null));
+        INSTANCE.pairedPlanes.add(Pair.of(plane, Optional.of(null)));
         return true;
     }
 
@@ -116,7 +117,6 @@ public class CardboardPlaneManager {
         }
 
         Map<PackageDestination, String> destinations = GlobalDestinationManager.findDestinations(level, address);
-        PackageDestination ret = null;
 
         if (playerOnly || !locationTargets) {
             destinations.entrySet().removeIf(entry -> entry.getKey().getType() != PackageDestination.Type.PLAYER);
