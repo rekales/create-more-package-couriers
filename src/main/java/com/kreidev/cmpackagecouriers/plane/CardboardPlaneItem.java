@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -102,9 +103,8 @@ public class CardboardPlaneItem extends Item implements EjectorLaunchEffect {
     public boolean fire(ItemStack stack, Level level, Vec3 pos, float yaw, float pitch) {
         if (level.isClientSide())
             return false;
-
         ItemStack packageItem = getPackage(stack);
-        return CardboardPlaneManager.addPlane(level, pos, yaw, pitch, packageItem, isPreOpened(stack));
+        return CardboardPlaneManager.addPlane((ServerLevel) level, pos, yaw, pitch, packageItem, isPreOpened(stack));
     }
 
     public static ItemStack withPackage(ItemStack box) {

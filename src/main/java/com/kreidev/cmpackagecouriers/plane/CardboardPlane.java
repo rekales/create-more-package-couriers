@@ -102,7 +102,7 @@ public class CardboardPlane implements PackageCarrier {
         ServerLevel level = server.getLevel(this.destination.getDim());
         if (level == null) return;
 
-        if (this.destination.tryInsertPackage(level, this)) {
+        if (!this.destination.tryInsertPackage(level, this)) {
             this.dropPackage(level);
         }
 
