@@ -58,7 +58,27 @@ public class SmartBlockPackageDest implements PackageDestination {
     }
 
     @Override
+    public String getAddress(ServerLevel level) {
+        if (!level.isLoaded(this.blockPos)) return "";
+        if (!(level.getBlockEntity(this.blockPos) instanceof SmartBlockEntity be)) return "";
+        PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
+        if (behaviour == null) return "";
+        return behaviour.getAddress();
+    }
+
+    @Override
+    public boolean canReceive(ServerLevel level) {
+        if (!level.isLoaded(this.blockPos)) return false;
+        if (!(level.getBlockEntity(this.blockPos) instanceof SmartBlockEntity be)) return false;
+
+        PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);
+        if (behaviour == null) return false;
+        return behaviour.hasSpace();
+    }
+
+    @Override
     public boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier) {
+        if (!level.isLoaded(this.blockPos)) return false;
         if (!(level.getBlockEntity(this.blockPos) instanceof SmartBlockEntity be)) return false;
 
         PackageDestinationBehaviour behaviour = be.getBehaviour(PackageDestinationBehaviour.TYPE);

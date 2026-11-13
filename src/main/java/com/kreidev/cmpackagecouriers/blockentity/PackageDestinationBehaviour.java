@@ -51,8 +51,7 @@ public class PackageDestinationBehaviour extends BlockEntityBehaviour {
         if (this.globalDest && !getAddress().isEmpty() && this.blockEntity.getLevel() instanceof ServerLevel serverLevel) {
             GlobalDestinationManager.checkIn(
                     serverLevel,
-                    new SmartBlockPackageDest(serverLevel, this.blockEntity),
-                    this.getAddress()
+                    new SmartBlockPackageDest(serverLevel, this.blockEntity)
             );
         }
     }

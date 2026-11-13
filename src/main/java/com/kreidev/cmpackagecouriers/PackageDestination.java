@@ -41,7 +41,19 @@ public interface PackageDestination {
 
     ResourceKey<Level> getDim();
 
-    default void tickIncoming(PackageCarrier carrier) {
+    String getAddress(ServerLevel level);
+
+    /**
+     * Called when the carrier arrives at the destination and to transfer the package to it.
+     * @return false means it failed the transfer
+     */
+    boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier);
+
+    default boolean canReceive(ServerLevel level) {
+        return true;
+    }
+
+    default void tickIncoming(ServerLevel level, PackageCarrier carrier) {
     }
 
     default PositionTracker getPositionTracker() {
@@ -63,12 +75,6 @@ public interface PackageDestination {
             }
         };
     }
-
-    /**
-     * Called when the carrier arrives at the destination and to transfer the package to it.
-     * @return false means it failed the transfer
-     */
-    boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier);
 
     static int getAddressPriority(String address) {
         return (int) -address.chars().filter(c -> c == '*').count();
