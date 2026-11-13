@@ -14,7 +14,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
+import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 // TODO: merge manager and saved data
 @SuppressWarnings({"UnusedReturnValue", "ConstantValue", "DataFlowIssue", "unused"})
@@ -69,21 +73,38 @@ public class CardboardPlaneManager {
     /**
      * @return false if plane failed to launch
      */
-    public static boolean addPlane(Level level, Vec3 pos, float yaw, float pitch, ItemStack box) {
+    public static boolean addPlane(ServerLevel level, Vec3 pos, float yaw, float pitch, ItemStack box) {
         return addPlane(level, pos, yaw, pitch, box, false);
     }
 
     /**
      * @return false if plane failed to launch
      */
-    public static boolean addPlane(Level currentLevel, Vec3 pos, float yaw, float pitch, ItemStack box, boolean unpack) {
+    public static boolean addPlane(ServerLevel level, Vec3 pos, float yaw, float pitch, ItemStack box, boolean unpack) {
         if (!PackageItem.isPackage(box)) return false;
-        if (currentLevel.isClientSide()) return false;
-        MinecraftServer server = currentLevel.getServer();
+        if (level.isClientSide()) return false;
+        MinecraftServer server = level.getServer();
         if (server == null) return false;
 
         String address = PackageItem.getAddress(box);
+        // TODO: ponder info if disabled cross dim transport
+        PackageDestination dest = findDestination(level, address, ServerConfig.planeCrossDimTransport,
+                ServerConfig.planePlayerTargets, ServerConfig.planeLocationTargets);
+        if (dest == null) return false;
 
+        ServerLevel targetLevel = server.getLevel(dest.getDim());
+        if (targetLevel == null) return false;
+
+        CardboardPlane plane = new CardboardPlane(level, dest, box);
+        plane.setPos(pos);
+        plane.setRot(pitch, yaw);
+        plane.setUnpack(unpack);
+        INSTANCE.pairedPlanes.add(Pair.of(plane, null));
+        return true;
+    }
+
+    private static @Nullable PackageDestination findDestination(ServerLevel level, String address, boolean crossDim,
+                                                                boolean playerTargets, boolean locationTargets) {
         // Special "<Address>" interaction
         int start = address.indexOf('<');
         int end = address.indexOf('>');
@@ -99,37 +120,24 @@ public class CardboardPlaneManager {
             playerOnly = true;  // TODO: ponder info about explicit @address player targets
         }
 
-        // TODO: remove checks and just launch after implementing destination link.
-        CourierTarget target = CourierTarget.getActiveTarget(address, playerOnly);
-        if (target == null) return false;
-        if (!ServerConfig.planeCrossDimTransport && currentLevel.dimension() != target.getDim()) return false;
-        // TODO: ponder info if disabled cross dim transport
-        Level targetLevel = server.getLevel(target.getDim());
-        if (targetLevel == null) return false;
-        BlockPos targetBlockPos = BlockPos.containing(target.getPos());
-        if ((target.getType() == CourierTarget.Type.ENTITY && ServerConfig.planePlayerTargets)
-                || (target.getType() == CourierTarget.Type.BLOCK
-                && ServerConfig.planeLocationTargets
-                && targetLevel.getBlockState(targetBlockPos).getBlock() instanceof CourierDestination dest
-                && dest.cmpc$hasSpace(targetLevel, targetBlockPos))) {
-//            CardboardPlane plane = new CardboardPlane(currentLevel, target, box);
-//            plane.setPos(pos);
-//            plane.setRot(pitch, yaw);
-//            plane.setUnpack(unpack);
-//            INSTANCE.pairedPlanes.add(Pair.of(plane, null));
-            return true;
+        Map<PackageDestination, String> destinations = GlobalDestinationManager.findDestinations(level, address);
+        PackageDestination ret = null;
+
+        if (playerOnly || !locationTargets) {
+            destinations.entrySet().removeIf(entry -> entry.getKey().getType() != PackageDestination.Type.PLAYER);
+        }
+        if (!locationTargets) {
+            destinations.entrySet().removeIf(entry -> entry.getKey().getType() == PackageDestination.Type.PLAYER);
+        }
+        if (!crossDim) {
+            destinations.entrySet().removeIf(entry -> entry.getKey().getDim() != level.dimension());
         }
 
-//        if (target.getType() == CourierTarget.Type.BLOCK && ServerConfig.planeLocationTargets
-//                || target.getType() == CourierTarget.Type.ENTITY && ServerConfig.planePlayerTargets) {
-//            CardboardPlane plane = new CardboardPlane(currentLevel, target, box);
-//            plane.setPos(pos);
-//            plane.setRot(pitch, yaw);
-//            plane.setUnpack(unpack);
-//            INSTANCE.pairedPlanes.add(Pair.of(plane, null));
-//            PackageCouriers.LOGGER.debug("added plane");
-//            return true;
-//        }
-        return false;
+        return destinations.entrySet().stream()
+                .min(Comparator
+                        .comparingInt((Map.Entry<PackageDestination, String> e) -> e.getKey().getType() == PackageDestination.Type.PLAYER ? 0 : 1)
+                        .thenComparingInt(e -> -PackageDestination.getAddressPriority(e.getValue())))
+                .map(Map.Entry::getKey).orElse(null);
     }
+
 }

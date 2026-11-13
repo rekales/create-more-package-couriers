@@ -6,11 +6,9 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-// Kept separate from the interface to make space for potential optimizations
+// Kept a separate class to make space for potential optimizations
 public class GlobalDestinationManager {
 
     private static final int TIMEOUT_DURATION = 20;
@@ -22,14 +20,14 @@ public class GlobalDestinationManager {
     }
 
     // TODO: profiling at scale and lag mitigation when needed
-    public static Set<PackageDestination> getDestinations(ServerLevel level, String address) {
+    public static Map<PackageDestination, String> findDestinations(ServerLevel level, String address) {
         long gameTime = level.getGameTime();
         DESTINATIONS.values().removeIf(p -> gameTime - p.getFirst() > TIMEOUT_DURATION);
 
-        Set<PackageDestination> result = new HashSet<>();
+        Map<PackageDestination, String> result = new HashMap<>();
         for (Map.Entry<PackageDestination, Pair<Long, String>> e : DESTINATIONS.entrySet()) {
             if (PackageItem.matchAddress(address, e.getValue().getSecond())) {
-                result.add(e.getKey());
+                result.put(e.getKey(), e.getValue().getSecond());
             }
         }
         return result;
