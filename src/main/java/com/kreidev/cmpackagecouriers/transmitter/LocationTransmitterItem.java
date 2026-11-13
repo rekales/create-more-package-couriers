@@ -1,9 +1,11 @@
 package com.kreidev.cmpackagecouriers.transmitter;
 
-import com.kreidev.cmpackagecouriers.CourierTarget;
+import com.kreidev.cmpackagecouriers.PlayerPackageDest;
+import com.kreidev.cmpackagecouriers.plane.GlobalDestinationManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -79,8 +81,8 @@ public class LocationTransmitterItem extends Item {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (level.isClientSide()) return;
-        if (isEnabled(stack)) {
-            CourierTarget.addOrUpdateTarget(new CourierTarget(entity.getName().getString(), entity));
+        if (entity instanceof Player player && isEnabled(stack)) {
+            GlobalDestinationManager.checkIn((ServerLevel) level, new PlayerPackageDest(player), player.getName().getString());
         }
     }
 

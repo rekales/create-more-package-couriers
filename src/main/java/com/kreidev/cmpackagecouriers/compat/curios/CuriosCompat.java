@@ -1,11 +1,14 @@
 package com.kreidev.cmpackagecouriers.compat.curios;
 
-import com.kreidev.cmpackagecouriers.CourierTarget;
+import com.kreidev.cmpackagecouriers.PlayerPackageDest;
+import com.kreidev.cmpackagecouriers.plane.GlobalDestinationManager;
 import com.kreidev.cmpackagecouriers.stock_ticker.PortableStockTickerReg;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterItem;
 import com.kreidev.cmpackagecouriers.transmitter.LocationTransmitterReg;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -41,8 +44,8 @@ public class CuriosCompat {
                     public void curioTick(SlotContext slotContext, ItemStack stack) {
                         Entity entity = slotContext.entity();
                         if (!entity.level().isClientSide()) return;
-                        if (LocationTransmitterItem.isEnabled(stack)) {
-                            CourierTarget.addOrUpdateTarget(new CourierTarget(entity.getName().getString(), entity));
+                        if (entity instanceof Player player && LocationTransmitterItem.isEnabled(stack)) {
+                            GlobalDestinationManager.checkIn((ServerLevel) entity.level(), new PlayerPackageDest(player), player.getName().getString());
                         }
                     }
                 }

@@ -3,12 +3,10 @@ package com.kreidev.cmpackagecouriers.plane;
 import com.kreidev.cmpackagecouriers.*;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import net.createmod.catnip.data.Pair;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -18,7 +16,6 @@ import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 // TODO: merge manager and saved data
 @SuppressWarnings({"UnusedReturnValue", "ConstantValue", "DataFlowIssue", "unused"})
@@ -82,9 +79,7 @@ public class CardboardPlaneManager {
      */
     public static boolean addPlane(ServerLevel level, Vec3 pos, float yaw, float pitch, ItemStack box, boolean unpack) {
         if (!PackageItem.isPackage(box)) return false;
-        if (level.isClientSide()) return false;
         MinecraftServer server = level.getServer();
-        if (server == null) return false;
 
         String address = PackageItem.getAddress(box);
         // TODO: ponder info if disabled cross dim transport
