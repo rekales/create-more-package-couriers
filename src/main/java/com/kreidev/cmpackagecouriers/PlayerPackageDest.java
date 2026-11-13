@@ -67,12 +67,6 @@ public class PlayerPackageDest implements PackageDestination {
     }
 
     @Override
-    public String getAddress(ServerLevel level) {
-        if (this.entity == null) return "";
-        return this.entity.getName().getString();
-    }
-
-    @Override
     public boolean tryInsertPackage(ServerLevel level, PackageCarrier carrier) {
         if (this.entity == null) return false;
         if (this.entity.isRemoved() || this.entity.isDeadOrDying()) return false;
