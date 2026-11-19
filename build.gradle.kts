@@ -10,6 +10,9 @@ group = project.properties["mod_group"]!!
 
 repositories {
     mavenLocal()
+    maven("https://maven.ryanhcode.dev/releases") {
+        content { includeGroup("dev.ryanhcode.sable-companion") }
+    }
 
     maven("https://maven.neoforged.net/#/releases/")
     maven("https://www.cursemaven.com")
@@ -24,6 +27,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-${property("minecraft_version")}:1.6.0") { isTransitive = false }
     implementation("com.simibubi.create:create-${property("minecraft_version")}:${property("create_version")}:slim") { isTransitive = false }
     implementation("net.createmod.ponder:ponder-neoforge:${property("ponder_version")}+mc${property("minecraft_version")}")
     compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${property("minecraft_version")}:${property("flywheel_version")}")
