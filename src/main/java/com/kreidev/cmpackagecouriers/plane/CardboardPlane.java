@@ -3,6 +3,8 @@ package com.kreidev.cmpackagecouriers.plane;
 import com.kreidev.cmpackagecouriers.CourierTarget;
 import com.kreidev.cmpackagecouriers.CourierDestination;
 import com.kreidev.cmpackagecouriers.PackageCouriersApi;
+import com.kreidev.cmpackagecouriers.compat.Mods;
+import com.kreidev.cmpackagecouriers.compat.sable.SableCompat;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllItems;
@@ -29,6 +31,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 // Use CardboardPlaneManager for adding and removing planes
 @ParametersAreNonnullByDefault
@@ -41,7 +45,8 @@ public class CardboardPlane {
             Vec3.CODEC.fieldOf("Pos").forGetter(CardboardPlane::getPos),
             ResourceKey.codec(Registries.DIMENSION).fieldOf("CurrentDim").forGetter(CardboardPlane::getCurrentDim),
             CourierTarget.CODEC.fieldOf("Target").forGetter(CardboardPlane::getTarget),
-            ItemStack.CODEC.fieldOf("Box").forGetter(CardboardPlane::getPackage)
+            ItemStack.CODEC.fieldOf("Box").forGetter(CardboardPlane::getPackage),
+            UUIDUtil.CODEC.optionalFieldOf("CourierSableOwner").forGetter(plane -> Optional.ofNullable(plane.subLevelId))
     ).apply(instance, CardboardPlane::new));
 
     public static final double SPEED = 0.8;
@@ -54,6 +59,8 @@ public class CardboardPlane {
     public int tickCount = 0;
 
     public final CourierTarget target;
+    @Nullable private UUID subLevelId;
+    @Nullable private Vec3 projectedTarget;
     public ItemStack box;
     public boolean unpack = false;
     public boolean hasTeleported = false;  // NOTE: For notifying the manager, don't forget to reset
@@ -62,6 +69,10 @@ public class CardboardPlane {
     public CardboardPlane(Level currentLevel, CourierTarget target, ItemStack box) {
         this.id = UUID.randomUUID();
         this.currentDim = currentLevel.dimension();
+        if (target.getType() == CourierTarget.Type.BLOCK && Mods.SABLE.isLoaded() && currentLevel.getServer() != null) {
+            ServerLevel destination = currentLevel.getServer().getLevel(target.getDim());
+            if (destination != null) subLevelId = SableCompat.ownerAt(destination, target.getPos());
+        }
         this.target = target;
         this.pos = Vec3.ZERO;
         this.deltaMovement = new Vec3(0,1,0);
@@ -79,15 +90,37 @@ public class CardboardPlane {
         this.setPackage(box);
     }
 
+    private CardboardPlane(UUID id, Vec3 deltaMovement, Vec3 pos, ResourceKey<Level> currentDim,
+                          CourierTarget target, ItemStack box, Optional<UUID> owner) {
+        this(id, deltaMovement, pos, currentDim, target, box);
+        this.subLevelId = owner.orElse(null);
+    }
+
+    // Only navigation uses world coordinates. The target keeps the plot position for delivery.
+    private Vec3 waypoint() {
+        return projectedTarget != null ? projectedTarget : target.getPos();
+    }
+
     // NOTE: Match sequence with CardboardPlaneEntity::tick else it desyncs
     public void tick(MinecraftServer server) {
+        if (subLevelId != null) {
+            ServerLevel destination = server.getLevel(target.getDim());
+            projectedTarget = destination != null && Mods.SABLE.isLoaded()
+                    ? SableCompat.waypoint(destination, target.getPos(), subLevelId) : null;
+            if (projectedTarget == null) {
+                // The plot was unloaded or reassigned. Keep the package at the plane's world position.
+                ServerLevel current = server.getLevel(currentDim);
+                if (current != null) forRemoval = current.addFreshEntity(PackageEntity.fromItemStack(current, pos, getPackage()));
+                return;
+            }
+        }
         this.tickCount++;
 
         this.pos = this.pos.add(this.deltaMovement);
 
         this.updateDelta();
 
-        if (this.tickCount > 120 && (!target.getPos().closerThan(pos, 80) || this.currentDim != target.getDim())) {
+        if (this.tickCount > 120 && (!waypoint().closerThan(pos, 80) || this.currentDim != target.getDim())) {
             this.tpCloserToTarget();
         }
 
@@ -98,7 +131,7 @@ public class CardboardPlane {
     }
 
     public boolean hasReachedTarget() {
-        return target.getPos().closerThan(this.pos, 1.5);
+        return waypoint().closerThan(this.pos, 1.5);
     }
 
     // NOTE: Potential issue, what happens if the destination is not loaded?
@@ -150,35 +183,37 @@ public class CardboardPlane {
     }
 
     private void updateDelta() {
+        Vec3 waypoint = waypoint();
         Vec3 vecFrom = this.getDeltaMovement().normalize();
         Vec3 vecTo;
         if (this.currentDim != target.getDim()) {  // Target not in the same dimension
             vecTo = this.getDeltaMovement().normalize();
         } else {
-            double xzDistance = Math.sqrt(Math.pow(target.getPos().x-this.pos.x, 2) + Math.pow(target.getPos().z-this.pos.z, 2));
+            double xzDistance = Math.sqrt(Math.pow(waypoint.x-this.pos.x, 2) + Math.pow(waypoint.z-this.pos.z, 2));
             Vec3 adjustedTargetPos = new Vec3(
-                    target.getPos().x,
-                    target.getPos().y + (xzDistance > 4 ? (xzDistance-4)/3 : 0),
-                    target.getPos().z
+                    waypoint.x,
+                    waypoint.y + (xzDistance > 4 ? (xzDistance-4)/3 : 0),
+                    waypoint.z
             );
             vecTo = adjustedTargetPos.subtract(this.pos).normalize();
         }
 
-        float augmentedDistance = (float)target.getPos().subtract(this.pos).length() + Math.max(0, 70 - this.tickCount);
+        float augmentedDistance = (float)waypoint.subtract(this.pos).length() + Math.max(0, 70 - this.tickCount);
         float clampedDistance = Mth.clamp(augmentedDistance, 5, 60);
         float curveAmount = Mth.lerp((clampedDistance - 5f) / 55f, 0.4f, 0.06f);
         this.setDeltaMovement(vecFrom.lerp(vecTo, curveAmount).normalize().scale(SPEED));
     }
 
     public void tpCloserToTarget() {
-        Vec3 dirVec = this.pos.subtract(this.target.getPos()).normalize();
+        Vec3 waypoint = waypoint();
+        Vec3 dirVec = this.pos.subtract(waypoint).normalize();
 
         dirVec = new Vec3(dirVec.x(), 0.5, dirVec.z()).normalize();
-        Vec3 tpVec = target.getPos().add(dirVec.scale(60));
+        Vec3 tpVec = waypoint.add(dirVec.scale(60));
 
         this.currentDim = target.getDim();
         this.pos = tpVec;
-        this.setDeltaMovement(target.getPos().subtract(this.pos).normalize().scale(SPEED));
+        this.setDeltaMovement(waypoint.subtract(this.pos).normalize().scale(SPEED));
         this.hasTeleported = true;
     }
 

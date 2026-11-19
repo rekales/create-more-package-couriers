@@ -8,7 +8,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+import com.kreidev.cmpackagecouriers.compat.Mods;
+import com.kreidev.cmpackagecouriers.compat.sable.SableCompat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,7 +30,7 @@ public abstract class SignBlockEntityMixin {
 
         BlockPos targetPos = pos.relative(state.getValue(FACING).getOpposite());
         if (level.getBlockState(targetPos).getBlock() instanceof CourierDestination
-                && Utils.isChunkTicking(level, new Vec3(targetPos.getX(), targetPos.getY(), targetPos.getZ()))) {
+                && Utils.isChunkTicking(level, Mods.SABLE.isLoaded() ? SableCompat.tickingPosition(level, targetPos) : targetPos)) {
             String address = Utils.getSignAddress(sign);
             if (!address.isBlank()) {
                 CourierTarget.addOrUpdateTarget(new CourierTarget(address, level, targetPos));
